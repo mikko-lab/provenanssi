@@ -420,3 +420,156 @@ is plausible (~16× using boardwalk as proxy) but unconfirmed. No public claim s
 rest on it.
 
 **Runtime:** 334s (5.6 min), 330 forward passes on MPS.
+
+---
+
+## Update 2: faces noise floor — final verdict (2026-06-22)
+
+**Script:** `eval/faces_noise_floor.py`
+**Data:** `eval/faces_noise_floor_results.txt`
+**Runtime:** 788s (13.1 min), 720 forward passes on MPS.
+
+This update closes the one remaining open thread: the faces group's own noise floor,
+needed to determine whether the natural↔faces slope contrast is real or noise.
+
+---
+
+### Measurement: noise floor for all three face images
+
+Protocol: 5 non-overlapping seed windows at N=12 (seeds 0–59) and N=48 (seeds 0–239),
+240 members collected per image. null_frac_gt measured from GT image and operator.
+
+**N=12 noise floor (5×N=12 windows):**
+
+| Image | null_frac_gt | slope mean | std | range |
+|---|---|---|---|---|
+| boy_face | 0.0049 | 3.1776 | 0.0511 | **0.1497** |
+| girl_sad_face | 0.0032 | 2.7961 | 0.0374 | **0.1051** |
+| wayuu_woman | 0.0162 | 1.5848 | 0.0472 | **0.1359** |
+
+**N=48 noise floor (5×N=48 windows):**
+
+| Image | null_frac_gt | slope mean | std | range |
+|---|---|---|---|---|
+| boy_face | 0.0049 | 3.1381 | 0.0411 | **0.1153** |
+| girl_sad_face | 0.0032 | 2.7410 | 0.0261 | **0.0822** |
+| wayuu_woman | 0.0162 | 1.7296 | 0.0189 | **0.0482** |
+
+---
+
+### Faces on the energy→noise curve
+
+Prior curve (from Update 1, at N=12):
+
+| Image | null_frac_gt | slope mean | range |
+|---|---|---|---|
+| wood_grain | 0.0159 | 0.2323 | 0.0522 |
+| boardwalk | 0.0046 | 0.9475 | 0.0844 |
+| soft_blobs | 0.0014 | 4.3726 | 0.8992 |
+
+Face images added:
+
+| Image | null_frac_gt | slope mean | range |
+|---|---|---|---|
+| boy_face | 0.0049 | 3.1776 | **0.1497** |
+| girl_sad_face | 0.0032 | 2.7961 | **0.1051** |
+| wayuu_woman | 0.0162 | 1.5848 | **0.1359** |
+
+**Unexpected finding: the inverse-energy relationship breaks at equal null energy but
+different slope magnitude.** The prior data showed higher null → lower noise floor
+(wood_grain vs soft_blobs). The faces group violates this simple picture:
+
+- boy_face has null=0.0049 — nearly identical to boardwalk (0.0046) — but noise floor
+  range=0.1497, **1.77× higher than boardwalk's 0.0844**. The only difference:
+  boy_face slope is ~3.18 vs boardwalk's ~0.95.
+- wayuu_woman has null=0.0162 — nearly identical to wood_grain (0.0159) — but noise
+  floor range=0.1359 vs wood_grain's 0.0522. wayuu_woman slope is ~1.58 vs
+  wood_grain's ~0.23.
+
+The noise floor is not determined by null_frac_gt alone. Slope magnitude is a second
+driver: at the same null energy, higher-slope images have larger absolute regression
+variance. The energy→noise curve from Update 1 was confounded by slope covarying with
+null energy across those three reference images. The faces data separates these factors
+and shows both matter.
+
+---
+
+### Honest natural↔faces SNR
+
+**Input quantities (N=48 group means from stability_nscan_results.txt, unchanged):**
+- faces mean = 2.5715  (boy_face 3.1829 / girl_sad_face 2.7834 / wayuu_woman 1.7483)
+- natural mean = 1.1874  (boardwalk 0.9510 / frog_on_log 1.4238)
+- difference = **1.3841**
+
+**Noise floor denominator** = max(natural N=12 range, worst face N=12 range)
+= max(0.0844, 0.1497) = **0.1497** (boy_face, faces group)
+
+**Honest SNR at N=12: 1.3841 / 0.1497 = 9.2×**
+
+At N=48 windows: worst face range = 0.1153 (boy_face); natural (estimated by scaling
+boardwalk N=12 × 0.5) ≈ 0.042; worst = 0.1153.
+
+**Honest SNR at N=48: 1.3841 / 0.1153 = 12.0×**
+
+Both values clear the 3× threshold comfortably. The faces noise floor is higher than
+boardwalk (by ~1.5–1.8×), but the 1.38-unit contrast still clears the worst noise
+floor by 9×.
+
+---
+
+### wayuu_woman overlap check
+
+Natural group range at N=48: 0.9510 – 1.4238.
+wayuu_woman at N=48 = 1.7483; separation from natural max = **0.3245**.
+
+At N=12 noise floor:
+- max(wayuu N=12 range=0.1359, boardwalk N=12 range=0.0844) = 0.1359
+- SNR = 0.3245 / 0.1359 = **2.4×** — marginal, below 3× threshold
+
+At N=48 noise floor:
+- max(wayuu N=48 range=0.0482, boardwalk N=48 estimated range≈0.042) = 0.0482
+- SNR = 0.3245 / 0.0482 = **6.7×** — robust
+
+**wayuu_woman is not clearly separable from the natural range at N=12.** The separation
+becomes robust only at N=48. boy_face and girl_sad_face (slopes 3.18, 2.78) are
+separated from the natural maximum (1.42) by 1.76 and 1.36 slope units respectively —
+both clear the noise floor by >10× at N=12.
+
+---
+
+### Final verdict on domain-shift-in-slope
+
+**(a) SURVIVES.**
+
+The natural↔faces slope difference (1.3841 at N=48) is **9.2×** the worst
+in-contrast noise floor (0.1497, boy_face at N=12). At N=48, the SNR is 12.0×. The
+signal survives on the honest measurement — using the faces group's own noise floor,
+not boardwalk as a proxy.
+
+**Caveats that stand:**
+
+1. The contrast is heterogeneous: two of three faces images (boy_face, girl_sad_face)
+   drive the group elevation; wayuu_woman (slope=1.75) is only marginally above the
+   natural max at N=12, becoming clearly separable at N=48.
+
+2. "Faces" is a domain label. The within-group slope range (1.75–3.18 at N=48) is
+   larger than the natural group's full range (0.95–1.42). A single slope threshold
+   does not characterise the faces group cleanly.
+
+3. The natural↔faces contrast is the strongest domain-shift signal in the data. Other
+   contrasts (natural↔texture at converged N, faces↔texture) are weaker and have not
+   been separately characterised against per-group noise floors.
+
+4. "Distance from training distribution" remains an intuitive proxy. No FID or
+   embedding-space metric was computed.
+
+**The certified result** (r=+0.9667, slope=1.5301, ECE=0.0282, 16 ImageNet images,
+commit 83ab9cd) is unchanged and remains the only number that should appear in any
+public-facing context.
+
+**The domain-shift investigation status:** the natural↔faces slope elevation is
+established above noise and is a real effect. It is not a finished, characterised
+result — the mechanism is unknown, the grouping is intuitive, and detection without
+ground truth has not been attempted. The honest summary remains: *"preliminary evidence
+that calibration slope is distribution-dependent; natural↔faces contrast is 9× above
+the measured noise floor."*

@@ -1,0 +1,140 @@
+
+========================================================================
+  FACES NOISE FLOOR — final measurement for natural↔faces SNR
+  ResShift + BicubicDownsample(4),  5 non-overlapping windows
+========================================================================
+
+  Image             null_frac   slope@N48   mean(N12)      std    range
+  ────────────────────────────────────────────────────────────────
+  boy_face             0.0049      3.1829      3.1776   0.0511   0.1497
+  girl_sad_face        0.0032      2.7834      2.7961   0.0374   0.1051
+  wayuu_woman          0.0162      1.7483      1.5848   0.0472   0.1359
+
+  Image             null_frac   mean(N48)      std    range
+  ──────────────────────────────────────────────────────
+  boy_face             0.0049      3.1381   0.0411   0.1153
+  girl_sad_face        0.0032      2.7410   0.0261   0.0822
+  wayuu_woman          0.0162      1.7296   0.0189   0.0482
+
+────────────────────────────────────────────────────────────────────────
+  Per-window slopes
+────────────────────────────────────────────────────────────────────────
+
+  boy_face (null_frac_gt=0.0049):
+    N=12 windows:
+      window 0 seeds   0–11 : 3.2046
+      window 1 seeds  12–23 : 3.1504
+      window 2 seeds  24–35 : 3.1621
+      window 3 seeds  36–47 : 3.1106
+      window 4 seeds  48–59 : 3.2603
+    N=48 windows:
+      window 0 seeds   0–47 : 3.1829
+      window 1 seeds  48–95 : 3.1748
+      window 2 seeds  96–143: 3.1377
+      window 3 seeds 144–191: 3.0676
+      window 4 seeds 192–239: 3.1276
+
+  girl_sad_face (null_frac_gt=0.0032):
+    N=12 windows:
+      window 0 seeds   0–11 : 2.7936
+      window 1 seeds  12–23 : 2.8291
+      window 2 seeds  24–35 : 2.7364
+      window 3 seeds  36–47 : 2.7797
+      window 4 seeds  48–59 : 2.8415
+    N=48 windows:
+      window 0 seeds   0–47 : 2.7834
+      window 1 seeds  48–95 : 2.7409
+      window 2 seeds  96–143: 2.7367
+      window 3 seeds 144–191: 2.7012
+      window 4 seeds 192–239: 2.7428
+
+  wayuu_woman (null_frac_gt=0.0162):
+    N=12 windows:
+      window 0 seeds   0–11 : 1.5941
+      window 1 seeds  12–23 : 1.6118
+      window 2 seeds  24–35 : 1.6508
+      window 3 seeds  36–47 : 1.5149
+      window 4 seeds  48–59 : 1.5523
+    N=48 windows:
+      window 0 seeds   0–47 : 1.7483
+      window 1 seeds  48–95 : 1.7409
+      window 2 seeds  96–143: 1.7442
+      window 3 seeds 144–191: 1.7144
+      window 4 seeds 192–239: 1.7001
+
+────────────────────────────────────────────────────────────────────────
+  PLACING FACES ON THE ENERGY→NOISE CURVE  (at N=12)
+────────────────────────────────────────────────────────────────────────
+
+  Prior reference points (from close_findings_results.txt):
+    null=0.0159  slope_mean=0.2323  range=0.0522  [wood_grain]
+    null=0.0046  slope_mean=0.9475  range=0.0844  [boardwalk_nature]
+    null=0.0014  slope_mean=4.3726  range=0.8992  [soft_blobs]
+
+  Face images:
+    null=0.0049  slope_mean(N12)=3.1776  range(N12)=0.1497  [boy_face]
+    null=0.0032  slope_mean(N12)=2.7961  range(N12)=0.1051  [girl_sad_face]
+    null=0.0162  slope_mean(N12)=1.5848  range(N12)=0.1359  [wayuu_woman]
+
+  Prior inverse-energy relationship (higher null → lower range at N12):
+    wood_grain (0.0159) → 0.052
+    boardwalk  (0.0046) → 0.084
+    soft_blobs (0.0014) → 0.899
+
+  Face images fall within this range:
+    boy_face        : null=0.0049 → range=0.1497  (expected < 0.084 (closer to wood_grain end))
+    girl_sad_face   : null=0.0032 → range=0.1051  (expected between 0.084 and 0.899)
+    wayuu_woman     : null=0.0162 → range=0.1359  (expected < 0.084 (closer to wood_grain end))
+
+────────────────────────────────────────────────────────────────────────
+  HONEST NATURAL↔FACES SNR
+────────────────────────────────────────────────────────────────────────
+
+  Slope difference (N=48 group means, from stability_nscan):
+    faces mean N=48   = 2.5715  (3.1829 / 2.7834 / 1.7483)
+    natural mean N=48 = 1.1874  (boardwalk 0.9510 / frog_on_log 1.4238)
+    difference        = 1.3841
+
+  Noise floor comparison (N=12 windows):
+    natural (boardwalk, measured):  range = 0.0844
+    boy_face          :  range = 0.1497
+    girl_sad_face     :  range = 0.1051
+    wayuu_woman       :  range = 0.1359
+    worst across contrast = 0.1497  [faces]
+  → Honest SNR at N=12: 1.3841 / 0.1497 = 9.2×
+
+  Noise floor comparison (N=48 windows):
+    natural (N=12 range × 0.5 scaling est.): range ≈ 0.0422
+    boy_face          :  range = 0.1153
+    girl_sad_face     :  range = 0.0822
+    wayuu_woman       :  range = 0.0482
+    worst across contrast = 0.1153
+  → Honest SNR at N=48: 1.3841 / 0.1153 = 12.0×
+
+────────────────────────────────────────────────────────────────────────
+  WAYUU_WOMAN OVERLAP CHECK
+────────────────────────────────────────────────────────────────────────
+
+  Natural group range at N=48: 0.9510 – 1.4238
+  wayuu_woman slope at N=48:   1.7483
+  → wayuu_woman (1.7483) is clearly above natural range.
+  boy_face (3.1829) and girl_sad_face (2.7834) are well above natural.
+
+========================================================================
+  VERDICT
+========================================================================
+
+  (a) SURVIVES — strongly.
+  The natural↔faces slope difference (1.3841) exceeds the
+  worst in-contrast noise floor (0.1497) by 9.2× at N=12.
+  At N=48, SNR = 12.0× (smaller windows reduce noise further).
+  Caveats:
+    - Only 2 of 3 faces images are clearly above the natural range;
+      wayuu_woman (slope=1.7483) is only 0.3245 above
+      natural max (1.4238) — within the noise floor.
+    - The contrast is driven by boy_face and girl_sad_face, not
+      the group mean. The 'faces group' effect is heterogeneous.
+    - Grouping is intuitive, not metric-based.
+
+  Total runtime: 788s (13.1 min)
+========================================================================
