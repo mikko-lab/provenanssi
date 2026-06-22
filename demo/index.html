@@ -541,7 +541,7 @@ p { margin-top: 10px; }
       <div class="metrics-panel">
         <h3>Certified metrics — 16 ImageNet images</h3>
         <p style="font-size:0.78rem;color:var(--text-dim);margin-bottom:8px;">
-          Source: <code>falsify.py --full</code> (commit 5f99f84).
+          Source: <code>falsify.py --full</code> (commit 83ab9cd).
           Thresholds are fixed; not tuned to these images.
         </p>
         <div class="metric-row">
@@ -711,7 +711,7 @@ p { margin-top: 10px; }
   </p>
   <p style="margin-top:8px;">
     <strong>Certified:</strong> Calibration metrics verified by
-    <code>falsify.py --full</code> (commit 5f99f84) — Pearson r = +0.9667, slope = 1.5301,
+    <code>falsify.py --full</code> (commit 83ab9cd) — Pearson r = +0.9667, slope = 1.5301,
     ECE = 0.0282, IS_CALIBRATED = YES, n = 16 images × 6 samples. Thresholds fixed; not tuned.
   </p>
   <p style="margin-top:8px;">
@@ -726,7 +726,7 @@ p { margin-top: 10px; }
 'use strict';
 
 /* ── manifest (inlined from demo/assets/manifest.json) ──────────────────── */
-const MANIFEST = {"images":[{"id":"good","filename":"grass_meadow.png","label":"High-confidence case","note":null,"pearson_r":0.9847,"slope":0.2783,"ece":0.0331,"n_measured":0,"n_invented":50250,"n_recovered":15286,"pct_invented":76.7},{"id":"typical","filename":"dirt_soil.png","label":"Typical case","note":null,"pearson_r":0.974,"slope":0.5814,"ece":0.0173,"n_measured":0,"n_invented":24204,"n_recovered":41332,"pct_invented":36.9},{"id":"failure","filename":"wood_grain.png","label":"Limitation case","note":"Lowest per-image correlation among the three demo images (r = 0.945). Note: this is above the 0.90 pass threshold — unlike the ImageNet failure case (r = 0.849), all CC0 demo images pass individually. The limitation here is slope = 0.156: the model is overconfident on wood grain texture, spreading more uncertainty than actual error warrants. This reflects domain shift: ResShift was trained on ImageNet bicubic pairs, not on synthetic texture images.","pearson_r":0.9448,"slope":0.1564,"ece":0.0195,"n_measured":0,"n_invented":38702,"n_recovered":26834,"pct_invented":59.1}],"pooled_3_demo_images":{"pearson_r":0.9968,"slope":0.5533,"ece":0.0226,"is_calibrated":true,"n_bins":10},"pooled_16_images":{"pearson_r":0.9667,"slope":1.5301,"ece":0.0282,"is_calibrated":true,"n_images":16,"n_ensemble":6,"note":"From falsify.py --full, commit PLACEHOLDER. These are the certified numbers."},"reliability_curve":{"bin_predicted_std":[0.014668,0.021967,0.027216,0.032197,0.037282,0.042746,0.048892,0.056245,0.066348,0.089418],"bin_actual_error":[0.048759,0.053238,0.057165,0.060271,0.063673,0.067346,0.069867,0.073636,0.078365,0.09045],"n_per_bin":[19661,19661,19661,19660,19661,19661,19660,19661,19661,19661]},"thresholds":{"min_pearson_r":0.9,"max_ece":0.3,"min_slope":0.5,"max_slope":2.0},"provenance_thresholds":{"invented_threshold":0.05,"recovered_threshold":1e-12},"colours_r10":{"INVENTED":"#E69F00","RECOVERED":"#56B4E9","MEASURED":"transparent","palette":"Wong (colourblind-safe)"},"n_ensemble":6,"scale":4};
+const MANIFEST = {"images":[{"id":"good","filename":"grass_meadow.png","label":"High-confidence case","note":null,"pearson_r":0.9847,"slope":0.2783,"ece":0.0331,"n_measured":0,"n_invented":50250,"n_recovered":15286,"pct_invented":76.7},{"id":"typical","filename":"dirt_soil.png","label":"Typical case","note":null,"pearson_r":0.974,"slope":0.5814,"ece":0.0173,"n_measured":0,"n_invented":24204,"n_recovered":41332,"pct_invented":36.9},{"id":"failure","filename":"wood_grain.png","label":"Limitation case","note":"Lowest per-image correlation among the three demo images (r = 0.945). Note: this is above the 0.90 pass threshold — unlike the ImageNet failure case (r = 0.849), all CC0 demo images pass individually. The limitation here is slope = 0.156: the model is overconfident on wood grain texture, spreading more uncertainty than actual error warrants. This reflects domain shift: ResShift was trained on ImageNet bicubic pairs, not on synthetic texture images.","pearson_r":0.9448,"slope":0.1564,"ece":0.0195,"n_measured":0,"n_invented":38702,"n_recovered":26834,"pct_invented":59.1}],"pooled_3_demo_images":{"pearson_r":0.9968,"slope":0.5533,"ece":0.0226,"is_calibrated":true,"n_bins":10},"pooled_16_images":{"pearson_r":0.9667,"slope":1.5301,"ece":0.0282,"is_calibrated":true,"n_images":16,"n_ensemble":6,"note":"From falsify.py --full, commit 83ab9cd. These are the certified numbers."},"reliability_curve":{"bin_predicted_std":[0.014668,0.021967,0.027216,0.032197,0.037282,0.042746,0.048892,0.056245,0.066348,0.089418],"bin_actual_error":[0.048759,0.053238,0.057165,0.060271,0.063673,0.067346,0.069867,0.073636,0.078365,0.09045],"n_per_bin":[19661,19661,19661,19660,19661,19661,19660,19661,19661,19661]},"thresholds":{"min_pearson_r":0.9,"max_ece":0.3,"min_slope":0.5,"max_slope":2.0},"provenance_thresholds":{"invented_threshold":0.05,"recovered_threshold":1e-12},"colours_r10":{"INVENTED":"#E69F00","RECOVERED":"#56B4E9","MEASURED":"transparent","palette":"Wong (colourblind-safe)"},"n_ensemble":6,"scale":4};
 
 /* ── state ───────────────────────────────────────────────────────────────── */
 let currentImg = 'good';

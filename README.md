@@ -101,7 +101,7 @@ A per-pixel provenance overlay is produced for each reconstruction. For the 4× 
 The full calibration is gated by a single script:
 
 ```bash
-git checkout 5f99f84
+git checkout 83ab9cd
 python falsify.py --fast    # deterministic checks only, ~0.1s, no GPU required
 python falsify.py --full    # adds ResShift calibration, ~105s, GPU recommended
 ```
@@ -218,4 +218,4 @@ weights/       — Model checkpoints (not in repo)
 
 ## Commit anchor
 
-`git checkout 5f99f84` gives the exact state that produced the demo assets and the certified calibration numbers. Running `python falsify.py --full` at that commit reproduces r = +0.9667, slope = 1.5301, ECE = 0.0282, IS_CALIBRATED = YES.
+`git checkout 83ab9cd` gives the exact state that produced the demo assets and the certified calibration numbers. Running `python falsify.py --full` at that commit reproduces r = +0.9667, slope = 1.5301, ECE = 0.0282, IS_CALIBRATED = YES.
