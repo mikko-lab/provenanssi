@@ -172,7 +172,18 @@ weights/
   autoencoder_vq_f4.pth        # VQ autoencoder
 ```
 
-The ResShift weights are distributed by the original authors under their licence. Refer to `vendor/ResShift/README.md` for the download source.
+The ResShift weights are distributed by the original authors under their licence.
+Download links are on the [ResShift GitHub releases page](https://github.com/zsyOAOA/ResShift/releases).
+
+### ResShift model code
+
+`engine/resshift.py` imports from `vendor/ResShift/`. The full ResShift source is **not bundled** in this repo (only a handful of stubs are tracked). To run the engine or `falsify.py --full`, populate `vendor/ResShift/` first:
+
+```bash
+git clone https://github.com/zsyOAOA/ResShift vendor/ResShift
+```
+
+`falsify.py --fast` (deterministic checks only) does **not** require ResShift code or weights.
 
 ### What is and isn't in the repo
 
@@ -182,8 +193,8 @@ The ResShift weights are distributed by the original authors under their licence
 | `falsify.py` | ✓ | Reproducibility gate |
 | `demo/` | ✓ | Pre-computed artefacts |
 | `eval/` | ✓ | Generation scripts |
-| `vendor/ResShift/` | ✓ | Model code (no weights) |
-| `weights/` | ✗ | Too large; obtain separately |
+| `vendor/ResShift/` | ✗ (partial) | Clone separately — see above |
+| `weights/` | ✗ | Too large; obtain from ResShift releases |
 | `.venv/` | ✗ | Virtualenv |
 | `output/` | ✗ | Intermediate generated files |
 
@@ -199,7 +210,7 @@ eval/          — Calibration and demo generation scripts
 tests/         — Test suite (R7: operator correctness; calibration; classify)
 demo/          — Static HTML demo + pre-computed assets
 falsify.py     — Project gate: exit 0 + FALSIFY: GREEN only if all checks pass
-vendor/        — ResShift model code (submodule snapshot)
+vendor/        — Stubs only; clone ResShift separately (see Setup)
 weights/       — Model checkpoints (not in repo)
 ```
 
