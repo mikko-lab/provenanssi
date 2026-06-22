@@ -54,7 +54,7 @@
     "is_calibrated": true,
     "n_images": 16,
     "n_ensemble": 6,
-    "note": "From falsify.py --full, commit 18a1c60. These are the certified numbers."
+    "note": "From falsify.py --full, commit 5f99f84. These are the certified numbers."
   },
   "reliability_curve": {
     "bin_predicted_std": [
