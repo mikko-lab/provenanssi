@@ -45,6 +45,7 @@ from ldm.models.autoencoder import VQModelTorch             # noqa: E402
 from utils.util_net import reload_model                     # noqa: E402
 
 from operators.superres import BoxDownsample                # noqa: E402
+from operators.bicubic import BicubicDownsample             # noqa: E402
 from engine.base import Engine                              # noqa: E402
 
 # ---------------------------------------------------------------------------
@@ -114,22 +115,27 @@ class ResShiftEngine(Engine):
 
     Conditioning arg in model.forward: lq= (the low-quality image tensor).
     This is the property church-256 lacked — the spread is a function of y.
+
+    R9 note: production uses BoxDownsample(2) exclusively.  For calibration
+    evaluation with the MATCHED degradation, BicubicDownsample(4) is also
+    accepted here — that is the point of the calibration run.
     """
 
     def __init__(
         self,
-        operator: BoxDownsample,
+        operator,
         checkpoint: str = DEFAULT_CKPT,
         ae_checkpoint: str = DEFAULT_AE_CKPT,
         device: str | torch.device | None = None,
     ) -> None:
-        if not isinstance(operator, BoxDownsample):
+        if not isinstance(operator, (BoxDownsample, BicubicDownsample)):
             raise TypeError(
-                f"ResShiftEngine supports BoxDownsample only (R9). Got {type(operator).__name__}"
+                f"ResShiftEngine requires BoxDownsample or BicubicDownsample. "
+                f"Got {type(operator).__name__}"
             )
         if operator.scale != 4:
             raise ValueError(
-                f"ResShift bicsrx4 model requires BoxDownsample(4). Got scale={operator.scale}."
+                f"ResShift bicsrx4 model requires scale=4. Got scale={operator.scale}."
             )
         self._op = operator
 
