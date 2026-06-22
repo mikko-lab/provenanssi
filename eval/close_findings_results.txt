@@ -1,0 +1,106 @@
+
+========================================================================
+  CLOSE_FINDINGS — closing open threads from FINDINGS.md §5
+  ResShift + BicubicDownsample(4), nested seeds, fixed thresholds
+========================================================================
+
+────────────────────────────────────────────────────────────────────────
+  THREAD 1: wood_grain slope convergence  (seeds nested, N=48→192)
+────────────────────────────────────────────────────────────────────────
+
+  Previous N-scan (FINDINGS.md §3c): N=6→48 trajectory
+    0.1564 → 0.2645 → 0.3554 → 0.4351  (still rising at N=48)
+
+     N     slope         r    |Δ(N,N/2)|  IS_CAL
+  ────────────────────────────────────────────────
+    48    0.4351   +0.9800                 NO
+    96    0.5237   +0.9794        0.0886  YES
+   144    0.5790   +0.9794        0.0553  YES
+   192    0.5969   +0.9834        0.0179  YES
+
+  Consistency check with prior N-scan N=48 value (0.4351):
+    This run N=48 slope = 0.4351  → matches
+
+  Convergence: STILL RISING at N=192 (0.4351→0.5969).
+  Threshold cross: slope ≥ 0.5 at N=192.
+
+────────────────────────────────────────────────────────────────────────
+  THREAD 2: noise floor across images spanning null-space energy
+  Protocol: 5 × N=12 non-overlapping seed windows (seeds 0–59)
+────────────────────────────────────────────────────────────────────────
+
+  Image                null_frac_gt  slope mean      std    range
+  ────────────────────────────────────────────────────────────
+  wood_grain                 0.0159      0.2323   0.0186   0.0522
+  boardwalk_nature           0.0046      0.9475   0.0286   0.0844
+  soft_blobs                 0.0014      4.3726   0.3391   0.8992
+
+  Per-window breakdown:
+
+  wood_grain (null_frac_gt=0.0159):
+    window 0 seeds  0–11: slope=0.2645
+    window 1 seeds 12–23: slope=0.2355
+    window 2 seeds 24–35: slope=0.2154
+    window 3 seeds 36–47: slope=0.2123
+    window 4 seeds 48–59: slope=0.2337
+
+  boardwalk_nature (null_frac_gt=0.0046):
+    window 0 seeds  0–11: slope=0.9602
+    window 1 seeds 12–23: slope=0.9556
+    window 2 seeds 24–35: slope=0.9508
+    window 3 seeds 36–47: slope=0.8932
+    window 4 seeds 48–59: slope=0.9776
+
+  soft_blobs (null_frac_gt=0.0014):
+    window 0 seeds  0–11: slope=4.3419
+    window 1 seeds 12–23: slope=4.7069
+    window 2 seeds 24–35: slope=4.1364
+    window 3 seeds 36–47: slope=4.7883
+    window 4 seeds 48–59: slope=3.8892
+
+────────────────────────────────────────────────────────────────────────
+  NOISE FLOOR SCALING WITH NULL-SPACE ENERGY
+────────────────────────────────────────────────────────────────────────
+
+  Noise floor (range across 5×N=12 windows):
+    wood_grain          : range=0.0522  (null_frac_gt=0.0159)
+    boardwalk_nature    : range=0.0844  (null_frac_gt=0.0046)
+    soft_blobs          : range=0.8992  (null_frac_gt=0.0014)
+
+  Prior session boardwalk range (reference): 0.0844
+  Consistency check: this session boardwalk range = 0.0844
+
+  Worst-case noise floor: range=0.8992  [soft_blobs]
+
+────────────────────────────────────────────────────────────────────────
+  REVISED SNR AND HONEST SIGNAL CHARACTERISATION
+────────────────────────────────────────────────────────────────────────
+
+  Between-group spread at N=48 (from prior session, unchanged):
+    natural mean  : 1.1874
+    faces mean    : 2.5715
+    texture (wood): 0.4351
+    spread        : 2.1364
+
+  Prior SNR (best-case, boardwalk noise floor):
+    2.1364 / 0.0844 = 25.3×
+
+  Revised SNR (worst-case, soft_blobs noise floor):
+    2.1364 / 0.8992 = 2.4×
+
+  Natural↔Faces contrast specifically:
+    difference    : 1.3841
+    prior SNR     : 16.4×
+    revised SNR   : 1.5×
+
+  Verdict per group contrast:
+    natural↔faces                 : diff=1.3841  SNR=1.5×  → WEAK (<3× noise floor)
+      (faces slope ~2.57 vs natural ~1.19)
+    natural↔texture(N=192)        : diff=0.5905  SNR=0.7×  → WEAK (<3× noise floor)
+      (texture(N=192)=0.5969 vs natural ~1.19)
+    faces↔texture(N=192)          : diff=1.9746  SNR=2.2×  → WEAK (<3× noise floor)
+      (faces ~2.57 vs texture(N=192)=0.5969)
+
+========================================================================
+  Total runtime: 334s (5.6 min)
+========================================================================

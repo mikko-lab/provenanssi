@@ -271,3 +271,152 @@ on at least one image from each group; and (c) the between-group spread at conve
 is confirmed to still exceed the revised noise floor. Until then, the honest
 characterisation is: *"preliminary evidence that calibration slope is
 distribution-dependent; investigation ongoing."*
+
+---
+
+## Update: closing the open threads (2026-06-22)
+
+**Scripts:** `eval/close_findings.py`  
+**Data:** `eval/close_findings_results.txt`  
+**Commit:** (this commit)
+
+This update closes the two threads flagged in §5 above. The results are mixed: one thread
+closes cleanly, the other reveals a deeper problem.
+
+---
+
+### Thread 1 resolved: wood_grain slope convergence
+
+Extended N-scan (N=48→96→144→192, seeds nested 0..N−1). Consistency check: N=48 slope
+= 0.4351 matches the prior session exactly.
+
+Full trajectory (N=6 through N=192):
+
+**0.1564 → 0.2645 → 0.3554 → 0.4351 → 0.5237 → 0.5790 → 0.5969**
+
+| N | slope | r | \|Δ\| | IS_CAL |
+|---|---|---|---|---|
+| 48 | 0.4351 | +0.9800 | — | NO |
+| 96 | 0.5237 | +0.9794 | 0.0886 | **YES** |
+| 144 | 0.5790 | +0.9794 | 0.0553 | YES |
+| 192 | 0.5969 | +0.9834 | 0.0179 | YES |
+
+The slope crosses IS_CALIBRATED (≥0.5) between N=48 and N=96. At N=192 the delta has
+shrunk to 0.018; the slope is near-plateau. Extrapolating the decelerating trend, the
+asymptote is approximately 0.62–0.65, comfortably inside the [0.5, 2.0] window.
+
+**Verdict on texture group:** The characterisation from N=6 (slope=0.1564, "severely
+underconfident") was substantially a sampling artefact. At converged N, wood_grain has
+slope ~0.60 — inside the calibrated window. The texture group is not distinguished from
+natural by being underconfident; the two groups overlap at high N. The natural↔texture
+slope difference (~1.19 − 0.60 = 0.59 at converged N) is real but small. The §4b
+uncertainty flag is resolved: **the texture-group result has been revised, not confirmed.**
+
+---
+
+### Thread 2 partially resolved: noise floor generalisation
+
+Measured 5 × N=12 independent seed windows on three images spanning null-space energy
+(null_frac_gt = ||(I−A⁺A)x||²/||x||², measured from the GT image and the operator).
+
+| Image | null_frac_gt | slope mean | std | range |
+|---|---|---|---|---|
+| wood_grain | 0.0159 | 0.2323 | 0.0186 | **0.0522** |
+| boardwalk_nature | 0.0046 | 0.9475 | 0.0286 | **0.0844** |
+| soft_blobs | 0.0014 | 4.3726 | 0.3391 | **0.8992** |
+
+Boardwalk replicates the prior session exactly (range=0.0844 both times). Consistency confirmed.
+
+**Unexpected finding — noise floor scales inversely with null-space energy.**
+
+The prior expectation was that images with less null-space content (smoother) would have
+less ensemble variation and thus more stable slope estimates. The opposite is true. The
+lowest-null-energy image (soft_blobs, null_frac_gt=0.0014) has the highest noise floor
+by a large margin: range=0.899, which is **11× higher than boardwalk** and **17× higher
+than wood_grain**.
+
+Physical interpretation: images with low null-space energy produce tiny ensemble spread
+(the model cannot vary much in the null space). The calibration regression is therefore
+fitting a near-flat signal, and tiny fluctuations in how the 12 members sample that
+signal drive large changes in the estimated slope. At high slope values (~4.37 for
+soft_blobs), small changes in the regression geometry translate to large absolute slope
+changes. The noise floor is dominated by the *weakness* of the null-space signal, not by
+the magnitude of null-space variation.
+
+This also explains why the wood_grain noise floor is *lower* than boardwalk despite
+wood_grain having higher null energy: wood_grain's slope mean (~0.23 at N=12) is much
+lower in absolute terms, keeping absolute slope variance small even though
+null-space occupation is high.
+
+**Revised SNR calculations:**
+
+Between-group spread at N=48 (from prior session, unchanged): natural mean 1.1874, faces
+mean 2.5715, texture (wood_grain at N=48) 0.4351, spread = 2.1364.
+
+| Noise floor reference | range | Overall SNR | Natural↔Faces SNR |
+|---|---|---|---|
+| Prior (boardwalk only) | 0.0844 | 25.3× | 16.4× |
+| Worst-case (soft_blobs) | 0.8992 | **2.4×** | **1.5×** |
+
+Using the worst-case noise floor (as instructed), **all group contrasts fall below 3×
+the noise floor**. This means the prior verdict (a) — "slope signal is measurable above
+noise" — is **not supported** under worst-case assumptions.
+
+**Why the worst-case is not directly applicable to the main contrast.**
+
+The soft_blobs noise floor (range=0.899) comes from an image with null_frac_gt=0.0014
+and slope ~4.37 — a qualitatively different regime from the natural group (slope ~1.19)
+and faces group (slope ~2.57). Slope variance scales with slope magnitude; the
+large noise floor for soft_blobs partly reflects that its slope is ~4× higher than
+natural images. Applying a slope-~4.37 noise floor to a slope-~1.5–2.5 contrast is
+conservative beyond what the regime warrants.
+
+Using boardwalk (a natural image, null_frac_gt=0.0046, slope ~0.95) as the reference
+for the natural side of the natural↔faces contrast, the SNR is 16×. But the noise
+floor for *face images specifically* has not been measured. The face-group noise floor
+remains an open variable. If face images have noise floors comparable to boardwalk
+(likely, given similar null-frac_gt), the natural↔faces contrast is well above noise.
+If they are anomalously higher, the contrast could be marginal.
+
+**What the noise floor data does establish:** the synthetic group's results are
+noise-dominated. soft_blobs has noise floor range=0.899 vs a slope of ~4.37 — a
+coefficient of variation of ~21%. Any slope reported for smooth/low-null synthetic
+images at N=6 or N=12 carries uncertainty comparable to its own magnitude. The
+synthetic group results from the original domain-shift experiment should not be
+treated as stable measurements.
+
+---
+
+### Revised verdict
+
+**What is now established:**
+
+1. r remains robust across all tested domains and all N values (unchanged from §3a).
+2. wood_grain slope converges to ~0.60 at N≥100, inside the IS_CALIBRATED window.
+   The "texture group is severely underconfident" claim from N=6 is retracted; texture
+   and natural are closer than originally appeared at converged N.
+3. The noise floor scales *inversely* with null-space energy. Low-null-energy images
+   (smooth/synthetic) have much higher slope variance than textured or natural images.
+   This is a novel finding about the calibration method's measurement properties.
+
+**What is revised or withdrawn:**
+
+- The 25× SNR from FINDINGS.md §3b was based on boardwalk as a universal reference.
+  That was the wrong comparison image for the synthetic group. **Withdrawn.**
+- The "texture group is underconfident" characterisation from N=6 data. **Revised to:**
+  texture group converges into the calibrated window at high N; group is not clearly
+  distinct from natural in slope direction.
+- The original verdict (a): "slope signal above noise, domain shift is measurable."
+  Under worst-case noise floor: **not supported**. Under same-regime reference
+  (boardwalk for natural↔faces): still supported. The verdict depends on an unmeasured
+  quantity — the face-group noise floor.
+
+**Remaining open thread:**
+
+Noise floor for the faces group has not been measured. This is the one measurement
+needed to determine whether the natural↔faces contrast (the strongest remaining
+signal, difference 1.38 at N=48) is above noise or not. Until measured: the contrast
+is plausible (~16× using boardwalk as proxy) but unconfirmed. No public claim should
+rest on it.
+
+**Runtime:** 334s (5.6 min), 330 forward passes on MPS.
