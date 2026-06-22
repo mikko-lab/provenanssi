@@ -90,9 +90,9 @@ Evaluated on 16 held-out ImageNet patches, 256×256 RGB, with BicubicDownsample(
 
 **Honest caveat on slope = 1.53:** The uncertainty ordering is strong — where the ensemble spread is high, reconstruction error is also high (r = +0.97). The absolute magnitude is off by ~1.5×: the model is mildly underconfident. In the lowest-uncertainty bin, actual error is roughly 5× the predicted spread. The system passes the calibration threshold, but perfect magnitude calibration (slope = 1.0) has not been demonstrated at this scale.
 
-A per-pixel provenance overlay is produced for each reconstruction. For the 4× bicubic case, 53–85% of pixels are classified as invented (the range varies by image content; high-frequency textures score higher).
+A per-pixel provenance overlay is produced for each reconstruction. For the 4× bicubic case, 37–77% of pixels are classified as invented (varies by image content; fine-textured images score higher).
 
-**→ [Interactive demo](demo/index.html)** — Panel A: wipe between polished output and provenance overlay. Panel B: reliability curve + certified metrics. Panel C: seed toggle demonstrating that the range component is fixed while invented content varies; failure case (r = 0.849) shown with explanation.
+**→ [Interactive demo](demo/index.html)** — Panel A: wipe between polished output and provenance overlay. Panel B: reliability curve + certified metrics. Panel C: seed toggle demonstrating that the range component is fixed while invented content varies; limitation case (r = 0.945, slope = 0.156) shown with explanation.
 
 ---
 

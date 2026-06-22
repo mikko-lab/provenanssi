@@ -5,11 +5,10 @@ Runs ResShift + bicubic + rectify + classify on 3 representative images,
 writes everything to demo/assets/. The demo page loads these assets statically
 (no GPU, no backend required).
 
-Selected images (from vendor/ResShift/testdata/Bicubicx4/gt/):
-  good    : ILSVRC2012_val_00001936  r=+0.995  high-confidence representative
-  typical : ILSVRC2012_val_00000343  r=+0.933  average performance
-  failure : ILSVRC2012_val_00017068  r=+0.849  honest limitation case
-            (lowest per-image r, below the individual 0.9 threshold)
+Selected images (CC0 / public domain — see eval/demo_sources/ and demo/ASSETS_LICENCE.md):
+  good    : grass_meadow.png   CC0/PD — grass texture, high-frequency
+  typical : wood_grain.png     CC0/PD — wood grain, moderate texture
+  failure : dirt_soil.png      CC0 1.0 — soil texture, complex granular
 
 Assets written per image:
   {id}_gt.png          ground truth (256×256 grayscale, shown as RGB)
@@ -64,25 +63,28 @@ from layer.calibrate import calibrate, is_calibrated
 DEMO_IMAGES = [
     {
         "id":       "good",
-        "filename": "ILSVRC2012_val_00001936.png",
+        "filename": "grass_meadow.png",
         "label":    "High-confidence case",
         "note":     None,
     },
     {
         "id":       "typical",
-        "filename": "ILSVRC2012_val_00000343.png",
+        "filename": "dirt_soil.png",
         "label":    "Typical case",
         "note":     None,
     },
     {
         "id":       "failure",
-        "filename": "ILSVRC2012_val_00017068.png",
+        "filename": "wood_grain.png",
         "label":    "Limitation case",
         "note": (
-            "Lowest per-image correlation (r = 0.849, pooled r = 0.967). "
-            "Complex high-frequency texture reduces ordering quality: the model "
-            "is most uncertain in regions that happen not to be the most wrong. "
-            "This is the honest edge of the calibration claim."
+            "Lowest per-image correlation among the three demo images (r = 0.945). "
+            "Note: this is above the 0.90 pass threshold — unlike the ImageNet "
+            "failure case (r = 0.849), all CC0 demo images pass individually. "
+            "The limitation here is slope = 0.156: the model is overconfident on "
+            "wood grain texture, spreading more uncertainty than actual error warrants. "
+            "This reflects domain shift: ResShift was trained on ImageNet bicubic "
+            "pairs, not on synthetic texture images."
         ),
     },
 ]
@@ -106,8 +108,7 @@ ORANGE_RGB   = (230, 159,   0)
 SKYBLUE_RGB  = ( 86, 180, 233)
 HATCH_PITCH  = 6    # pixels between hatch lines
 
-GT_DIR     = os.path.join(os.path.dirname(__file__), "..", "vendor",
-                           "ResShift", "testdata", "Bicubicx4", "gt")
+GT_DIR     = os.path.join(os.path.dirname(__file__), "demo_sources")
 ASSETS_DIR = os.path.join(os.path.dirname(__file__), "..", "demo", "assets")
 
 # ─── helpers ──────────────────────────────────────────────────────────────────

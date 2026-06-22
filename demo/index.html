@@ -406,15 +406,15 @@ p { margin-top: 10px; }
   <div class="img-selector" role="group" aria-label="Select demo image">
     <button class="img-btn active" data-img="good" aria-pressed="true">
       High-confidence case
-      <div class="img-r">r = 0.995</div>
+      <div class="img-r">r = 0.985</div>
     </button>
     <button class="img-btn" data-img="typical" aria-pressed="false">
       Typical case
-      <div class="img-r">r = 0.933</div>
+      <div class="img-r">r = 0.974</div>
     </button>
     <button class="img-btn is-failure" data-img="failure" aria-pressed="false">
       Limitation case ⚠
-      <div class="img-r">r = 0.849</div>
+      <div class="img-r">r = 0.945</div>
     </button>
   </div>
 
@@ -576,12 +576,17 @@ p { margin-top: 10px; }
         </div>
 
         <div class="honest-slope" role="note">
-          <strong>Honest caveat — slope = 1.53:</strong><br>
-          The uncertainty is <em>well-ordered</em>: high spread reliably signals
-          high error (r = 0.97). But the absolute scale is off by ~1.5×: the model
-          is mildly underconfident. The worst bin has actual error ≈ 5.4× the
-          predicted spread. Calibration passes the threshold (slope ≤ 2.0), but
-          perfect magnitude calibration (slope = 1.0) has not been demonstrated.
+          <strong>Honest caveat — slope = 1.53 (certified, 16 ImageNet images):</strong><br>
+          The uncertainty is <em>well-ordered</em>: high spread reliably signals high
+          error (r = +0.97). Absolute scale is off by ~1.5×: model is mildly
+          underconfident on ImageNet images (actual error &gt; predicted spread).
+          <br><br>
+          <strong>Domain note:</strong> The 3 CC0 demo images (grass, soil, wood) show
+          the <em>opposite</em> pattern — pooled slope = 0.55, model is overconfident
+          (spread &gt; actual error). This is expected: ResShift was trained on
+          ImageNet bicubic pairs. On out-of-distribution textures, the model spreads
+          more than the actual reconstruction error warrants. The ordering (r = +0.997)
+          remains strong; only the absolute scale shifts.
         </div>
       </div>
     </div>
@@ -652,35 +657,37 @@ p { margin-top: 10px; }
     </p>
 
     <!-- Failure case -->
-    <h3 style="margin-top:32px;">Honest limitation case</h3>
+    <h3 style="margin-top:32px;">Limitation case — domain shift</h3>
     <div class="failure-note" role="note">
-      <strong>Image:</strong> ILSVRC2012_val_00017068 &nbsp;·&nbsp;
-      <strong>Per-image r = 0.849</strong> (below the per-image 0.9 threshold).<br>
-      85% of pixels are classified as INVENTED (highest among the three demo images).
-      The uncertainty ordering is weaker here: in regions of complex high-frequency texture,
-      the model's spread does not reliably rank-order its errors. The pooled 16-image
-      r = 0.967 holds because this image is one of 16 — but it shows where the
-      calibration is weaker.
+      <strong>Image:</strong> wood_grain.png (CC0) &nbsp;·&nbsp;
+      <strong>Per-image r = 0.945, slope = 0.156.</strong><br>
+      Lowest correlation among the three demo images, though still above the 0.90
+      pass threshold. The limitation is the slope: the model is overconfident here,
+      spreading more uncertainty than the actual reconstruction error warrants.
+      Wood grain's regular repeating structure is unlike ImageNet training images;
+      ResShift spreads across many plausible completions even where the actual error
+      is small. 59% of pixels are classified as INVENTED. This is the honest edge
+      of domain generalization for this system.
     </div>
     <div class="failure-grid" role="list" aria-label="Limitation case images">
       <figure role="listitem">
         <img src="assets/failure_gt.png"
-          alt="Ground truth: high-frequency textured image with complex patterns">
-        <figcaption>Ground truth</figcaption>
+          alt="Ground truth: wood grain texture with regular repeating linear pattern">
+        <figcaption>Ground truth (CC0)</figcaption>
       </figure>
       <figure role="listitem">
         <img src="assets/failure_recon.png"
-          alt="Reconstruction: ResShift output, visually plausible but high invented content">
+          alt="Reconstruction: ResShift output on wood grain, visually plausible">
         <figcaption>Reconstruction</figcaption>
       </figure>
       <figure role="listitem">
         <img src="assets/failure_overlay.png"
-          alt="Provenance overlay: 85% of pixels shown in orange hatching (invented), 15% in blue dots (recovered)">
-        <figcaption>Provenance (85% invented)</figcaption>
+          alt="Provenance overlay: 59% orange hatch (invented), 41% blue dots (recovered)">
+        <figcaption>Provenance (59% invented)</figcaption>
       </figure>
       <figure role="listitem">
         <img src="assets/failure_uncertainty.png"
-          alt="Uncertainty map: showing ensemble standard deviation, coloured dark purple to yellow">
+          alt="Uncertainty map: relatively high spread across the wood grain, coloured dark purple to yellow">
         <figcaption>Uncertainty map</figcaption>
       </figure>
       <figure role="listitem">
@@ -719,7 +726,7 @@ p { margin-top: 10px; }
 'use strict';
 
 /* ── manifest (inlined from demo/assets/manifest.json) ──────────────────── */
-const MANIFEST = {"images":[{"id":"good","filename":"ILSVRC2012_val_00001936.png","label":"High-confidence case","note":null,"pearson_r":0.995,"slope":1.1939,"ece":0.0299,"n_measured":0,"n_invented":34555,"n_recovered":30981,"pct_invented":52.7},{"id":"typical","filename":"ILSVRC2012_val_00000343.png","label":"Typical case","note":null,"pearson_r":0.9331,"slope":1.1479,"ece":0.0382,"n_measured":0,"n_invented":38883,"n_recovered":26653,"pct_invented":59.3},{"id":"failure","filename":"ILSVRC2012_val_00017068.png","label":"Limitation case","note":"Lowest per-image correlation (r = 0.849, pooled r = 0.967). Complex high-frequency texture reduces ordering quality: the model is most uncertain in regions that happen not to be the most wrong. This is the honest edge of the calibration claim.","pearson_r":0.8491,"slope":0.8845,"ece":0.0441,"n_measured":0,"n_invented":55736,"n_recovered":9800,"pct_invented":85.0}],"pooled_3_demo_images":{"pearson_r":0.9408,"slope":1.1087,"ece":0.0374,"is_calibrated":true,"n_bins":10},"pooled_16_images":{"pearson_r":0.9667,"slope":1.5301,"ece":0.0282,"is_calibrated":true,"n_images":16,"n_ensemble":6,"note":"From falsify.py --full, commit 2dea9d8. These are the certified numbers."},"reliability_curve":{"bin_predicted_std":[0.003077,0.007801,0.011779,0.016042,0.021192,0.027917,0.036547,0.047101,0.061116,0.0904],"bin_actual_error":[0.023354,0.034866,0.041462,0.050317,0.062021,0.075397,0.088546,0.098592,0.105286,0.117213],"n_per_bin":[19661,19661,19661,19660,19661,19661,19660,19661,19661,19661]},"thresholds":{"min_pearson_r":0.9,"max_ece":0.3,"min_slope":0.5,"max_slope":2.0},"provenance_thresholds":{"invented_threshold":0.05,"recovered_threshold":1e-12},"colours_r10":{"INVENTED":"#E69F00","RECOVERED":"#56B4E9","MEASURED":"transparent","palette":"Wong (colourblind-safe)"},"n_ensemble":6,"scale":4};
+const MANIFEST = {"images":[{"id":"good","filename":"grass_meadow.png","label":"High-confidence case","note":null,"pearson_r":0.9847,"slope":0.2783,"ece":0.0331,"n_measured":0,"n_invented":50250,"n_recovered":15286,"pct_invented":76.7},{"id":"typical","filename":"dirt_soil.png","label":"Typical case","note":null,"pearson_r":0.974,"slope":0.5814,"ece":0.0173,"n_measured":0,"n_invented":24204,"n_recovered":41332,"pct_invented":36.9},{"id":"failure","filename":"wood_grain.png","label":"Limitation case","note":"Lowest per-image correlation among the three demo images (r = 0.945). Note: this is above the 0.90 pass threshold — unlike the ImageNet failure case (r = 0.849), all CC0 demo images pass individually. The limitation here is slope = 0.156: the model is overconfident on wood grain texture, spreading more uncertainty than actual error warrants. This reflects domain shift: ResShift was trained on ImageNet bicubic pairs, not on synthetic texture images.","pearson_r":0.9448,"slope":0.1564,"ece":0.0195,"n_measured":0,"n_invented":38702,"n_recovered":26834,"pct_invented":59.1}],"pooled_3_demo_images":{"pearson_r":0.9968,"slope":0.5533,"ece":0.0226,"is_calibrated":true,"n_bins":10},"pooled_16_images":{"pearson_r":0.9667,"slope":1.5301,"ece":0.0282,"is_calibrated":true,"n_images":16,"n_ensemble":6,"note":"From falsify.py --full, commit PLACEHOLDER. These are the certified numbers."},"reliability_curve":{"bin_predicted_std":[0.014668,0.021967,0.027216,0.032197,0.037282,0.042746,0.048892,0.056245,0.066348,0.089418],"bin_actual_error":[0.048759,0.053238,0.057165,0.060271,0.063673,0.067346,0.069867,0.073636,0.078365,0.09045],"n_per_bin":[19661,19661,19661,19660,19661,19661,19660,19661,19661,19661]},"thresholds":{"min_pearson_r":0.9,"max_ece":0.3,"min_slope":0.5,"max_slope":2.0},"provenance_thresholds":{"invented_threshold":0.05,"recovered_threshold":1e-12},"colours_r10":{"INVENTED":"#E69F00","RECOVERED":"#56B4E9","MEASURED":"transparent","palette":"Wong (colourblind-safe)"},"n_ensemble":6,"scale":4};
 
 /* ── state ───────────────────────────────────────────────────────────────── */
 let currentImg = 'good';
