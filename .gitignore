@@ -5,4 +5,15 @@ __pycache__/
 *.egg-info/
 dist/
 build/
+
+# virtualenv
 .venv/
+
+# model weights (ResShift 456 MB, autoencoder 211 MB — obtain separately, see README)
+weights/
+
+# generated outputs (intermediate PNGs, reports — reproducible from scripts)
+output/
+
+# OS
+.DS_Store
