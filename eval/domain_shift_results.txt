@@ -1,0 +1,59 @@
+
+================================================================================
+  DOMAIN-SHIFT CALIBRATION RESULTS
+  Model: ResShift + BicubicDownsample(4), N_ensemble=6, 256×256 grayscale
+================================================================================
+
+  Group          N   r (pooled)    slope     ECE    IS_CAL
+  ────────────────────────────────────────────────────────────
+  natural        3      +0.9629   1.0782  0.0150       YES
+  faces          3      +0.9944   2.1070  0.0174        NO
+  texture        3      +0.9968   0.5533  0.0226       YES
+  synthetic      4      +0.9978   7.1234  0.0063        NO
+  ────────────────────────────────────────────────────────────
+
+  Reference (ImageNet, falsify.py --full, commit 83ab9cd):
+  natural_imagenet  16  +0.9667      1.5301  0.0282  YES
+
+  Per-image breakdown:
+
+  natural:
+    boardwalk_nature.jpg                 r=+0.9679  slope=0.9532  ECE=0.0113
+    frog_on_log.jpg                      r=+0.9579  slope=1.3085  ECE=0.0183
+    nature_landscape.jpg                 r=+0.9725  slope=1.0417  ECE=0.0155
+
+  faces:
+    boy_face_venezuela.jpg               r=+0.9933  slope=3.1243  ECE=0.0149
+    girl_sad_face.jpg                    r=+0.9986  slope=3.0450  ECE=0.0120
+    wayuu_woman.jpg                      r=+0.9956  slope=1.4719  ECE=0.0254
+
+  texture:
+    dirt_soil.png                        r=+0.9740  slope=0.5814  ECE=0.0173
+    grass_meadow.png                     r=+0.9847  slope=0.2783  ECE=0.0331
+    wood_grain.png                       r=+0.9448  slope=0.1564  ECE=0.0195
+
+  synthetic:
+    hard_shapes.png                      r=+0.9830  slope=8.9705  ECE=0.0144
+    linear_gradient.png                  r=+0.9993  slope=6.2389  ECE=0.0067
+    radial_gradient.png                  r=+0.8769  slope=0.4640  ECE=0.0005
+    soft_blobs.png                       r=+0.9971  slope=4.5784  ECE=0.0037
+
+────────────────────────────────────────────────────────────────────────────────
+  METHODOLOGY NOTES
+────────────────────────────────────────────────────────────────────────────────
+
+  'Distance from training distribution' is an intuitive label, not a rigorous
+  metric. ResShift was trained on ImageNet bicubic SR pairs; 'natural' images
+  resemble that domain most, 'synthetic' images least. No FID or embedding-space
+  distance was computed. This ordering is a proxy, not a measurement.
+
+  All images are CC0 / public domain. Sources documented in SOURCES dict above
+  and in eval/research_sources/SOURCES_LICENCE.md (written by this script).
+
+  Calibration thresholds are fixed and identical to falsify.py:
+    MIN_R=0.9, MAX_ECE=0.3, slope in [0.5, 2.0].
+
+  N_ensemble=6 per image (same as falsify.py --full).
+  Images pre-processed: resize shorter side to 256, centre-crop 256×256, BT.601 gray.
+
+================================================================================

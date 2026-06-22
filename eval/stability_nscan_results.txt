@@ -1,0 +1,94 @@
+
+========================================================================
+  SLOPE STABILITY vs ENSEMBLE SIZE — N-SCAN RESULTS
+  ResShift + BicubicDownsample(4), seeds nested: N=6⊂12⊂24⊂48
+========================================================================
+
+  Image                Group        N         r     slope    |Δslope|
+  ──────────────────────────────────────────────────────────────────
+  boardwalk_nature     natural      6   +0.9679    0.9532  
+  boardwalk_nature     natural     12   +0.9806    0.9602      0.0070
+  boardwalk_nature     natural     24   +0.9856    0.9672      0.0070
+  boardwalk_nature     natural     48   +0.9849    0.9510      0.0162
+  frog_on_log          natural      6   +0.9579    1.3085  
+  frog_on_log          natural     12   +0.9674    1.3175      0.0090
+  frog_on_log          natural     24   +0.9780    1.3870      0.0695
+  frog_on_log          natural     48   +0.9857    1.4238      0.0368
+  boy_face             faces        6   +0.9933    3.1243  
+  boy_face             faces       12   +0.9920    3.2046      0.0803
+  boy_face             faces       24   +0.9895    3.1997      0.0049
+  boy_face             faces       48   +0.9880    3.1829      0.0168
+  girl_sad_face        faces        6   +0.9986    3.0450  
+  girl_sad_face        faces       12   +0.9983    2.7936      0.2514
+  girl_sad_face        faces       24   +0.9977    2.7768      0.0168
+  girl_sad_face        faces       48   +0.9963    2.7834      0.0066
+  wayuu_woman          faces        6   +0.9956    1.4719  
+  wayuu_woman          faces       12   +0.9955    1.5941      0.1223
+  wayuu_woman          faces       24   +0.9963    1.7015      0.1074
+  wayuu_woman          faces       48   +0.9969    1.7483      0.0467
+  wood_grain           texture      6   +0.9448    0.1564  
+  wood_grain           texture     12   +0.9706    0.2645      0.1081
+  wood_grain           texture     24   +0.9932    0.3554      0.0909
+  wood_grain           texture     48   +0.9800    0.4351      0.0797
+
+────────────────────────────────────────────────────────────────────────
+  FACES CONVERGENCE (within-group spread at N=6 vs N=48)
+────────────────────────────────────────────────────────────────────────
+
+  Image                 slope@N=6  slope@N=48       |Δ|
+  ────────────────────────────────────────────────────
+  boy_face                 3.1243      3.1829    0.0586
+  girl_sad_face            3.0450      2.7834    0.2616
+  wayuu_woman              1.4719      1.7483    0.2764
+
+  Faces slope range at N=6:  1.4719 – 3.1243  (span 1.6525)
+  Faces slope range at N=48: 1.7483 – 3.1829  (span 1.4346)
+
+────────────────────────────────────────────────────────────────────────
+  NOISE FLOOR — slope spread across 5×N=12 independent seed windows  [boardwalk_nature.jpg]
+────────────────────────────────────────────────────────────────────────
+
+  Repeat          Seeds     slope         r
+  ────────────────────────────────────────
+  0           0–11        0.9602   +0.9806
+  1          12–23        0.9556   +0.9793
+  2          24–35        0.9508   +0.9734
+  3          36–47        0.8932   +0.9773
+  4          48–59        0.9776   +0.9788
+
+  Mean slope    : 0.9475
+  Std  slope    : 0.0286
+  Range (max−min): 0.0844
+
+  ← This is the noise floor: how much slope wobbles from
+    sampling alone at fixed N=12 on one image.
+
+========================================================================
+  VERDICT
+========================================================================
+
+  Convergence (|slope(N=48) − slope(N=24)|) per image:
+    boardwalk_nature    : 0.0162
+    frog_on_log         : 0.0368
+    boy_face            : 0.0168
+    girl_sad_face       : 0.0066
+    wayuu_woman         : 0.0467
+    wood_grain          : 0.0797
+
+  Between-group slope spread (natural vs faces vs texture) at N=48:
+    natural mean  : 1.1874
+    faces mean    : 2.5715
+    texture (wood): 0.4351
+    spread        : 2.1364
+  Noise floor (std at N=12, fixed image): 0.0286  range=0.0844
+
+  Convergence threshold used: |Δslope(48,24)| < 0.5
+  Max delta observed: 0.0797  → CONVERGED
+  Between-group/noise ratio: 25.3×
+
+  VERDICT (a): Slope appears to converge at feasible N, and between-group differences exceed the noise floor. Domain-shift in slope is a measurable effect, not yet definitively established but worth investigating further with larger N and more images per group.
+
+  NOTE: 'distance from training distribution' is an intuitive proxy,
+  not a rigorous metric. No FID or embedding-space distance computed.
+
+  Total runtime: 321s  (5.4 min)
