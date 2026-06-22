@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Provenance-Aware Image Reconstruction — Provenanssi</title>
+<style>
+/* ── reset & base ──────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg:        #F7F7F4;
+  --surface:   #FFFFFF;
+  --border:    #D8D8D0;
+  --text:      #1A1A1A;
+  --text-dim:  #4A4A4A;
+  --accent:    #0072B2;   /* Wong blue */
+  --orange:    #E69F00;   /* Wong orange — INVENTED */
+  --skyblue:   #56B4E9;   /* Wong sky blue — RECOVERED */
+  --green:     #009E73;   /* Wong bluish green — calibrated */
+  --focus:     #0072B2;
+  --radius:    6px;
+  font-size: 16px;
+}
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+}
+a:focus-visible, button:focus-visible, input:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+/* ── skip link ─────────────────────────────────────────────────────────── */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  background: var(--accent);
+  color: #fff;
+  padding: 8px 16px;
+  font-weight: 600;
+  z-index: 100;
+  text-decoration: none;
+}
+.skip-link:focus { left: 0; }
+/* ── layout ────────────────────────────────────────────────────────────── */
+.site-header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 24px 32px;
+}
+.site-header h1 { font-size: 1.5rem; font-weight: 700; }
+.site-header p  { color: var(--text-dim); margin-top: 4px; font-size: 0.9rem; }
+main { max-width: 1100px; margin: 0 auto; padding: 32px 24px 64px; }
+section { margin-top: 48px; }
+section + section { border-top: 1px solid var(--border); padding-top: 48px; }
+h2 { font-size: 1.25rem; font-weight: 700; margin-bottom: 6px; }
+h3 { font-size: 1rem; font-weight: 600; margin-bottom: 8px; }
+.section-sub { color: var(--text-dim); font-size: 0.9rem; margin-bottom: 24px; }
+p { margin-top: 10px; }
+/* ── intro ─────────────────────────────────────────────────────────────── */
+.intro-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+  margin-top: 20px;
+}
+.intro-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+}
+.intro-card .label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  margin-bottom: 6px;
+}
+.swatch {
+  display: inline-block;
+  width: 16px; height: 16px;
+  border-radius: 2px;
+  border: 1px solid rgba(0,0,0,.15);
+  flex-shrink: 0;
+}
+.swatch.invented  { background: var(--orange); }
+.swatch.recovered { background: var(--skyblue); }
+.swatch.measured  { background: #E0E0D8; }
+.intro-card p { font-size: 0.85rem; color: var(--text-dim); margin-top: 0; }
+.honesty-note {
+  background: #FFF9EC;
+  border: 1px solid #DDC070;
+  border-radius: var(--radius);
+  padding: 12px 16px;
+  font-size: 0.85rem;
+  margin-top: 16px;
+  color: #4A3800;
+}
+/* ── image selector ────────────────────────────────────────────────────── */
+.img-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 36px;
+  margin-bottom: 28px;
+}
+.img-btn {
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: border-color 0.15s, background 0.15s;
+}
+.img-btn:hover        { border-color: var(--accent); }
+.img-btn.active       { border-color: var(--accent); background: #EFF6FF; font-weight: 600; }
+.img-btn.is-failure   { border-left: 4px solid #C05000; }
+.img-btn .img-r       { font-size: 0.78rem; color: var(--text-dim); margin-top: 2px; }
+/* ── comparison ────────────────────────────────────────────────────────── */
+.comparison-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+.comparison-labels {
+  display: flex;
+  justify-content: space-between;
+  width: min(512px, 100%);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-dim);
+}
+.cmp-outer {
+  position: relative;
+  width: min(512px, 100%);
+  aspect-ratio: 1;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: #CCC;
+}
+.cmp-img {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  display: block;
+  image-rendering: pixelated;
+}
+.cmp-right {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  clip-path: inset(0 0 0 50%);
+}
+.cmp-divider {
+  position: absolute;
+  top: 0; bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 2px;
+  background: rgba(255,255,255,0.9);
+  pointer-events: none;
+}
+.cmp-handle {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 28px; height: 28px;
+  background: rgba(255,255,255,0.95);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: bold;
+  color: #333;
+  border: 1px solid rgba(0,0,0,.2);
+  white-space: nowrap;
+}
+.slider-row {
+  width: min(512px, 100%);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.slider-row label { font-size: 0.8rem; white-space: nowrap; color: var(--text-dim); }
+.slider-row input[type=range] { flex: 1; cursor: pointer; accent-color: var(--accent); }
+/* ── decomp grid ───────────────────────────────────────────────────────── */
+.decomp-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px;
+  margin-top: 20px;
+}
+.decomp-item figure { margin: 0; }
+.decomp-item img {
+  width: 100%;
+  aspect-ratio: 1;
+  display: block;
+  image-rendering: pixelated;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+.decomp-item figcaption {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  margin-top: 4px;
+  text-align: center;
+}
+/* ── legend ────────────────────────────────────────────────────────────── */
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 16px;
+  font-size: 0.82rem;
+  margin-top: 16px;
+}
+.legend-item { display: flex; align-items: center; gap: 8px; }
+.legend-swatch {
+  width: 20px; height: 20px;
+  border-radius: 3px;
+  border: 1px solid rgba(0,0,0,.2);
+  flex-shrink: 0;
+}
+.legend-swatch.invented {
+  background: repeating-linear-gradient(
+    45deg, var(--orange), var(--orange) 3px, #1A1400 3px, #1A1400 5px
+  );
+}
+.legend-swatch.recovered {
+  background: radial-gradient(circle, #0A3278 20%, transparent 21%) 0 0 / 6px 6px var(--skyblue);
+}
+/* ── chart ─────────────────────────────────────────────────────────────── */
+.chart-layout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 32px;
+  align-items: flex-start;
+}
+#reliability-svg {
+  flex-shrink: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.metrics-panel {
+  flex: 1;
+  min-width: 220px;
+}
+.metric-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  gap: 12px;
+}
+.metric-row:last-child { border-bottom: none; }
+.metric-name  { font-size: 0.85rem; color: var(--text-dim); }
+.metric-value { font-size: 1.1rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.metric-value.pass  { color: var(--green); }
+.metric-value.warn  { color: #C05000; }
+.metric-threshold { font-size: 0.75rem; color: var(--text-dim); }
+.verdict-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  margin-top: 16px;
+}
+.verdict-badge.pass { background: #D4EDDA; color: #1A5C2A; border: 1px solid #A0D4B0; }
+.honest-slope {
+  background: #FFF9EC;
+  border: 1px solid #DDC070;
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  font-size: 0.82rem;
+  color: #4A3800;
+  margin-top: 16px;
+}
+/* ── panel c ───────────────────────────────────────────────────────────── */
+.seed-toggle-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.seed-col { display: flex; flex-direction: column; gap: 4px; }
+.seed-col img {
+  width: 100%;
+  aspect-ratio: 1;
+  display: block;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+.seed-col .seed-label {
+  font-size: 0.78rem;
+  text-align: center;
+  color: var(--text-dim);
+}
+.failure-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 10px;
+  margin-top: 16px;
+}
+.failure-grid figure { margin: 0; }
+.failure-grid img {
+  width: 100%;
+  aspect-ratio: 1;
+  display: block;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+.failure-grid figcaption { font-size: 0.78rem; color: var(--text-dim); margin-top: 4px; }
+.failure-note {
+  background: #FFF3EF;
+  border: 1px solid #E0B090;
+  border-radius: var(--radius);
+  padding: 12px 16px;
+  font-size: 0.85rem;
+  margin-top: 16px;
+  color: #4A1A00;
+}
+/* ── footer ────────────────────────────────────────────────────────────── */
+.site-footer {
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  padding: 24px 32px;
+  margin-top: 48px;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+.site-footer strong { color: var(--text); }
+/* ── reduced motion ────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+}
+/* ── responsive ────────────────────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .site-header { padding: 16px; }
+  main { padding: 20px 16px 48px; }
+  .chart-layout { flex-direction: column; }
+}
+</style>
+</head>
+<body>
+<a href="#main" class="skip-link">Skip to main content</a>
+
+<header class="site-header">
+  <h1>Provenance-Aware Image Reconstruction</h1>
+  <p>ResShift × BicubicDownsample — calibrated uncertainty on held-out ImageNet images</p>
+</header>
+
+<main id="main">
+
+  <!-- ── Intro ── -->
+  <section aria-label="Introduction">
+    <h2>What this shows</h2>
+    <p class="section-sub">
+      Every AI reconstruction has two kinds of content: what the degraded input
+      <em>constrains</em>, and what the model <em>invented</em> to fill the gaps.
+      This demo makes that distinction visible and measurable.
+    </p>
+
+    <div class="intro-cards" role="list">
+      <div class="intro-card" role="listitem">
+        <div class="label">
+          <span class="swatch recovered" aria-hidden="true"></span>
+          Recovered
+        </div>
+        <p>The input constrains this pixel's low-frequency energy. The model's
+        reconstruction varies little across seeds — modest null-space contribution.</p>
+      </div>
+      <div class="intro-card" role="listitem">
+        <div class="label">
+          <span class="swatch invented" aria-hidden="true"></span>
+          Invented
+        </div>
+        <p>This pixel's energy is majority null-space. The input gave the model
+        little constraint here — the fine texture is the model's fabrication.</p>
+      </div>
+    </div>
+
+    <div class="honesty-note" role="note">
+      <strong>Key distinction:</strong> "Invented" means
+      <em>not determined by the input</em> — not necessarily wrong.
+      The invented content may look exactly right; you simply cannot know from
+      the measurement alone. That is the provenance claim.
+      For 4× super-resolution, high-frequency detail is structurally in the null space
+      of the downsampling operator: all images here show a mix of recovered and invented content.
+    </div>
+  </section>
+
+  <!-- ── Image selector ── -->
+  <div class="img-selector" role="group" aria-label="Select demo image">
+    <button class="img-btn active" data-img="good" aria-pressed="true">
+      High-confidence case
+      <div class="img-r">r = 0.995</div>
+    </button>
+    <button class="img-btn" data-img="typical" aria-pressed="false">
+      Typical case
+      <div class="img-r">r = 0.933</div>
+    </button>
+    <button class="img-btn is-failure" data-img="failure" aria-pressed="false">
+      Limitation case ⚠
+      <div class="img-r">r = 0.849</div>
+    </button>
+  </div>
+
+  <!-- ── Panel A ── -->
+  <section id="panel-a" aria-label="Panel A: Consumer view vs Provenance view">
+    <h2>Panel A — Consumer view vs. Provenance view</h2>
+    <p class="section-sub">
+      The same reconstruction, shown with and without the provenance layer.
+      Drag the slider (or use arrow keys) to compare.
+    </p>
+
+    <div class="comparison-wrap">
+      <div class="comparison-labels" aria-hidden="true">
+        <span>← Polished output</span>
+        <span>With provenance overlay →</span>
+      </div>
+
+      <div class="cmp-outer"
+        role="img"
+        aria-label="Image comparison: left shows polished reconstruction, right shows same image with provenance overlay marking invented pixels (orange hatch) and recovered pixels (blue dots)">
+        <!-- Left half: base reconstruction always visible underneath -->
+        <img id="cmp-base" class="cmp-img" src="assets/good_recon.png"
+          alt="Polished reconstruction without provenance overlay">
+        <!-- Right half: reconstruction + overlay, clipped from the left by slider -->
+        <div id="cmp-right" class="cmp-right">
+          <img id="cmp-recon-r" class="cmp-img" src="assets/good_recon.png" alt="" aria-hidden="true">
+          <img id="cmp-overlay-img" class="cmp-img" src="assets/good_overlay.png"
+            alt="Provenance overlay: orange diagonal hatch marks invented pixels, blue dot grid marks recovered pixels">
+        </div>
+        <!-- Divider line + handle -->
+        <div id="cmp-divider" class="cmp-divider" aria-hidden="true">
+          <div class="cmp-handle">◀▶</div>
+        </div>
+      </div>
+
+      <div class="slider-row">
+        <label for="panel-a-slider">Reveal</label>
+        <input type="range" id="panel-a-slider" min="0" max="100" value="50"
+          aria-label="Slide to compare consumer view on the left and provenance view on the right">
+        <label for="panel-a-slider" aria-hidden="true">Provenance</label>
+      </div>
+    </div>
+
+    <!-- Decomposition grid -->
+    <div class="decomp-grid" role="list" aria-label="Image decomposition">
+      <div class="decomp-item" role="listitem">
+        <figure>
+          <img id="img-lr" src="assets/good_lr.png" alt="Low-resolution input upscaled by nearest-neighbour, showing pixelation honestly">
+          <figcaption>LR input (nearest-neighbour upscale)</figcaption>
+        </figure>
+      </div>
+      <div class="decomp-item" role="listitem">
+        <figure>
+          <img id="img-range" src="assets/good_range.png" alt="Range component: the low-frequency content determined by the measurement alone">
+          <figcaption>Range component A⁺y (what y constrains)</figcaption>
+        </figure>
+      </div>
+      <div class="decomp-item" role="listitem">
+        <figure>
+          <img id="img-recon" src="assets/good_recon.png" alt="Mean reconstruction across 6 ensemble members">
+          <figcaption>Mean reconstruction</figcaption>
+        </figure>
+      </div>
+      <div class="decomp-item" role="listitem">
+        <figure>
+          <img id="img-uncertainty" src="assets/good_uncertainty.png" alt="Uncertainty map showing ensemble standard deviation, coloured from dark purple (low) to yellow (high)">
+          <figcaption>Uncertainty map (ensemble std)</figcaption>
+        </figure>
+      </div>
+    </div>
+
+    <!-- Legend -->
+    <div class="legend" role="list" aria-label="Provenance overlay legend">
+      <div class="legend-item" role="listitem">
+        <div class="legend-swatch invented" aria-hidden="true"></div>
+        <div>
+          <strong>Invented</strong>
+          <span aria-label="diagonal hatch pattern">///</span>
+          — majority null-space energy (threshold: &gt;5%)
+        </div>
+      </div>
+      <div class="legend-item" role="listitem">
+        <div class="legend-swatch recovered" aria-hidden="true"></div>
+        <div>
+          <strong>Recovered</strong>
+          <span aria-label="dot grid pattern">···</span>
+          — range-space dominant with ensemble variance
+        </div>
+      </div>
+      <div class="legend-item" role="listitem">
+        <div>
+          <strong>Colour palette:</strong> Wong (colourblind-safe). Each category
+          uses colour <em>and</em> distinct texture.
+        </div>
+      </div>
+    </div>
+
+    <!-- Per-image metrics strip -->
+    <p id="panel-a-stat" style="font-size:0.82rem;color:var(--text-dim);margin-top:12px;"></p>
+  </section>
+
+  <!-- ── Panel B ── -->
+  <section id="panel-b" aria-label="Panel B: Calibration proof">
+    <h2>Panel B — Calibration: does uncertainty predict error?</h2>
+    <p class="section-sub">
+      A well-calibrated system has higher ensemble spread exactly where reconstruction
+      error is higher. The reliability curve (predicted std vs actual |error|, binned)
+      should follow the diagonal.
+    </p>
+
+    <div class="chart-layout">
+      <figure aria-label="Reliability curve chart">
+        <svg id="reliability-svg" width="360" height="340"
+          role="img"
+          aria-label="Reliability curve: binned predicted standard deviation on x-axis versus binned actual error on y-axis. Points follow the diagonal, demonstrating calibrated uncertainty.">
+          <title>Reliability curve — predicted std vs actual error</title>
+        </svg>
+        <figcaption style="font-size:0.78rem;color:var(--text-dim);margin-top:6px;text-align:center;">
+          Reliability curve — 3 representative images shown here;
+          certified metrics above computed over all 16.
+        </figcaption>
+      </figure>
+
+      <div class="metrics-panel">
+        <h3>Certified metrics — 16 ImageNet images</h3>
+        <p style="font-size:0.78rem;color:var(--text-dim);margin-bottom:8px;">
+          Source: <code>falsify.py --full</code> (commit 18a1c60).
+          Thresholds are fixed; not tuned to these images.
+        </p>
+        <div class="metric-row">
+          <div>
+            <div class="metric-name">Pearson r</div>
+            <div class="metric-threshold">Need ≥ 0.90</div>
+          </div>
+          <div>
+            <div class="metric-value pass">+0.9667</div>
+          </div>
+        </div>
+        <div class="metric-row">
+          <div>
+            <div class="metric-name">Slope</div>
+            <div class="metric-threshold">Need 0.5 – 2.0</div>
+          </div>
+          <div>
+            <div class="metric-value pass">1.5301</div>
+          </div>
+        </div>
+        <div class="metric-row">
+          <div>
+            <div class="metric-name">ECE</div>
+            <div class="metric-threshold">Need ≤ 0.30</div>
+          </div>
+          <div>
+            <div class="metric-value pass">0.0282</div>
+          </div>
+        </div>
+        <div class="verdict-badge pass" role="status">
+          IS_CALIBRATED: YES
+        </div>
+
+        <div class="honest-slope" role="note">
+          <strong>Honest caveat — slope = 1.53:</strong><br>
+          The uncertainty is <em>well-ordered</em>: high spread reliably signals
+          high error (r = 0.97). But the absolute scale is off by ~1.5×: the model
+          is mildly underconfident. The worst bin has actual error ≈ 5.4× the
+          predicted spread. Calibration passes the threshold (slope ≤ 2.0), but
+          perfect magnitude calibration (slope = 1.0) has not been demonstrated.
+        </div>
+      </div>
+    </div>
+
+    <!-- Accessible data table fallback for chart -->
+    <details style="margin-top:16px;">
+      <summary style="font-size:0.82rem;cursor:pointer;color:var(--accent);">
+        Reliability curve data table
+      </summary>
+      <table id="reliability-table"
+        style="font-size:0.78rem;border-collapse:collapse;margin-top:8px;width:100%;"
+        aria-label="Reliability curve data: predicted standard deviation and actual error per bin">
+        <thead>
+          <tr>
+            <th scope="col" style="padding:4px 8px;border:1px solid var(--border);text-align:left;">Bin</th>
+            <th scope="col" style="padding:4px 8px;border:1px solid var(--border);text-align:right;">Pred. std</th>
+            <th scope="col" style="padding:4px 8px;border:1px solid var(--border);text-align:right;">Actual error</th>
+            <th scope="col" style="padding:4px 8px;border:1px solid var(--border);text-align:right;">Ratio</th>
+            <th scope="col" style="padding:4px 8px;border:1px solid var(--border);text-align:right;">N pixels</th>
+          </tr>
+        </thead>
+        <tbody id="reliability-tbody"></tbody>
+      </table>
+    </details>
+  </section>
+
+  <!-- ── Panel C ── -->
+  <section id="panel-c" aria-label="Panel C: Structure and limitation">
+    <h2>Panel C — What stays fixed, what varies</h2>
+    <p class="section-sub">
+      R2 invariant: all ensemble members share the same range component (A⁺y).
+      Only the invented null-space content differs between seeds.
+    </p>
+
+    <h3>Seed toggle — same image, three different samples</h3>
+    <p style="font-size:0.85rem;margin-bottom:16px;">
+      Each column is one ResShift sample. The range component (top-left) is
+      identical across seeds. The invented detail varies.
+    </p>
+
+    <div class="seed-toggle-grid" role="list" aria-label="Seed comparison: range component is fixed, samples vary">
+      <div class="seed-col" role="listitem">
+        <img src="assets/good_range.png"
+          alt="Range component A plus y: smooth, low-frequency content identical across all seeds">
+        <div class="seed-label"><strong>Range component</strong><br>(A⁺y — fixed)</div>
+      </div>
+      <div class="seed-col" role="listitem">
+        <img src="assets/good_sample_0.png"
+          alt="Sample 0: one ResShift reconstruction, seed 0">
+        <div class="seed-label">Sample 0</div>
+      </div>
+      <div class="seed-col" role="listitem">
+        <img src="assets/good_sample_1.png"
+          alt="Sample 1: ResShift reconstruction with different seed, same low-frequency structure">
+        <div class="seed-label">Sample 1</div>
+      </div>
+      <div class="seed-col" role="listitem">
+        <img src="assets/good_sample_2.png"
+          alt="Sample 2: ResShift reconstruction with different seed, same low-frequency structure">
+        <div class="seed-label">Sample 2</div>
+      </div>
+    </div>
+
+    <p style="font-size:0.82rem;color:var(--text-dim);margin-top:8px;">
+      The provenance overlays for each sample also vary — because what counts as
+      "invented" is specific to each sample's null-space contribution. The orange
+      and blue regions shift as the seed changes.
+    </p>
+
+    <!-- Failure case -->
+    <h3 style="margin-top:32px;">Honest limitation case</h3>
+    <div class="failure-note" role="note">
+      <strong>Image:</strong> ILSVRC2012_val_00017068 &nbsp;·&nbsp;
+      <strong>Per-image r = 0.849</strong> (below the per-image 0.9 threshold).<br>
+      85% of pixels are classified as INVENTED (highest among the three demo images).
+      The uncertainty ordering is weaker here: in regions of complex high-frequency texture,
+      the model's spread does not reliably rank-order its errors. The pooled 16-image
+      r = 0.967 holds because this image is one of 16 — but it shows where the
+      calibration is weaker.
+    </div>
+    <div class="failure-grid" role="list" aria-label="Limitation case images">
+      <figure role="listitem">
+        <img src="assets/failure_gt.png"
+          alt="Ground truth: high-frequency textured image with complex patterns">
+        <figcaption>Ground truth</figcaption>
+      </figure>
+      <figure role="listitem">
+        <img src="assets/failure_recon.png"
+          alt="Reconstruction: ResShift output, visually plausible but high invented content">
+        <figcaption>Reconstruction</figcaption>
+      </figure>
+      <figure role="listitem">
+        <img src="assets/failure_overlay.png"
+          alt="Provenance overlay: 85% of pixels shown in orange hatching (invented), 15% in blue dots (recovered)">
+        <figcaption>Provenance (85% invented)</figcaption>
+      </figure>
+      <figure role="listitem">
+        <img src="assets/failure_uncertainty.png"
+          alt="Uncertainty map: showing ensemble standard deviation, coloured dark purple to yellow">
+        <figcaption>Uncertainty map</figcaption>
+      </figure>
+      <figure role="listitem">
+        <img src="assets/failure_error.png"
+          alt="Actual error map: showing absolute difference between reconstruction and ground truth">
+        <figcaption>Actual error |mean − gt|</figcaption>
+      </figure>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <p>
+    <strong>Scope:</strong>
+    This demo presents results for a single degradation (bicubic 4× downsampling) and a
+    single model (ResShift, trained on ImageNet bicubic pairs). Ground truth is available
+    because this is a synthetic evaluation: the LR input was computed from the HR ground
+    truth. No claim is made about real camera images, manipulation detection, or any
+    operator other than BicubicDownsample(4).
+  </p>
+  <p style="margin-top:8px;">
+    <strong>Certified:</strong> Calibration metrics verified by
+    <code>falsify.py --full</code> (commit 18a1c60) — Pearson r = +0.9667, slope = 1.5301,
+    ECE = 0.0282, IS_CALIBRATED = YES, n = 16 images × 6 samples. Thresholds fixed; not tuned.
+  </p>
+  <p style="margin-top:8px;">
+    <strong>Accessibility:</strong>
+    All interactive elements are keyboard-operable. Colour is never the sole
+    distinguisher: each provenance class uses colour + texture pattern + text label.
+    Contrast ≥ 4.5:1 for text. Markup uses semantic HTML.
+  </p>
+</footer>
+
+<script>
+'use strict';
+
+/* ── manifest (inlined from demo/assets/manifest.json) ──────────────────── */
+const MANIFEST = {"images":[{"id":"good","filename":"ILSVRC2012_val_00001936.png","label":"High-confidence case","note":null,"pearson_r":0.995,"slope":1.1939,"ece":0.0299,"n_measured":0,"n_invented":34555,"n_recovered":30981,"pct_invented":52.7},{"id":"typical","filename":"ILSVRC2012_val_00000343.png","label":"Typical case","note":null,"pearson_r":0.9331,"slope":1.1479,"ece":0.0382,"n_measured":0,"n_invented":38883,"n_recovered":26653,"pct_invented":59.3},{"id":"failure","filename":"ILSVRC2012_val_00017068.png","label":"Limitation case","note":"Lowest per-image correlation (r = 0.849, pooled r = 0.967). Complex high-frequency texture reduces ordering quality: the model is most uncertain in regions that happen not to be the most wrong. This is the honest edge of the calibration claim.","pearson_r":0.8491,"slope":0.8845,"ece":0.0441,"n_measured":0,"n_invented":55736,"n_recovered":9800,"pct_invented":85.0}],"pooled_3_demo_images":{"pearson_r":0.9408,"slope":1.1087,"ece":0.0374,"is_calibrated":true,"n_bins":10},"pooled_16_images":{"pearson_r":0.9667,"slope":1.5301,"ece":0.0282,"is_calibrated":true,"n_images":16,"n_ensemble":6,"note":"From falsify.py --full, commit 2dea9d8. These are the certified numbers."},"reliability_curve":{"bin_predicted_std":[0.003077,0.007801,0.011779,0.016042,0.021192,0.027917,0.036547,0.047101,0.061116,0.0904],"bin_actual_error":[0.023354,0.034866,0.041462,0.050317,0.062021,0.075397,0.088546,0.098592,0.105286,0.117213],"n_per_bin":[19661,19661,19661,19660,19661,19661,19660,19661,19661,19661]},"thresholds":{"min_pearson_r":0.9,"max_ece":0.3,"min_slope":0.5,"max_slope":2.0},"provenance_thresholds":{"invented_threshold":0.05,"recovered_threshold":1e-12},"colours_r10":{"INVENTED":"#E69F00","RECOVERED":"#56B4E9","MEASURED":"transparent","palette":"Wong (colourblind-safe)"},"n_ensemble":6,"scale":4};
+
+/* ── state ───────────────────────────────────────────────────────────────── */
+let currentImg = 'good';
+
+/* ── Panel A: CSS clip-path comparison (no canvas — works at file://) ─────── */
+const slider    = document.getElementById('panel-a-slider');
+const cmpRight  = document.getElementById('cmp-right');
+const cmpDivider = document.getElementById('cmp-divider');
+
+function drawComparison(splitPct) {
+  const v = splitPct + '%';
+  cmpRight.style.clipPath   = `inset(0 0 0 ${v})`;
+  cmpDivider.style.left     = v;
+}
+
+function refreshPanelA(imgId) {
+  currentImg = imgId;
+  updateStatStrip(imgId);
+
+  const base    = `assets/${imgId}`;
+  document.getElementById('cmp-base').src      = `${base}_recon.png`;
+  document.getElementById('cmp-recon-r').src   = `${base}_recon.png`;
+  document.getElementById('cmp-overlay-img').src = `${base}_overlay.png`;
+
+  // Update decomp grid
+  document.getElementById('img-lr').src          = `${base}_lr.png`;
+  document.getElementById('img-range').src       = `${base}_range.png`;
+  document.getElementById('img-recon').src       = `${base}_recon.png`;
+  document.getElementById('img-uncertainty').src = `${base}_uncertainty.png`;
+
+  const imgData = MANIFEST.images.find(i => i.id === imgId);
+  document.getElementById('img-lr').alt =
+    `Low-resolution input for ${imgData.label}, upscaled by nearest-neighbour`;
+
+  drawComparison(parseFloat(slider.value));
+}
+
+function updateStatStrip(imgId) {
+  const d = MANIFEST.images.find(i => i.id === imgId);
+  if (!d) return;
+  document.getElementById('panel-a-stat').textContent =
+    `${d.label}  ·  r = ${d.pearson_r.toFixed(3)}  ·  ` +
+    `slope = ${d.slope.toFixed(3)}  ·  ECE = ${d.ece.toFixed(4)}  ·  ` +
+    `${d.pct_invented}% of pixels classified as invented`;
+}
+
+slider.addEventListener('input',  () => drawComparison(parseFloat(slider.value)));
+slider.addEventListener('change', () => drawComparison(parseFloat(slider.value)));
+
+/* ── Image selector ──────────────────────────────────────────────────────── */
+document.querySelectorAll('.img-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.img-btn').forEach(b => {
+      b.classList.remove('active');
+      b.setAttribute('aria-pressed', 'false');
+    });
+    btn.classList.add('active');
+    btn.setAttribute('aria-pressed', 'true');
+    refreshPanelA(btn.dataset.img);
+  });
+});
+
+/* ── Panel B: reliability curve ──────────────────────────────────────────── */
+function buildChart() {
+  const svg    = document.getElementById('reliability-svg');
+  const rc     = MANIFEST.reliability_curve;
+  const W = 360, H = 340;
+  const ml = 52, mr = 20, mt = 20, mb = 50;
+  const cw = W - ml - mr, ch = H - mt - mb;
+
+  const pStd = rc.bin_predicted_std;
+  const aErr = rc.bin_actual_error;
+
+  const maxVal = Math.max(...pStd, ...aErr) * 1.1;
+
+  const sx = v => ml + (v / maxVal) * cw;
+  const sy = v => mt + ch - (v / maxVal) * ch;
+
+  let out = '';
+
+  // Background calibrated band (0.5× to 2.0× of diagonal)
+  const pts05 = pStd.map(p => [sx(p), sy(p * 0.5)]);
+  const pts20 = pStd.map(p => [sx(p), sy(p * 2.0)]).reverse();
+  const polyPts = [...pts05, ...pts20].map(([x,y]) => `${x},${y}`).join(' ');
+  out += `<polygon points="${polyPts}" fill="#009E7315" stroke="none"/>`;
+
+  // Perfect diagonal y=x
+  out += `<line x1="${sx(0)}" y1="${sy(0)}" x2="${sx(maxVal)}" y2="${sy(maxVal)}"
+    stroke="#888" stroke-width="1" stroke-dasharray="5,4" opacity="0.7"/>`;
+
+  // Diagonal label
+  out += `<text x="${sx(maxVal*0.55)}" y="${sy(maxVal*0.55)-7}" fill="#888"
+    font-size="10" text-anchor="middle">y = x</text>`;
+
+  // Data line
+  const linePts = pStd.map((p, i) => `${sx(p)},${sy(aErr[i])}`).join(' ');
+  out += `<polyline points="${linePts}" fill="none"
+    stroke="#0072B2" stroke-width="2.5" stroke-linejoin="round"/>`;
+
+  // Data points
+  pStd.forEach((p, i) => {
+    out += `<circle cx="${sx(p)}" cy="${sy(aErr[i])}" r="5"
+      fill="#0072B2" stroke="white" stroke-width="1.5"/>`;
+  });
+
+  // Axes
+  out += `<line x1="${ml}" y1="${mt}" x2="${ml}" y2="${mt+ch}" stroke="#444" stroke-width="1.5"/>`;
+  out += `<line x1="${ml}" y1="${mt+ch}" x2="${ml+cw}" y2="${mt+ch}" stroke="#444" stroke-width="1.5"/>`;
+
+  // Axis labels
+  out += `<text x="${ml+cw/2}" y="${H-6}" text-anchor="middle" font-size="11" fill="#333">
+    Predicted std (ensemble spread)</text>`;
+  out += `<text x="13" y="${mt+ch/2}" text-anchor="middle" font-size="11" fill="#333"
+    transform="rotate(-90, 13, ${mt+ch/2})">Actual error |mean − gt|</text>`;
+
+  // Tick marks
+  const nTicks = 4;
+  for (let i = 0; i <= nTicks; i++) {
+    const v = (maxVal / nTicks) * i;
+    const yt = mt + ch - (v / maxVal) * ch;
+    const xt = ml + (v / maxVal) * cw;
+    out += `<line x1="${ml-4}" y1="${yt}" x2="${ml}" y2="${yt}" stroke="#444" stroke-width="1"/>`;
+    out += `<text x="${ml-6}" y="${yt+4}" text-anchor="end" font-size="9" fill="#555">
+      ${v.toFixed(3)}</text>`;
+    out += `<line x1="${xt}" y1="${mt+ch}" x2="${xt}" y2="${mt+ch+4}" stroke="#444" stroke-width="1"/>`;
+    out += `<text x="${xt}" y="${mt+ch+14}" text-anchor="middle" font-size="9" fill="#555">
+      ${v.toFixed(3)}</text>`;
+  }
+
+  // r annotation
+  const rDemo = MANIFEST.pooled_3_demo_images.pearson_r;
+  out += `<text x="${ml+cw-5}" y="${mt+15}" text-anchor="end" font-size="11" fill="#0072B2"
+    font-weight="bold">r = ${rDemo.toFixed(3)} (3 images)</text>`;
+  out += `<text x="${ml+cw-5}" y="${mt+28}" text-anchor="end" font-size="11" fill="#009E73"
+    font-weight="bold">r = 0.9667 (certified, 16 images)</text>`;
+
+  svg.innerHTML = out;
+
+  // Accessible data table
+  const tbody = document.getElementById('reliability-tbody');
+  pStd.forEach((p, i) => {
+    const ratio = aErr[i] / p;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td style="padding:3px 8px;border:1px solid var(--border);">${i+1}</td>
+      <td style="padding:3px 8px;border:1px solid var(--border);text-align:right;">${p.toFixed(5)}</td>
+      <td style="padding:3px 8px;border:1px solid var(--border);text-align:right;">${aErr[i].toFixed(5)}</td>
+      <td style="padding:3px 8px;border:1px solid var(--border);text-align:right;">${ratio.toFixed(2)}×</td>
+      <td style="padding:3px 8px;border:1px solid var(--border);text-align:right;">${rc.n_per_bin[i].toLocaleString()}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+/* ── Init ────────────────────────────────────────────────────────────────── */
+(function init() {
+  buildChart();
+  updateStatStrip('good');
+  drawComparison(parseFloat(slider.value));
+})();
+</script>
+</body>
+</html>

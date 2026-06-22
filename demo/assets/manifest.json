@@ -1,0 +1,120 @@
+{
+  "images": [
+    {
+      "id": "good",
+      "filename": "ILSVRC2012_val_00001936.png",
+      "label": "High-confidence case",
+      "note": null,
+      "pearson_r": 0.995,
+      "slope": 1.1939,
+      "ece": 0.0299,
+      "n_measured": 0,
+      "n_invented": 34555,
+      "n_recovered": 30981,
+      "pct_invented": 52.7
+    },
+    {
+      "id": "typical",
+      "filename": "ILSVRC2012_val_00000343.png",
+      "label": "Typical case",
+      "note": null,
+      "pearson_r": 0.9331,
+      "slope": 1.1479,
+      "ece": 0.0382,
+      "n_measured": 0,
+      "n_invented": 38883,
+      "n_recovered": 26653,
+      "pct_invented": 59.3
+    },
+    {
+      "id": "failure",
+      "filename": "ILSVRC2012_val_00017068.png",
+      "label": "Limitation case",
+      "note": "Lowest per-image correlation (r = 0.849, pooled r = 0.967). Complex high-frequency texture reduces ordering quality: the model is most uncertain in regions that happen not to be the most wrong. This is the honest edge of the calibration claim.",
+      "pearson_r": 0.8491,
+      "slope": 0.8845,
+      "ece": 0.0441,
+      "n_measured": 0,
+      "n_invented": 55736,
+      "n_recovered": 9800,
+      "pct_invented": 85.0
+    }
+  ],
+  "pooled_3_demo_images": {
+    "pearson_r": 0.9408,
+    "slope": 1.1087,
+    "ece": 0.0374,
+    "is_calibrated": true,
+    "n_bins": 10
+  },
+  "pooled_16_images": {
+    "pearson_r": 0.9667,
+    "slope": 1.5301,
+    "ece": 0.0282,
+    "is_calibrated": true,
+    "n_images": 16,
+    "n_ensemble": 6,
+    "note": "From falsify.py --full, commit 18a1c60. These are the certified numbers."
+  },
+  "reliability_curve": {
+    "bin_predicted_std": [
+      0.003077,
+      0.007801,
+      0.011779,
+      0.016042,
+      0.021192,
+      0.027917,
+      0.036547,
+      0.047101,
+      0.061116,
+      0.0904
+    ],
+    "bin_actual_error": [
+      0.023354,
+      0.034866,
+      0.041462,
+      0.050317,
+      0.062021,
+      0.075397,
+      0.088546,
+      0.098592,
+      0.105286,
+      0.117213
+    ],
+    "n_per_bin": [
+      19661,
+      19661,
+      19661,
+      19660,
+      19661,
+      19661,
+      19660,
+      19661,
+      19661,
+      19661
+    ]
+  },
+  "thresholds": {
+    "min_pearson_r": 0.9,
+    "max_ece": 0.3,
+    "min_slope": 0.5,
+    "max_slope": 2.0
+  },
+  "provenance_thresholds": {
+    "invented_threshold": 0.05,
+    "recovered_threshold": 1e-12,
+    "note": "invented_threshold=0.05 means: pixel has >5% of its energy in the null space of BicubicDownsample(4). Separates genuinely smooth regions (MEASURED) from regions where ResShift added texture (INVENTED). See eval/build_demo_assets.py module docstring."
+  },
+  "colours_r10": {
+    "INVENTED": "#E69F00",
+    "RECOVERED": "#56B4E9",
+    "MEASURED": "transparent",
+    "palette": "Wong (colourblind-safe)",
+    "pattern_invented": "45\u00b0 diagonal hatch, pitch 6px",
+    "pattern_recovered": "dot grid, pitch 6px"
+  },
+  "n_ensemble": 6,
+  "scale": 4,
+  "r3_max_residual_demo": 0.0,
+  "r3_tolerance": 1e-10
+}
