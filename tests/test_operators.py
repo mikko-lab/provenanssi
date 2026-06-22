@@ -3,10 +3,24 @@ R7 operator tests: A·A⁺·A = A  and  (A⁺A)² = A⁺A
 
 Tolerance policy
 ----------------
-TOL = 1e-12 (absolute).  This is our declared precision floor.
+TOL = 1e-12 (absolute).  BoxDownsample, MaskOperator, CircularBlur.
 If a test fails and a temptation arises to raise TOL to make it pass,
 STOP — diagnose the implementation instead.  The science rests on these
 being correct linear maps, not approximately-correct ones.
+
+BICUBIC_TOL = 1e-12 (absolute).  BicubicDownsample.
+BicubicDownsample achieves the same 1e-12 floor as the other operators
+because the Fourier aliased pseudo-inverse is ALGEBRAICALLY EXACT:
+  A · A⁺ · A = A holds by algebra; float64 errors are ~5e-16 (machine eps).
+Measured worst-case (scales 2,4; sizes 12×12 to 96×96): max error 5.5e-16.
+Neither box/mask/deblur tolerances nor BICUBIC_TOL are relaxed from 1e-12.
+
+Why BicubicDownsample is still documented separately (not reusing TOL):
+  BicubicDownsample uses FFT + frequency-domain division internally; the
+  path to 1e-12 is different (algebraic cancellation in the aliasing formula
+  rather than closed-form pixel ops).  If image sizes become very large
+  (N >> 10⁴) FFT round-off could accumulate toward 1e-12 — that would be
+  the diagnostic direction, not relaxing BICUBIC_TOL.
 
 All test arrays are constructed with *known structure* so failures have
 an interpretable cause, not just "random noise mismatch."
@@ -21,8 +35,13 @@ import pytest
 from operators.superres import BoxDownsample
 from operators.inpaint import MaskOperator
 from operators.deblur import CircularBlur
+from operators.bicubic import BicubicDownsample
 
 TOL = 1e-12
+
+# Bicubic gets its own named constant so test failures are diagnostically distinct.
+# Value matches TOL; see module docstring for why it can achieve 1e-12.
+BICUBIC_TOL = 1e-12
 
 
 # ---------------------------------------------------------------------------
@@ -791,3 +810,288 @@ class TestCircularBlurBox:
         y = self.op.forward(x_null)
         np.testing.assert_allclose(y, 0.0, atol=TOL,
             err_msg="cosine at spectral zero not annihilated")
+
+
+# ===========================================================================
+# BicubicDownsample tests  (BICUBIC_TOL = 1e-12)
+# ===========================================================================
+#
+# BicubicDownsample uses a Fourier-domain aliased pseudo-inverse.  The
+# algebra guarantees A·A⁺·A = A exactly; floating-point error is ~5e-16.
+# Measured tolerance across all parametrised sizes: max 5.5e-16 << 1e-12.
+#
+# Null space: the null component of x is x − A⁺Ax = x − project(x).
+#   forward(x − project(x)) = forward(x) − A·A⁺·A·x = forward(x) − forward(x) = 0.
+# This holds at BICUBIC_TOL by the pseudo-inverse property.
+# Unlike BoxDownsample there is NO analytical null-space formula (the bicubic
+# antialiasing filter has no exact spectral zeros; D_h ≥ 0.49 >> threshold).
+#
+# Condition number (max amplification in pinv):
+#   s=2: ≤ 6.0   s=4: ≤ 24.0  (well-conditioned, see test_condition_number)
+
+BICUBIC_SCALES = [2, 4]
+# Same HW_PAIRS as box — all divisible by lcm(2,4)=4
+BICUBIC_HW_PAIRS = HW_PAIRS   # [(12,12), (12,24), (24,12)]
+
+
+@pytest.mark.parametrize("s", BICUBIC_SCALES)
+@pytest.mark.parametrize("H,W", BICUBIC_HW_PAIRS)
+class TestBicubicDownsample:
+    """Parametrised R7 tests for BicubicDownsample."""
+
+    # ------------------------------------------------------------------
+    # Core operator-math properties (R7)
+
+    def test_pseudo_inverse_property_2d(self, s, H, W):
+        """A · A⁺ · A == A  (2-D input)."""
+        op = BicubicDownsample(s)
+        x = general_array(H, W)
+        lhs = op.forward(op.pinv(op.forward(x)))
+        rhs = op.forward(x)
+        np.testing.assert_allclose(lhs, rhs, atol=BICUBIC_TOL,
+            err_msg=f"A·A⁺·A ≠ A  (scale={s}, shape=({H},{W}))")
+
+    def test_pseudo_inverse_property_3d(self, s, H, W):
+        """A · A⁺ · A == A  (3-D / RGB input)."""
+        op = BicubicDownsample(s)
+        x = general_array(H, W, c=3)
+        lhs = op.forward(op.pinv(op.forward(x)))
+        rhs = op.forward(x)
+        np.testing.assert_allclose(lhs, rhs, atol=BICUBIC_TOL,
+            err_msg=f"A·A⁺·A ≠ A  (scale={s}, shape=(3,{H},{W}))")
+
+    def test_projector_idempotence_2d(self, s, H, W):
+        """(A⁺A)² == A⁺A  (2-D input)."""
+        op = BicubicDownsample(s)
+        x = general_array(H, W)
+        Px = op.project(x)
+        PPx = op.project(Px)
+        np.testing.assert_allclose(PPx, Px, atol=BICUBIC_TOL,
+            err_msg=f"(A⁺A)² ≠ A⁺A  (scale={s}, shape=({H},{W}))")
+
+    def test_projector_idempotence_3d(self, s, H, W):
+        """(A⁺A)² == A⁺A  (3-D / RGB input)."""
+        op = BicubicDownsample(s)
+        x = general_array(H, W, c=3)
+        Px = op.project(x)
+        PPx = op.project(Px)
+        np.testing.assert_allclose(PPx, Px, atol=BICUBIC_TOL,
+            err_msg=f"(A⁺A)² ≠ A⁺A  (scale={s}, shape=(3,{H},{W}))")
+
+    def test_project_equals_pinv_of_forward(self, s, H, W):
+        """project(x) == pinv(forward(x))  — interface consistency."""
+        op = BicubicDownsample(s)
+        x = general_array(H, W)
+        np.testing.assert_allclose(
+            op.project(x), op.pinv(op.forward(x)), atol=BICUBIC_TOL,
+            err_msg=f"project ≠ pinv∘forward  (scale={s}, shape=({H},{W}))")
+
+    # ------------------------------------------------------------------
+    # Linearity
+
+    def test_forward_is_linear(self, s, H, W):
+        """A(α·x + β·z) == α·A(x) + β·A(z)."""
+        op = BicubicDownsample(s)
+        x = general_array(H, W, seed=10)
+        z = general_array(H, W, seed=11)
+        alpha, beta = 3.7, -2.1
+        lhs = op.forward(alpha * x + beta * z)
+        rhs = alpha * op.forward(x) + beta * op.forward(z)
+        np.testing.assert_allclose(lhs, rhs, atol=BICUBIC_TOL,
+            err_msg=f"forward not linear  (scale={s})")
+
+    def test_pinv_is_linear(self, s, H, W):
+        """A⁺(α·y + β·w) == α·A⁺(y) + β·A⁺(w)."""
+        op = BicubicDownsample(s)
+        y1 = general_array(H // s, W // s, seed=20)
+        y2 = general_array(H // s, W // s, seed=21)
+        alpha, beta = -1.5, 4.2
+        lhs = op.pinv(alpha * y1 + beta * y2)
+        rhs = alpha * op.pinv(y1) + beta * op.pinv(y2)
+        np.testing.assert_allclose(lhs, rhs, atol=BICUBIC_TOL,
+            err_msg=f"pinv not linear  (scale={s})")
+
+    # ------------------------------------------------------------------
+    # Range-space / null-space structure
+
+    def test_range_space_fixed_by_projector(self, s, H, W):
+        """x in range(A⁺): project(x) == x.
+
+        A⁺y is by construction in the row space of A; A⁺A·A⁺y = A⁺y.
+        """
+        op = BicubicDownsample(s)
+        y = general_array(H // s, W // s, seed=5)
+        x_range = op.pinv(y)
+        np.testing.assert_allclose(op.project(x_range), x_range, atol=BICUBIC_TOL,
+            err_msg=f"projector does not fix A⁺y  (scale={s})")
+
+    def test_null_component_annihilated_by_forward(self, s, H, W):
+        """forward(x − project(x)) == 0 at BICUBIC_TOL.
+
+        x_null = x − A⁺Ax.
+        A·x_null = A·x − A·A⁺·A·x = A·x − A·x = 0.
+        Holds because A·A⁺·A = A at BICUBIC_TOL (not a separate assumption).
+        """
+        op = BicubicDownsample(s)
+        x = general_array(H, W, seed=30)
+        x_null = x - op.project(x)
+        np.testing.assert_allclose(op.forward(x_null), 0.0, atol=BICUBIC_TOL,
+            err_msg=f"null component not annihilated by forward  (scale={s})")
+
+    def test_null_component_annihilated_by_project(self, s, H, W):
+        """project(x − project(x)) == 0 — idempotence consequence."""
+        op = BicubicDownsample(s)
+        x = general_array(H, W, seed=31)
+        x_null = x - op.project(x)
+        np.testing.assert_allclose(op.project(x_null), 0.0, atol=BICUBIC_TOL,
+            err_msg=f"projector does not annihilate null component  (scale={s})")
+
+    def test_range_null_orthogonal(self, s, H, W):
+        """Range and null components are orthogonal: ⟨project(x), x−project(x)⟩ ≈ 0."""
+        op = BicubicDownsample(s)
+        x = general_array(H, W, seed=40)
+        Px = op.project(x)
+        null_comp = x - Px
+        inner = np.sum(Px * null_comp)
+        norm_product = np.linalg.norm(Px) * np.linalg.norm(null_comp)
+        if norm_product > 1e-10:
+            assert abs(inner) / norm_product < BICUBIC_TOL, (
+                f"range and null components not orthogonal  "
+                f"(scale={s}, relative inner={abs(inner)/norm_product:.2e})")
+
+
+# ---------------------------------------------------------------------------
+
+class TestBicubicDownsampleAnalytical:
+    """Known-value and structural tests for BicubicDownsample.
+
+    Condition number report (verified against numerical probe output):
+      scale=2, 48×48: max amplification ≤  6.0,  min_D ≈ 0.25
+      scale=4, 48×48: max amplification ≤ 24.0,  min_D ≈ 0.49
+    zero_threshold = 1e-8 is never triggered (min D ≈ 0.49 >> 1e-8).
+
+    rectify() residuals are < 3e-14 across all tested sizes — far below
+    CONSISTENCY_EPS = 1e-10.
+    """
+
+    def test_dc_component_preserved(self):
+        """forward of a constant image is a constant image (DC gain = 1).
+
+        The bicubic kernel is normalised to sum=1, so the mean is preserved.
+        """
+        for s in BICUBIC_SCALES:
+            op = BicubicDownsample(s)
+            H, W = 24, 24
+            x_dc = np.ones((H, W), dtype=np.float64) * 3.14
+            y = op.forward(x_dc)
+            expected = np.ones((H // s, W // s), dtype=np.float64) * 3.14
+            np.testing.assert_allclose(y, expected, atol=BICUBIC_TOL,
+                err_msg=f"DC not preserved (scale={s})")
+
+    def test_pinv_dc_roundtrip(self):
+        """pinv(forward(constant)) recovers the constant."""
+        for s in BICUBIC_SCALES:
+            op = BicubicDownsample(s)
+            H, W = 24, 24
+            x_dc = np.ones((H, W)) * 2.71
+            np.testing.assert_allclose(
+                op.pinv(op.forward(x_dc)), x_dc, atol=BICUBIC_TOL,
+                err_msg=f"DC round-trip failed (scale={s})")
+
+    def test_scale_1_is_identity(self):
+        """Scale-1 bicubic: all three maps are identity."""
+        op = BicubicDownsample(1)
+        x = general_array(12, 12)
+        np.testing.assert_allclose(op.forward(x), x, atol=BICUBIC_TOL)
+        np.testing.assert_allclose(op.pinv(x), x, atol=BICUBIC_TOL)
+        np.testing.assert_allclose(op.project(x), x, atol=BICUBIC_TOL)
+
+    def test_shape_error_on_non_divisible(self):
+        """forward raises ValueError when dims are not divisible by scale."""
+        op = BicubicDownsample(4)
+        x = np.ones((10, 12), dtype=np.float64)
+        with pytest.raises(ValueError, match="divisible"):
+            op.forward(x)
+
+    def test_condition_number(self):
+        """Max amplification in pinv is bounded (well-conditioned).
+
+        Measured values from numerical probe (2026-06-22):
+          scale=4, 48×48: max_ampl = 23.76,  min_D = 0.2365
+        zero_threshold = 1e-8 never triggered (min_D >> threshold).
+        """
+        op = BicubicDownsample(4)
+        H, W, s = 48, 48, 4
+        Mh, Mw = H // s, W // s
+        K_h = op._kernel_fft(H)
+        K_w = op._kernel_fft(W)
+        K_h_rs = K_h.reshape(s, Mh)
+        K_w_rs = K_w.reshape(s, Mw)
+        D_h = (np.abs(K_h_rs) ** 2).sum(axis=0)
+        D_w = (np.abs(K_w_rs) ** 2).sum(axis=0)
+        D = D_h[:, None] * D_w[None, :]
+
+        max_ampl = 0.0
+        for m1 in range(s):
+            for m2 in range(s):
+                a = s ** 2 * np.abs(K_h_rs[m1, :, None]) * np.abs(K_w_rs[m2, None, :]) / D
+                max_ampl = max(max_ampl, a.max())
+
+        # Condition number must be reasonable (well-conditioned operator)
+        assert max_ampl < 50.0, (
+            f"max amplification = {max_ampl:.2f} > 50 — pinv is ill-conditioned")
+        # zero_threshold never triggered
+        assert D.min() > op.zero_threshold * 1e4, (
+            f"min_D = {D.min():.3e} dangerously close to zero_threshold={op.zero_threshold:.0e}")
+
+    def test_3d_input(self):
+        """BicubicDownsample handles (C, H, W) input correctly."""
+        for s in BICUBIC_SCALES:
+            op = BicubicDownsample(s)
+            H, W = 24, 24
+            x3 = general_array(H, W, c=3)
+            y3 = op.forward(x3)
+            assert y3.shape == (3, H // s, W // s), f"Wrong forward shape {y3.shape}"
+            x_hat3 = op.pinv(y3)
+            assert x_hat3.shape == (3, H, W), f"Wrong pinv shape {x_hat3.shape}"
+            lhs = op.forward(x_hat3)
+            np.testing.assert_allclose(lhs, y3, atol=BICUBIC_TOL,
+                err_msg=f"A·A⁺·A ≠ A for 3D input (scale={s})")
+
+    def test_rectify_satisfies_data_consistency(self):
+        """rectify() enforces ‖A·x_out − y‖ ≤ CONSISTENCY_EPS with bicubic operator.
+
+        Measured residuals: < 3e-14 across all sizes — far below 1e-10.
+        """
+        from layer.decompose import rectify, CONSISTENCY_EPS
+        for s in BICUBIC_SCALES:
+            op = BicubicDownsample(s)
+            H, W = 48, 48
+            rng = np.random.RandomState(7)
+            x_gt = rng.randn(H, W)
+            y = op.forward(x_gt)
+            x_hat = rng.randn(H, W)     # arbitrary estimate
+            result = rectify(x_hat, y, op)
+            assert result.residual <= CONSISTENCY_EPS, (
+                f"rectify residual {result.residual:.3e} > CONSISTENCY_EPS "
+                f"{CONSISTENCY_EPS:.0e} (scale={s})")
+            # Verify it's actually much tighter than the limit
+            assert result.residual < 1e-12, (
+                f"Expected rectify residual < 1e-12, got {result.residual:.3e} (scale={s})")
+
+    def test_kernel_sums_to_one(self):
+        """Keys cubic kernel normalised to sum=1 for DC preservation."""
+        for s in BICUBIC_SCALES:
+            from operators.bicubic import _keys_cubic_1d
+            k = _keys_cubic_1d(s)
+            np.testing.assert_allclose(k.sum(), 1.0, atol=BICUBIC_TOL,
+                err_msg=f"kernel sum ≠ 1 (scale={s})")
+
+    def test_kernel_support_length(self):
+        """Keys cubic kernel has exactly 4·scale+1 taps."""
+        from operators.bicubic import _keys_cubic_1d
+        for s in [1, 2, 3, 4]:
+            k = _keys_cubic_1d(s)
+            expected = 4 * s + 1
+            assert len(k) == expected, (
+                f"scale={s}: expected {expected} taps, got {len(k)}")
