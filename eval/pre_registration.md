@@ -50,6 +50,34 @@ E. For each group with n≥6: report within-group r(dist, slope)
    Decision: if within-group r is near zero for ALL groups but between-group r is large
    → it's a group-level effect, not continuous. Report explicitly.
 
+### Dissociation test (added 2026-06-24, BEFORE Phase 2 run, pre-registered)
+
+Motivation: the Phase 1 distance distribution shows faces (0.72–0.81), paintings (0.76–0.83),
+and naturals (0.78–0.93) overlap substantially, while texture separates clearly (0.90–0.94).
+A raw r(dist, slope) across all groups mostly re-tests "texture vs rest."
+The sharper question this sample CAN answer: do groups at the SAME distance differ in slope?
+
+Test F (dissociation):
+- Restrict to images in the overlapping distance window: 0.72 ≤ dist ≤ 0.87
+  (this excludes textures and most high-dist naturals, keeping only the mixed-category region)
+- Within that window, run Kruskal-Wallis test on slope across categories
+  (faces / paintings / naturals — groups with ≥2 images in the window)
+- Report: KW statistic + p; per-group slope mean ± std; effect size η²
+- Also report: pairwise Mann-Whitney U for faces vs paintings and faces vs naturals
+  (two pre-stated pairs only; painting vs natural is post-hoc if chosen after seeing data)
+
+Decision rule:
+- DISSOCIATION CONFIRMED: KW p < 0.05 AND largest pairwise mean slope difference > 0.5
+  → slope varies where distance does not → distance does NOT drive slope at this scale
+  → Thread 1's continuous hypothesis is falsified within the overlapping range
+- BORDERLINE DISSOCIATION: KW p < 0.10 AND mean difference between highest/lowest-slope
+  group > 0.5 → consistent with dissociation, inconclusive
+- NULL (no dissociation detected): KW p ≥ 0.10 OR mean differences < 0.5
+  → cannot distinguish groups at same distance → consistent with (but not confirming)
+  a continuous distance effect
+- ANTI-RESULT: If slope ordering across groups MATCHES distance ordering even within the
+  window → interpret cautiously, but note the window may be too narrow to differentiate
+
 ## Thread 2: slope→noise-floor α re-estimation
 
 ### Measurement
