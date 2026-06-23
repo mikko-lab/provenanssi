@@ -1144,3 +1144,213 @@ consistent with direct measurement" — not as "confirmed". Update 6's empirical
 
 **Update 6 status:** RETAIN AS-IS. No softening needed beyond noting Update 7 exists.
 The mechanism remains "inferred and consistent", not "confirmed".
+
+---
+
+## Update 8 — Large-sample resolution (n=24, pre-registered, 2026-06-24)
+
+**Date:** 2026-06-24  
+**Scripts:** `eval/phase1_assemble.py`, `eval/phase2_analysis.py`  
+**Pre-registration commit:** 8b5e68b (locked before any Phase 2 data collected)  
+**Results:** `eval/phase2_results.txt`  
+**GPU passes:** ~2370 (~44 min on MPS)
+
+---
+
+### Sample
+
+26 non-synthetic images assembled (Phase 1, commit f7bc949). After applying pre-stated
+exclusion criteria (calibration r < 0.90):
+
+- **Excluded:** `texture_brick` (cal_r=0.59) and `texture_stone` (cal_r=0.83). Both
+  uniform close-up texture crops; the predicted variance does not track actual error,
+  suggesting near-zero null-space variation for these images.
+- **Active n=24:** 5 faces, 5 paintings, 9 naturals, 5 textures.
+
+ResNet50 distance range (non-synthetic, n=24): [0.72, 0.94]. No bimodality.
+
+---
+
+### Thread 1 — Distance → slope (continuous relationship)
+
+| Test | Metric | Value | CI [95%] | n | Verdict |
+|------|--------|-------|----------|---|---------|
+| A (Pearson, all) | r(dist, slope) | −0.689 | [−0.855, −0.396] | 24 | CI excl. 0 |
+| B (no paintings) | r(dist, slope) | −0.643 | [−0.849, −0.266] | 19 | CI excl. 0 |
+| C (partial \| null_frac) | r(dist, slope \| null) | −0.663 | [−0.844, −0.345] | 24 | CI excl. 0 |
+| D (Spearman) | ρ(dist, slope) | −0.693 | — | 24 | p<0.001 |
+
+**Verdict: (a) POSITIVE** — pre-stated decision rule satisfied (r<0 and CI excludes 0 in
+both Tests A AND C). Effect is robust: removing paintings (Test B) does not weaken the
+correlation, and controlling for null_frac_gt (Test C) does not eliminate it.
+
+**Within-group r (Test E):**
+
+| Category | n | r(dist, slope) | CI [95%] | Significant? |
+|----------|---|----------------|----------|--------------|
+| faces | 5 | +0.438 | [−0.724, +0.952] | No |
+| natural | 9 | +0.136 | [−0.581, +0.734] | No |
+| **painting** | **5** | **−0.930** | **[−0.995, −0.263]** | **Yes (p=0.022)** |
+| texture | 5 | −0.570 | [−0.966, +0.628] | No |
+
+The only within-group correlation is in paintings: higher distance → lower slope
+(r=−0.930). This reflects content: portraits/still-life (Vermeer, Rembrandt; dist~0.77,
+slope~2.5–2.7) vs landscape paintings (Monet; dist~0.83, slope~1.3–1.4). The naturals and
+faces groups show near-zero within-group correlations — the between-group r(dist,slope)
+is driven almost entirely by category contrasts, not a continuous within-category effect.
+
+---
+
+### Thread 1 — Dissociation test (pre-registered 2026-06-24)
+
+**Window:** 0.72 ≤ dist ≤ 0.87 (faces, paintings, naturals interleaved; textures excluded).
+n=18 images.
+
+| Category | n | Mean slope | Std |
+|----------|---|-----------|-----|
+| faces | 5 | 2.204 | 0.727 |
+| painting | 5 | 2.073 | 0.685 |
+| natural | 8 | 1.325 | 0.367 |
+
+**Kruskal-Wallis:** H=7.938, p=0.019, η²=0.396 (p < 0.05 ✓)  
+**Mann-Whitney faces vs natural:** U=37, p=0.011, mean_diff=+0.879 (pre-stated pair ✓)  
+**Mann-Whitney faces vs painting:** U=16, p=0.548, mean_diff=+0.131 (pre-stated pair, NS)
+
+**Verdict: DISSOCIATION CONFIRMED** — slope varies significantly where distance does not.
+Within the 0.72–0.87 window, faces and paintings have slope ~2.1, while naturals have
+slope ~1.3, despite all three categories overlapping in ResNet50 distance. Max mean
+difference = 0.879 (faces vs naturals), far exceeding the pre-stated threshold of 0.5.
+
+**Interpretation:** Distance is a correlate of slope across the full range, but within
+the mid-distance band, category/content type determines slope elevation, not distance
+per se. "Face-like" content — including portrait paintings — drives high slope regardless
+of distance. Distance captures category identity at the coarse level (textures far, faces
+near ImageNet) but is not the proximal cause. The relationship must be described as
+content-driven slope elevation, with distance as a proxy for content type.
+
+---
+
+### Thread 2 — Slope → noise-floor α (power-law re-estimation)
+
+**Fit set:** n=24 (all active images with slope ≥ 0.2). Wood_grain included per
+pre-registration; NF bias flagged.
+
+**OLS log-log fit (n=24, df=22):**
+```
+  α̂  = +0.7729   SE = 0.1282   R² = 0.623
+  95% CI: [+0.507, +1.039]
+```
+
+**Sensitivity (wood_grain excluded, n=23):** α̂=0.803, CI [0.513, 1.094] — nearly
+identical; wood_grain's NF bias does not materially affect the fit.
+
+**Verdict: PROVISIONAL** — CI excludes 0 (H0 rejected: α≠0) but includes 1.0
+(sub-proportional claim α<1 is NOT confirmed at this n). The pre-stated definitive
+threshold requires CI entirely below 1.0; that threshold is not met.
+
+**⚠ MATERIAL CHANGE FROM UPDATE 6 — FLAG FOR §10:**  
+Update 6 reported α̂=0.36, CI [0.07, 0.64] at n=5. The Phase 2 estimate at n=24 is
+α̂=0.77, CI [0.51, 1.04]. These are incompatible: the n=5 estimate was severely biased
+by the small sample and by the influence of one extreme point (soft_blobs was
+excluded, but the 5 remaining images did not represent the full slope range).
+
+**The sub-proportional claim from Update 6 (α≈0.35–0.5, "clearly below 1.0") is no
+longer supported at n=24.** The mechanism claim (noise floor scales with slope, α>0)
+is now on firmer footing — but the exponent is higher than previously estimated, and
+the CI includes proportional scaling (α=1). §10 currently reads "α̂=0.36, t-CI [0.07,
+0.64]" — this must be updated. Do not use the n=5 estimate in any forward claims.
+
+---
+
+### Thread 3 — Coherence mechanism (rho_nn → slope, NF, mediation)
+
+| Test | Metric | Value | CI [95%] | n | Verdict |
+|------|--------|-------|----------|---|---------|
+| F (primary) | r(rho_nn, slope) | +0.441 | [+0.046, +0.717] | 24 | **(a) POSITIVE** |
+| G | r(rho_nn, nf_std) | +0.609 | [+0.272, +0.812] | 24 | CI excl. 0 |
+| H (mediation) | partial r(slope, nf_std \| rho_nn) | +0.515 | [+0.131, +0.765] | 24 | No mediation |
+
+Test F verdict: **(a) POSITIVE** — r>0 and CI excludes 0 (pre-stated rule satisfied).  
+At n=24, the coherence–slope link is confirmed at the 95% level.
+
+Test G: rho_nn is even more strongly correlated with nf_std (r=+0.609) than with slope.
+This makes sense: coherent null-space deviations directly reduce n_eff and inflate
+window-to-window variance.
+
+**Mediation (Test H):** Direct r(slope, nf_std)=+0.635. Partial r(slope, nf_std |
+rho_nn)=+0.515. Threshold = 0.7×|direct| = 0.445. |partial|=0.515 > threshold →
+**mediation NOT confirmed**. Rho_nn does not screen off the slope→nf_std relationship.
+
+**Interpretation:** Coherence (rho_nn) and slope are both independently associated with
+nf_std; rho_nn is not a complete mediator. Two plausible mechanisms:
+1. rho_nn captures one pathway (spatial correlation reduces n_eff → inflates nf_std).
+2. Slope has an additional direct path (higher slope images have more extreme null-space
+   energy, harder to calibrate per OLS window even without correlation).
+Both may operate simultaneously.
+
+---
+
+### Girl_sad_face anomaly
+
+5 face images with slopes spanning 1.60–3.18:
+
+| Image | slope | rho_nn |
+|-------|-------|--------|
+| face_algerian | 1.604 | 0.166 |
+| face_red_hair | 1.703 | 0.166 |
+| wayuu_woman | 1.748 | 0.245 |
+| girl_sad_face | 2.783 | 0.154 |
+| boy_face | 3.183 | 0.219 |
+
+**Within-faces r(slope, rho_nn):** r=+0.075, CI [−0.864, +0.898], n=5, p=0.904.
+
+**Verdict: CI includes 0 → anomaly is noise at n=5.** The girl_sad_face anomaly
+(lower rho_nn than wayuu_woman despite higher slope) neither dissolves nor confirms at
+n=5 faces. The within-faces CI spans most of [−1, +1]; no conclusion is possible.
+
+The anomaly has not been resolved. Resolving it requires ≥15–20 face images.
+
+---
+
+### Overall: ESTABLISHED vs OPEN
+
+**ESTABLISHED (pre-registered, n=24):**
+
+1. **Slope is content-driven, not distance-driven (within distance bands).**
+   Dissociation confirmed: at the same ResNet50 distance, face photographs and portrait
+   paintings have mean slope ~2.1 while landscape naturals have mean slope ~1.3 (KW
+   p=0.019, MW faces vs naturals p=0.011). Category/content type is the proximate driver.
+
+2. **Distance correlates with slope across the full range (continuous relationship
+   confirmed, but this is a group-contrast effect, not a within-group continuous effect).**
+   r(dist, slope)=−0.689, CI [−0.855, −0.396], n=24; survives partial r on null_frac.
+   Within-group correlations are near zero for faces, naturals, and textures — the
+   between-group contrast (textures far/low slope; face-like content near/high slope)
+   drives the aggregate r.
+
+3. **Coherence (rho_nn) is positively correlated with slope: confirmed.**
+   r(rho_nn, slope)=+0.441, CI [+0.046, +0.717], n=24. Sanity check passes.
+
+4. **Noise floor scales with slope (α>0): confirmed at PROVISIONAL level.**
+   α̂=0.77, CI [0.51, 1.04], n=24. CI excludes 0. Whether scaling is sub-proportional
+   (α<1) is NOT confirmed (CI includes 1.0). Update 6's α≈0.35 was severely underpowered.
+
+**OPEN:**
+
+- **Whether α is sub-proportional (α<1):** requires larger n and/or wider slope range.
+- **Within-faces coherence→slope:** n=5 faces, CI spans [−0.86, +0.90]. Not resolvable
+  at this n. Requires ≥15 diverse face images.
+- **Whether content type (faces/portrait paintings) or representational complexity is the
+  real driver:** the dissociation is established, but the latent feature driving slope
+  elevation within face-like content is not identified.
+
+---
+
+### Notes on new exclusion pattern (texture_brick, texture_stone)
+
+Uniform close-up texture crops with very fine grain fail the r≥0.90 calibration threshold.
+This appears to be a structural issue: for images where null-space energy is effectively
+zero across all seeds (uniform textures with no semantic content), the predicted_std bins
+collapse and the calibration curve is underdetermined. This is NOT a failure of the
+calibration method — it is the correct behaviour: these images have near-zero null-space
+signal and should not be reported as reliably calibrated.

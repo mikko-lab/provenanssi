@@ -1,0 +1,295 @@
+========================================================================
+  PHASE 2 — PRE-REGISTERED ANALYSIS  (n=26, pre-reg commit 8b5e68b)
+  Date: 2026-06-24
+========================================================================
+
+Engine and operator loaded.
+
+────────────────────────────────────────────────────────────────────────
+  DATA COLLECTION
+────────────────────────────────────────────────────────────────────────
+
+  [wayuu_woman] slope=1.7483 (prior N=48)
+  [wayuu_woman] nf_std=0.0527 (prior windows)
+  [wayuu_woman] rho_nn=0.2450 (prior Update7)
+  [girl_sad_face] slope=2.7834 (prior N=48)
+  [girl_sad_face] nf_std=0.0418 (prior windows)
+  [girl_sad_face] rho_nn=0.1540 (prior Update7)
+  [boardwalk] slope=0.9510 (prior N=48)
+  [boardwalk] nf_std=0.0320 (prior windows)
+  [boardwalk] rho_nn=0.1610 (prior Update7)
+  [boy_face] slope=3.1829 (prior N=48)
+  [boy_face] nf_std=0.0571 (prior windows)
+  [boy_face] rho_nn=0.2190 (prior Update7)
+  [nature_land] slope=1.1147 (prior N=48)
+  [nature_land] NF windows (5×N=12) …
+  std=0.0194  (68s)
+  [nature_land] coherence N=12 …
+  rho_nn=0.1666  (14s)
+  [nat_landscape2] slope=1.2053 (prior N=48)
+  [nat_landscape2] NF windows (5×N=12) …
+  std=0.0839  (67s)
+  [nat_landscape2] coherence N=12 …
+  rho_nn=0.2624  (14s)
+  [nat_landscape3] slope=1.0313 (prior N=48)
+  [nat_landscape3] NF windows (5×N=12) …
+  std=0.0299  (67s)
+  [nat_landscape3] coherence N=12 …
+  rho_nn=0.1162  (13s)
+  [frog_on_log] slope=1.4238 (prior N=48)
+  [frog_on_log] NF windows (5×N=12) …
+  std=0.0583  (67s)
+  [frog_on_log] coherence N=12 …
+  rho_nn=0.2626  (14s)
+  [dirt_soil] slope=0.8536 (prior N=48)
+  [dirt_soil] NF windows (5×N=12) …
+  std=0.0290  (67s)
+  [dirt_soil] coherence N=12 …
+  rho_nn=0.0697  (13s)
+  [grass_meadow] slope=0.5778 (prior N=48)
+  [grass_meadow] NF windows (5×N=12) …
+  std=0.0121  (67s)
+  [grass_meadow] coherence N=12 …
+  rho_nn=0.1909  (14s)
+  [wood_grain] calibration N=48 …
+  slope=0.4351  r=+0.9800  (54s)
+  [wood_grain] nf_std=0.0208 (prior windows)
+  [wood_grain] rho_nn=0.0980 (prior Update7)
+  [face_red_hair] calibration N=48 …
+  slope=1.7027  r=+0.9976  (53s)
+  [face_red_hair] NF windows (5×N=12) …
+  std=0.0648  (66s)
+  [face_red_hair] coherence N=12 …
+  rho_nn=0.1661  (13s)
+  [face_algerian] calibration N=48 …
+  slope=1.6042  r=+0.9775  (52s)
+  [face_algerian] NF windows (5×N=12) …
+  std=0.0580  (66s)
+  [face_algerian] coherence N=12 …
+  rho_nn=0.1663  (13s)
+  [paint_vermeer_pearl] calibration N=48 …
+  slope=2.7135  r=+0.9813  (52s)
+  [paint_vermeer_pearl] NF windows (5×N=12) …
+  std=0.0755  (65s)
+  [paint_vermeer_pearl] coherence N=12 …
+  rho_nn=0.2296  (13s)
+  [paint_vermeer_milk] calibration N=48 …
+  slope=2.3033  r=+0.9696  (52s)
+  [paint_vermeer_milk] NF windows (5×N=12) …
+  std=0.0391  (67s)
+  [paint_vermeer_milk] coherence N=12 …
+  rho_nn=0.1803  (14s)
+  [paint_rembrandt_self] calibration N=48 …
+  slope=2.6592  r=+0.9989  (54s)
+  [paint_rembrandt_self] NF windows (5×N=12) …
+  std=0.0688  (68s)
+  [paint_rembrandt_self] coherence N=12 …
+  rho_nn=0.2875  (13s)
+  [paint_monet_magpie] calibration N=48 …
+  slope=1.2735  r=+0.9981  (52s)
+  [paint_monet_magpie] NF windows (5×N=12) …
+  std=0.0493  (65s)
+  [paint_monet_magpie] coherence N=12 …
+  rho_nn=0.1463  (13s)
+  [paint_monet_lilies] calibration N=48 …
+  slope=1.4173  r=+0.9902  (51s)
+  [paint_monet_lilies] NF windows (5×N=12) …
+  std=0.0232  (64s)
+  [paint_monet_lilies] coherence N=12 …
+  rho_nn=0.1871  (13s)
+  [natural_caribou] calibration N=48 …
+  slope=2.1056  r=+0.9969  (51s)
+  [natural_caribou] NF windows (5×N=12) …
+  std=0.0951  (63s)
+  [natural_caribou] coherence N=12 …
+  rho_nn=0.2830  (13s)
+  [natural_coral_reef] calibration N=48 …
+  slope=1.2619  r=+0.9659  (51s)
+  [natural_coral_reef] NF windows (5×N=12) …
+  std=0.0485  (64s)
+  [natural_coral_reef] coherence N=12 …
+  rho_nn=0.2015  (13s)
+  [natural_fir_snow] calibration N=48 …
+  slope=1.5055  r=+0.9576  (52s)
+  [natural_fir_snow] NF windows (5×N=12) …
+  std=0.0459  (64s)
+  [natural_fir_snow] coherence N=12 …
+  rho_nn=0.2431  (13s)
+  [natural_snow_mountain] calibration N=48 …
+  slope=1.1403  r=+0.9632  (51s)
+  [natural_snow_mountain] NF windows (5×N=12) …
+  std=0.0433  (64s)
+  [natural_snow_mountain] coherence N=12 …
+  rho_nn=0.1771  (13s)
+  [texture_sand] calibration N=48 …
+  slope=0.3434  r=+0.9881  (51s)
+  [texture_sand] NF windows (5×N=12) …
+  std=0.0088  (65s)
+  [texture_sand] coherence N=12 …
+  rho_nn=0.2330  (13s)
+  [texture_brick] calibration N=48 …
+  slope=0.4287  r=+0.5857  (52s)
+  EXCLUDE texture_brick: cal_r=0.5857 < 0.9
+  [texture_stone] calibration N=48 …
+  slope=0.4030  r=+0.8321  (52s)
+  EXCLUDE texture_stone: cal_r=0.8321 < 0.9
+  [texture_cement] calibration N=48 …
+  slope=0.3416  r=+0.9688  (52s)
+  [texture_cement] NF windows (5×N=12) …
+  std=0.0180  (65s)
+  [texture_cement] coherence N=12 …
+  rho_nn=0.1202  (13s)
+
+  Active sample: n=24 (excluded: ['texture_brick', 'texture_stone'])
+
+────────────────────────────────────────────────────────────────────────
+  DATA TABLE (sorted by distance)
+────────────────────────────────────────────────────────────────────────
+
+  label                   cat          dist   slope   nf_std   rho_nn   null_f
+  ────────────────────────────────────────────────────────────────────
+  face_red_hair           faces      0.7213  1.7027   0.0648   0.1661   0.0063
+  wayuu_woman             faces      0.7387  1.7483   0.0527   0.2450   0.0162
+  girl_sad_face           faces      0.7584  2.7834   0.0418   0.1540   0.0032
+  paint_vermeer_pearl     painting   0.7596  2.7135   0.0755   0.2296   0.0121
+  paint_vermeer_milk      painting   0.7712  2.3033   0.0391   0.1803   0.0146
+  boardwalk               natural    0.7828  0.9510   0.0320   0.1610   0.0046
+  paint_rembrandt_self    painting   0.7867  2.6592   0.0688   0.2875   0.0089
+  nat_landscape2          natural    0.7985  1.2053   0.0839   0.2624   0.0181
+  nature_land             natural    0.7989  1.1147   0.0194   0.1666   0.0128
+  face_algerian           faces      0.8032  1.6042   0.0580   0.1663   0.0101
+  boy_face                faces      0.8078  3.1829   0.0571   0.2190   0.0049
+  nat_landscape3          natural    0.8118  1.0313   0.0299   0.1162   0.0120
+  natural_caribou         natural    0.8239  2.1056   0.0951   0.2830   0.0215
+  paint_monet_magpie      painting   0.8294  1.2735   0.0493   0.1463   0.0069
+  paint_monet_lilies      painting   0.8309  1.4173   0.0232   0.1871   0.0150
+  natural_coral_reef      natural    0.8339  1.2619   0.0485   0.2015   0.0379
+  natural_fir_snow        natural    0.8421  1.5055   0.0459   0.2431   0.0174
+  frog_on_log             natural    0.8626  1.4238   0.0583   0.2626   0.0111
+  grass_meadow            texture    0.9036  0.5778   0.0121   0.1909   0.0477
+  dirt_soil               texture    0.9118  0.8536   0.0290   0.0697   0.0088
+  natural_snow_mountain   natural    0.9253  1.1403   0.0433   0.1771   0.0091
+  texture_sand            texture    0.9253  0.3434   0.0088   0.2330   0.0246
+  texture_cement          texture    0.9258  0.3416   0.0180   0.1202   0.0021
+  wood_grain              texture    0.9444  0.4351   0.0208   0.0980   0.0159
+
+========================================================================
+  THREAD 1 — DISTANCE → SLOPE  (pre-reg tests A/B/C/D/E + dissociation)
+========================================================================
+
+  Pre-stated hypothesis: r(dist, slope) < 0 (nearer ImageNet → higher slope)
+
+  A. Pearson, ALL (n=24):              r=-0.689  CI [-0.855, -0.396]  n=24  p=0.000
+  B. Pearson, no paintings (n=19):     r=-0.643  CI [-0.849, -0.266]  n=19  p=0.003
+  C. Partial r(dist,slope|null), ALL (n=24):  r=-0.663  CI [-0.844, -0.345]  (approx)
+  D. Spearman, ALL (n=24):             rho=-0.693  p=0.000
+
+  E. Within-group r(dist, slope):
+     faces (n=5): r=+0.438  CI [-0.724, +0.952]  n=5  p=0.461
+     natural (n=9): r=+0.136  CI [-0.581, +0.734]  n=9  p=0.728
+     painting (n=5): r=-0.930  CI [-0.995, -0.263]  n=5  p=0.022
+     texture (n=5): r=-0.570  CI [-0.966, +0.628]  n=5  p=0.316
+
+  THREAD 1 VERDICT (A+C rule): (a) POSITIVE — r<0 and CI excludes 0 in A and C
+
+  DISSOCIATION TEST (Test F, pre-reg 2026-06-24)
+  Window: 0.72 ≤ dist ≤ 0.87 (faces/painting/natural overlap)
+
+  Images in window (n=18):
+    faces       n=5  slopes=['1.748', '2.783', '3.183', '1.703', '1.604']
+              mean=2.204  std=0.727
+    natural     n=8  slopes=['0.951', '1.115', '1.205', '1.031', '1.424', '2.106', '1.262', '1.506']
+              mean=1.325  std=0.367
+    painting    n=5  slopes=['2.714', '2.303', '2.659', '1.273', '1.417']
+              mean=2.073  std=0.685
+
+  Kruskal-Wallis (groups: ['faces', 'natural', 'painting']): H=7.938  p=0.019  η²=0.396
+  Mann-Whitney faces vs painting: U=16  p=0.548  mean_diff=+0.131
+  Mann-Whitney faces vs natural: U=37  p=0.011  mean_diff=+0.879
+
+  DISSOCIATION VERDICT: DISSOCIATION CONFIRMED — slope varies where distance does not
+
+========================================================================
+  THREAD 2 — SLOPE → NOISE-FLOOR α  (power law re-estimation)
+========================================================================
+
+  Pre-stated H0: α=0  H1: α≈0.35–0.50 (sub-proportional)
+  Fit excludes: slope < 0.2 (degenerate) and wood_grain (N=12 bias note)
+
+  Fit set (n=24, slope≥0.2):
+    texture_cement          slope=0.3416  nf_std=0.0180
+    texture_sand            slope=0.3434  nf_std=0.0088
+    wood_grain              slope=0.4351  nf_std=0.0208  ← wood_grain NF bias
+    grass_meadow            slope=0.5778  nf_std=0.0121
+    dirt_soil               slope=0.8536  nf_std=0.0290
+    boardwalk               slope=0.9510  nf_std=0.0320
+    nat_landscape3          slope=1.0313  nf_std=0.0299
+    nature_land             slope=1.1147  nf_std=0.0194
+    natural_snow_mountain   slope=1.1403  nf_std=0.0433
+    nat_landscape2          slope=1.2053  nf_std=0.0839
+    natural_coral_reef      slope=1.2619  nf_std=0.0485
+    paint_monet_magpie      slope=1.2735  nf_std=0.0493
+    paint_monet_lilies      slope=1.4173  nf_std=0.0232
+    frog_on_log             slope=1.4238  nf_std=0.0583
+    natural_fir_snow        slope=1.5055  nf_std=0.0459
+    face_algerian           slope=1.6042  nf_std=0.0580
+    face_red_hair           slope=1.7027  nf_std=0.0648
+    wayuu_woman             slope=1.7483  nf_std=0.0527
+    natural_caribou         slope=2.1056  nf_std=0.0951
+    paint_vermeer_milk      slope=2.3033  nf_std=0.0391
+    paint_rembrandt_self    slope=2.6592  nf_std=0.0688
+    paint_vermeer_pearl     slope=2.7135  nf_std=0.0755
+    girl_sad_face           slope=2.7834  nf_std=0.0418
+    boy_face                slope=3.1829  nf_std=0.0571
+
+  OLS log-log fit (n=24, df=22):
+    α̂  = +0.7729  SE=0.1282  95% CI [+0.5071, +1.0388]
+    R² = 0.6230
+
+  Sensitivity (wood_grain excluded, n=23):
+    α̂  = +0.8031  SE=0.1396  95% CI [+0.5127, +1.0935]
+    R² = 0.6117
+
+  THREAD 2 VERDICT: PROVISIONAL — α CI excludes 0 but includes 1.0
+    α̂=0.7729  CI [0.5071, 1.0388]  n=24
+
+========================================================================
+  THREAD 3 — COHERENCE  (rho_nn vs slope, NF, mediation)
+========================================================================
+
+  F. r(rho_nn, slope), ALL (n=24): r=+0.441  CI [+0.046, +0.717]  n=24  p=0.031
+  G. r(rho_nn, nf_std), ALL (n=24): r=+0.609  CI [+0.272, +0.812]  n=24  p=0.002
+  H. Direct r(slope, nf_std)         = +0.635
+     Partial r(slope,nf_std|rho_nn)  = +0.515  CI [+0.131, +0.765]
+     Mediation threshold (0.7×|direct|) = 0.445
+     |partial| = 0.515 ≥ threshold → no mediation
+
+  THREAD 3 VERDICT (Test F): (a) POSITIVE — rho_nn→slope CI excludes 0
+
+========================================================================
+  GIRL_SAD_FACE ANOMALY — within-faces coherence
+========================================================================
+
+  Face images (n=5):
+    face_algerian           slope=1.6042  rho_nn=0.1663
+    face_red_hair           slope=1.7027  rho_nn=0.1661
+    wayuu_woman             slope=1.7483  rho_nn=0.2450
+    girl_sad_face           slope=2.7834  rho_nn=0.1540
+    boy_face                slope=3.1829  rho_nn=0.2190
+
+  Within-faces r(slope, rho_nn) (n=5): r=+0.075  CI [-0.864, +0.898]  n=5  p=0.904
+
+  ANOMALY VERDICT: CI includes 0 → anomaly is noise (n too small to distinguish)
+
+========================================================================
+  OVERALL SUMMARY — ESTABLISHED vs OPEN
+========================================================================
+
+  n = 24 non-synthetic images in Phase 2 analysis
+
+  Thread 1 (distance→slope):  (a) POSITIVE — r<0 and CI excludes 0 in A and C
+  Dissociation:               DISSOCIATION CONFIRMED — slope varies where distance does not
+  Thread 2 (power law α):     PROVISIONAL — α CI excludes 0 but includes 1.0
+    α̂=0.7729  CI [0.5071, 1.0388]  n=24
+  Thread 3 (coherence→slope): (a) POSITIVE — rho_nn→slope CI excludes 0
+  girl_sad_face anomaly:      CI includes 0 → anomaly is noise (n too small to distinguish)

@@ -368,16 +368,23 @@ tight clusters cannot separate a continuous distance effect from a group-level o
 Scripts and data are preserved; resume recipe in FINDINGS.md Update 5.
 Do not restart this thread without a dedicated block (~60–100 images, ~1.5h GPU time).
 
-### Slope→noise-floor mechanism — RESOLVED
+### Slope→noise-floor mechanism — RESOLVED (α estimate revised, see FLAG)
 
-The calibration slope noise floor scales as slope^α (sub-proportional, α≈0.35–0.5),
-not as an OLS estimator artifact. Analytic derivation shows the OLS estimator is
-scale-invariant under iid pixels (predicts α=0). Empirical fit excluding soft_blobs
-(n=5): α̂=0.36, t-CI [0.07, 0.64], excluding 0 at p<0.05. Mechanism: pixel
-reconstruction errors are spatially correlated within windows; images where ResShift
-generates coherent null-space hallucinations (faces) have lower effective sample size
-n_eff. soft_blobs is a separate ill-conditioning artifact (near-zero null-space signal).
-Full derivation and data: FINDINGS.md Update 6; script: `eval/slope_noise_mechanism.py`.
+The calibration slope noise floor scales as slope^α, not as an OLS estimator artifact.
+Analytic derivation shows α=0 under iid pixels. Empirical fit at n=24 (Phase 2,
+pre-registered, 2026-06-24): **α̂=0.77, CI [0.51, 1.04]** — CI excludes 0 (H0 rejected),
+but CI includes 1.0 (sub-proportional claim NOT confirmed at n=24). Mechanism: spatial
+correlation of null-space deviations (rho_nn > 0, now confirmed at n=24) reduces n_eff.
+Full derivation: FINDINGS.md Update 6; script: `eval/slope_noise_mechanism.py`.
+
+**⚠ FLAG — §10 SUPERSEDED ESTIMATE:** Update 6 reported α̂=0.36, CI [0.07, 0.64] at
+n=5. Phase 2 (n=24) gives α̂=0.77, CI [0.51, 1.04]. The n=5 estimate was severely
+underpowered and biased. Do NOT use α≈0.35–0.5 or "sub-proportional" in any claims.
+See FINDINGS.md Update 8 (Thread 2) for full account.
+
+**⚠ FLAG — §10 "9.2× SNR" UNAFFECTED:** The 9.2× noise-floor signal-to-noise ratio
+(natural↔faces contrast) was computed from within-group noise floors, not from α. It
+remains valid as reported.
 
 ---
 
@@ -395,17 +402,22 @@ Full derivation and data: FINDINGS.md Update 6; script: `eval/slope_noise_mechan
   (b) rigorous distance metric — still open (shelved). GT-free detection is still
   premature; the group-level signal is established but a detector needs a metric.
 
-- **Faces-group generality.** The slope elevation finding rests on 3 face images (CC0,
-  one photographer, Wilfredor). Whether this generalises to other face images, other
-  photographers, or other lighting conditions is untested.
+- **Content-type vs distance as driver of slope — RESOLVED (Update 8).** Phase 2
+  (n=24, pre-registered) confirmed DISSOCIATION: at the same ResNet50 distance (0.72–0.87),
+  face photographs and portrait paintings have mean slope ~2.1 while landscape naturals
+  have mean slope ~1.3 (KW p=0.019). Distance is a correlate (r=−0.689, n=24), but
+  content type is the proximate driver. "Face-like representational content" — including
+  portrait paintings — elevates slope regardless of distance.
 
-- **Slope-magnitude → noise-floor mechanism — RESOLVED.** No longer open. See §10
-  "Slope→noise-floor mechanism" and FINDINGS.md Update 6.
+- **Faces-group generality — PARTIALLY RESOLVED.** Phase 2 includes 5 diverse face images
+  (3 Wilfredor CC0 + 2 new: face_red_hair, face_algerian). All 5 have slopes 1.60–3.18,
+  consistently above naturals. Slope elevation is not specific to one photographer.
+  Within-faces coherence→slope analysis remains underpowered (n=5, CI spans [−0.86, +0.90]).
 
-- **Coherence mechanism — direct test COMPLETE, verdict (a-weak).** Directly measured
-  the spatial correlation of seed-to-seed null-space deviations (rho_nn, 2D ACF at r=1).
-  Sanity check passes (noise_gauss50 rho_nn ≈ 0). rho_nn is higher for face images
-  (0.22–0.24) than texture images (0.10–0.16); r(rho_nn, slope) = +0.549, n=5, CI includes 0.
-  Mechanism is CONSISTENT with Update 6 but not confirmed. Update 6's causal language
-  ("spatially coherent hallucinations → lower n_eff") remains "hypothesised, consistent
-  with direct measurement." See FINDINGS.md Update 7 and `eval/spatial_coherence.py`.
+- **Slope-magnitude → noise-floor mechanism — RESOLVED (α provisional).** α>0 confirmed
+  at n=24. α̂=0.77, CI [0.51, 1.04]. Sub-proportional (α<1) not confirmed. See §10 FLAG.
+
+- **Coherence mechanism — CONFIRMED (a) POSITIVE at n=24.** r(rho_nn, slope)=+0.441,
+  CI [+0.046, +0.717], n=24 (Update 8). Upgraded from (a-weak) at n=5 (Update 7).
+  Mediation (rho_nn screens off slope→nf_std) NOT confirmed: partial r=+0.515 >
+  threshold 0.445. See FINDINGS.md Update 8 and `eval/phase2_analysis.py`.
