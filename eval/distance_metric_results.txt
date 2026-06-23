@@ -1,0 +1,137 @@
+Loading ResShift engine …
+
+────────────────────────────────────────────────────────────────────
+  STEP 1: VQ encoder features — 16 ILSVRC2012 reference images
+────────────────────────────────────────────────────────────────────
+  Reference centroid computed from 16 images
+  Within-ref cosine dist: mean=0.7275  min=0.6463  max=0.8702
+
+────────────────────────────────────────────────────────────────────
+  STEP 2: VQ encoder features + cosine distance — 13 eval images
+────────────────────────────────────────────────────────────────────
+  Image          group       cosine_dist     L2_dist
+  ──────────────────────────────────────────────────
+  boardwalk      natural          0.9383      100.19
+  frog_on_log    natural          0.9413      110.08
+  nature_land    natural          0.8837      107.48
+  boy_face       faces            0.9318       97.96
+  girl_sad       faces            0.9620      102.62
+  wayuu_woman    faces            0.9477      113.64
+  wood_grain     texture          0.9670      104.47
+  dirt_soil      texture          0.9968      105.09
+  grass_meadow   texture          0.9390      110.21
+  soft_blobs     synthetic        0.7780       62.36
+  hard_shapes    synthetic        0.7565      107.29
+  linear_grad    synthetic        0.8640       82.76
+  radial_grad    synthetic        0.9196       73.75
+
+────────────────────────────────────────────────────────────────────
+  STEP 3: null_frac_gt for all 13 images
+────────────────────────────────────────────────────────────────────
+  boardwalk       null_frac_gt = 0.0046  (from prior measurement)
+  frog_on_log     null_frac_gt = 0.0111  (measured here)
+  nature_land     null_frac_gt = 0.0128  (measured here)
+  boy_face        null_frac_gt = 0.0049  (from prior measurement)
+  girl_sad        null_frac_gt = 0.0032  (from prior measurement)
+  wayuu_woman     null_frac_gt = 0.0162  (from prior measurement)
+  wood_grain      null_frac_gt = 0.0159  (from prior measurement)
+  dirt_soil       null_frac_gt = 0.0088  (measured here)
+  grass_meadow    null_frac_gt = 0.0477  (measured here)
+  soft_blobs      null_frac_gt = 0.0014  (from prior measurement)
+  hard_shapes     null_frac_gt = 0.0426  (measured here)
+  linear_grad     null_frac_gt = 0.0059  (measured here)
+  radial_grad     null_frac_gt = 0.0000  (measured here)
+
+────────────────────────────────────────────────────────────────────
+  STEP 4: N=48 calibration for 7 images lacking stable slopes
+  Estimated: 7 × 48 × ~5.5s ≈ 1848s  (31 min)
+────────────────────────────────────────────────────────────────────
+  [nature_land]  running N=48 ensemble …
+    slope=1.1147  r=+0.9910  (52s)
+  [dirt_soil]  running N=48 ensemble …
+    slope=0.8536  r=+0.9943  (52s)
+  [grass_meadow]  running N=48 ensemble …
+    slope=0.5778  r=+0.9777  (52s)
+  [soft_blobs]  running N=48 ensemble …
+    slope=4.2917  r=+0.9985  (52s)
+  [hard_shapes]  running N=48 ensemble …
+    slope=8.0176  r=+0.9865  (52s)
+  [linear_grad]  running N=48 ensemble …
+    slope=6.5295  r=+0.9993  (52s)
+  [radial_grad]  running N=48 ensemble …
+    slope=0.6376  r=+0.9055  (52s)
+
+────────────────────────────────────────────────────────────────────
+  STEP 5: Data table
+────────────────────────────────────────────────────────────────────
+
+  Image          group       cosine_dist  null_frac    slope  slope_N  note
+  ────────────────────────────────────────────────────────────────────────
+  boardwalk      natural          0.9383     0.0046   0.9510       48  N=48 (prior)
+  frog_on_log    natural          0.9413     0.0111   1.4238       48  N=48 (prior)
+  nature_land    natural          0.8837     0.0128   1.1147       48  N=48 (this run)  r=+0.9910
+  boy_face       faces            0.9318     0.0049   3.1829       48  N=48 (prior)
+  girl_sad       faces            0.9620     0.0032   2.7834       48  N=48 (prior)
+  wayuu_woman    faces            0.9477     0.0162   1.7483       48  N=48 (prior)
+  wood_grain     texture          0.9670     0.0159   0.5969      192  N=192 (prior)
+  dirt_soil      texture          0.9968     0.0088   0.8536       48  N=48 (this run)  r=+0.9943
+  grass_meadow   texture          0.9390     0.0477   0.5778       48  N=48 (this run)  r=+0.9777
+  soft_blobs     synthetic        0.7780     0.0014   4.2917       48  N=48 (this run)  r=+0.9985  [high-noise: soft_blobs N12-floor=0.90]
+  hard_shapes    synthetic        0.7565     0.0426   8.0176       48  N=48 (this run)  r=+0.9865  [high-noise: synthetic]
+  linear_grad    synthetic        0.8640     0.0059   6.5295       48  N=48 (this run)  r=+0.9993  [high-noise: synthetic]
+  radial_grad    synthetic        0.9196     0.0000   0.6376       48  N=48 (this run)  r=+0.9055  [high-noise: synthetic]
+
+────────────────────────────────────────────────────────────────────
+  STEP 6: Correlation analysis
+────────────────────────────────────────────────────────────────────
+
+  Pearson r with Fisher-z 95% CI. n=13 → SE(z)=1/√10≈0.316,
+  CI width ≈ ±0.6 in r. Treat any finding as PRELIMINARY.
+
+  [all images, n=13]  n=13
+    Pearson r(dist, slope)      = -0.785  95% CI [-0.933, -0.412]  p=0.001
+    Spearman rho(dist, slope)   = -0.582  p=0.037
+    Pearson r(null, slope)      = +0.178  (confounder)
+    Partial r(dist, slope|null) = -0.777  95% CI [-0.934, -0.366]  (approx)
+
+  [non-synthetic only, n=9]  n=9
+    Pearson r(dist, slope)      = -0.087  95% CI [-0.710, +0.613]  p=0.824
+    Spearman rho(dist, slope)   = -0.250  p=0.516
+    Pearson r(null, slope)      = -0.513  (confounder)
+    Partial r(dist, slope|null) = -0.163  95% CI [-0.778, +0.612]  (approx)
+
+────────────────────────────────────────────────────────────────────
+  Scatter (sorted by cosine distance)
+────────────────────────────────────────────────────────────────────
+  rank image          group          dist    slope
+  ────────────────────────────────────────────────
+     1 hard_shapes    synthetic    0.7565   8.0176 *
+     2 soft_blobs     synthetic    0.7780   4.2917 *
+     3 linear_grad    synthetic    0.8640   6.5295 *
+     4 nature_land    natural      0.8837   1.1147
+     5 radial_grad    synthetic    0.9196   0.6376 *
+     6 boy_face       faces        0.9318   3.1829
+     7 boardwalk      natural      0.9383   0.9510
+     8 grass_meadow   texture      0.9390   0.5778
+     9 frog_on_log    natural      0.9413   1.4238
+    10 wayuu_woman    faces        0.9477   1.7483
+    11 girl_sad       faces        0.9620   2.7834
+    12 wood_grain     texture      0.9670   0.5969
+    13 dirt_soil      texture      0.9968   0.8536
+  (* synthetic group)
+
+────────────────────────────────────────────────────────────────────
+  VERDICT
+────────────────────────────────────────────────────────────────────
+
+  (b) AMBIGUOUS — CI excludes 0 in one split but not both; confound not resolved
+
+  n=13: r=-0.785  CI=[-0.933,-0.412]  partial_r=-0.777
+  n=9:  r=-0.087  CI=[-0.710,+0.613]  partial_r=-0.163
+
+  Interpretation guide:
+    CI includes 0 → cannot rule out sampling noise at n=13
+    partial_r ≈ r → distance adds little beyond null_frac_gt alone
+    partial_r << r → association is largely mediated by null energy
+
+  Total runtime: 375s (6.2 min)

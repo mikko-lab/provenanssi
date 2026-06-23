@@ -573,3 +573,153 @@ result — the mechanism is unknown, the grouping is intuitive, and detection wi
 ground truth has not been attempted. The honest summary remains: *"preliminary evidence
 that calibration slope is distribution-dependent; natural↔faces contrast is 9× above
 the measured noise floor."*
+
+---
+
+## Update 3: Distance-metric thread (§11 item 1)
+
+**Date:** 2026-06-23  
+**Script:** `eval/distance_metric.py`  
+**Data:** `eval/distance_metric_results.txt`
+
+**Thread question:** Can a measured per-image feature-space distance from the
+ImageNet/ResShift training distribution replace the intuitive domain groupings and
+predict calibration slope?
+
+---
+
+### Method
+
+**Metric (precisely named):** Cosine distance in ResShift VQ-autoencoder
+(autoencoder_vq_f4) pre-quantization encoder latent space, to the L2-normalized
+centroid of 16 ILSVRC2012 validation image encodings.
+
+Preprocessing for all images (both reference and eval): BT.601 grayscale
+(0.299R + 0.587G + 0.114B), channel-replicated to pseudo-RGB, normalized to
+[-1, 1]. This is identical to the ResShift calibration preprocessing.
+
+**Reference set:** 16 ILSVRC2012 validation images (`vendor/ResShift/testdata/Bicubicx4/gt/`), 256×256 RGB.
+
+**Eval set:** 13 images across 4 intuitive groups (natural, faces, texture, synthetic).
+
+**n=13 is statistically thin.** Fisher-z 95% CI width ≈ ±0.6 in r at this sample
+size. All correlations below are PRELIMINARY. This section reports a measured null
+result, not a confirmed finding.
+
+**Limitations (stated alongside any claimed association):**
+
+- n_ref=16: centroid is a noisy estimate. 16 images poorly cover the ImageNet
+  manifold; the centroid is not a reliable proxy for "the training distribution
+  centroid."
+- Grayscale conversion drops all color. Chromatic ImageNet texture features cannot
+  contribute to the distance.
+- VQ-AE was trained for reconstruction, not as a metric space. Pre-quantization
+  continuous codes have no guaranteed metric properties.
+- Calling this "distance from the training distribution" would be inaccurate.
+  The precise claim is: distance to the centroid of 16 reference images in one
+  particular encoder's feature space.
+
+---
+
+### Results: distance ranking
+
+All 13 eval images, sorted by cosine distance (ascending = closest to centroid):
+
+```
+rank  image           group        dist    slope   null_frac
+   1  hard_shapes     synthetic   0.7565   8.018    0.0426
+   2  soft_blobs      synthetic   0.7780   4.292    0.0014
+   3  linear_grad     synthetic   0.8640   6.530    0.0059
+   4  nature_land     natural     0.8837   1.115    0.0128
+   5  radial_grad     synthetic   0.9196   0.638    0.0000
+   6  boy_face        faces       0.9318   3.183    0.0049
+   7  boardwalk       natural     0.9383   0.951    0.0046
+   8  grass_meadow    texture     0.9390   0.578    0.0477
+   9  frog_on_log     natural     0.9413   1.424    0.0111
+  10  wayuu_woman     faces       0.9477   1.748    0.0162
+  11  girl_sad        faces       0.9620   2.783    0.0032
+  12  wood_grain      texture     0.9670   0.597    0.0159
+  13  dirt_soil       texture     0.9968   0.854    0.0088
+```
+
+For reference, within the 16 ImageNet reference images themselves, cosine distance
+to the centroid ranges 0.6463–0.8702 (mean 0.7275).
+
+**Unexpected ordering:** The synthetic images (hard_shapes, soft_blobs, linear_grad)
+rank at the bottom of the distance table — i.e., they are *closer* to the ImageNet
+centroid in VQ-encoder space than natural or texture images. This is the opposite of
+the intuitive expectation. Simple patterns (blobs, shapes, gradients) apparently
+project to latent codes that resemble the "average" of diverse ImageNet images; the
+VQ-encoder centroid of varied ImageNet images may itself be a blurred, low-frequency
+representation that simple synthetics happen to match.
+
+This ordering failure means the metric does not capture what we wanted to measure.
+
+---
+
+### Correlation results
+
+**Slopes used:** N=48 for all images except wood_grain (N=192, converged). Seven
+images ran N=48 calibration in this script (nature_land, dirt_soil, grass_meadow,
+soft_blobs, hard_shapes, linear_grad, radial_grad). Synthetic N=48 slopes carry
+high noise (soft_blobs noise floor range≈0.90 at N=12 windows) and should be read
+with that caveat.
+
+All 13 images:
+
+```
+Pearson r(dist, slope)      = -0.785   95% CI [-0.933, -0.412]   p=0.001
+Spearman rho(dist, slope)   = -0.582   p=0.037
+Pearson r(null, slope)      = +0.178   (null_frac_gt confounder)
+Partial r(dist, slope|null) = -0.777   95% CI [-0.934, -0.366]   (approx, n-4 df)
+```
+
+Non-synthetic only (n=9):
+
+```
+Pearson r(dist, slope)      = -0.087   95% CI [-0.710, +0.613]   p=0.824
+Spearman rho(dist, slope)   = -0.250   p=0.516
+Pearson r(null, slope)      = -0.513   (null_frac_gt confounder)
+Partial r(dist, slope|null) = -0.163   95% CI [-0.778, +0.612]   (approx, n-4 df)
+```
+
+---
+
+### Interpretation
+
+The negative correlation in the n=13 sample (r=-0.785, p=0.001) is entirely
+driven by the synthetic group. The scatter table makes this visible: three of the
+four lowest-distance images are synthetic, and three of the four highest-slope
+images are synthetic. When the synthetic group is removed (n=9), the correlation
+collapses to r=-0.087 (CI includes 0 by a wide margin).
+
+This is not a confound via null_frac_gt — the partial correlation r(dist,
+slope|null) = -0.777 is nearly identical to the raw r=-0.785, so null energy does
+not explain the association. The association is structural: the VQ-encoder
+happens to place synthetic images closer to the centroid AND those images have
+higher slopes. The two facts are independent artifacts of the feature space and
+the calibration dynamics respectively.
+
+**null_frac_gt is also not a useful predictor of slope** in this sample
+(r=+0.178 for n=13, r=-0.513 for n=9). The sign flip across splits confirms it
+is noise, not signal, at these sample sizes.
+
+---
+
+### Verdict
+
+**(b) NULL.** The VQ-encoder cosine distance to a 16-image ImageNet centroid is
+not a valid distribution-distance metric for this purpose.
+
+The specific failure: the metric puts synthetic images closer to the ImageNet
+centroid than natural images — opposite of the intuitive ordering. Without the
+synthetic group, no correlation with slope exists (r=-0.087, CI [-0.710, +0.613]).
+
+The §11 item 1 research question (rigorous distribution-distance metric) remains
+open. This attempt rules out one specific metric. A valid metric would need to
+produce a distance ordering where synthetic < texture < natural (or similar), and
+this metric does not.
+
+**What this does not rule out:** a different feature space (e.g., a classifier's
+penultimate layer, or FID against a larger reference set) might produce the correct
+ordering and might predict slope. That remains unresolved.
