@@ -1,0 +1,211 @@
+========================================================================
+  DISTANCE METRIC V2 — ResNet50 semantic features + slope correlation
+========================================================================
+
+  Metric: ResNet50 (IMAGENET1K_V2) penultimate-layer features (2048-dim)
+  Distance: cosine distance to centroid of 16 ILSVRC2012 reference images
+  Preprocessing: RGB 224×224, ImageNet mean/std normalisation
+  SANITY CHECK gates analysis: confirms synthetics > naturals in distance
+
+────────────────────────────────────────────────────────────────────────
+  STEP 1: Load ResNet50 (IMAGENET1K_V2)
+────────────────────────────────────────────────────────────────────────
+  ResNet50 loaded from /Users/mikkotarkiainen/Projects/provenanssi/weights/resnet50-11ad3fa6.pth on device=cpu
+
+────────────────────────────────────────────────────────────────────────
+  STEP 2: Download CC0/PD images
+────────────────────────────────────────────────────────────────────────
+  SKIP (exists): nat_landscape2
+  SKIP (exists): nat_landscape3
+  FAIL: wooded_pond — HTTP Error 429: Too many requests - please contact noc@wikimedia.org to discuss a less disruptive approach or instead use thumbnail images in sizes listed on https://w.wiki/GHai. (0c640b1)
+  FAIL: rain_lake — HTTP Error 429: Too many requests - please contact noc@wikimedia.org to discuss a less disruptive approach or instead use thumbnail images in sizes listed on https://w.wiki/GHai. (0c640b1)
+  FAIL: mountain_trail — HTTP Error 429: Too many requests - please contact noc@wikimedia.org to discuss a less disruptive approach or instead use thumbnail images in sizes listed on https://w.wiki/GHai. (0c640b1)
+  FAIL: hilltop_valley — HTTP Error 429: Too many requests - please contact noc@wikimedia.org to discuss a less disruptive approach or instead use thumbnail images in sizes listed on https://w.wiki/GHai. (0c640b1)
+  FAIL: harbor_dusk — HTTP Error 429: Too many requests - please contact noc@wikimedia.org to discuss a less disruptive approach or instead use thumbnail images in sizes listed on https://w.wiki/GHai. (0c640b1)
+  FAIL: fishing_shack — HTTP Error 429: Too many requests - please contact noc@wikimedia.org to discuss a less disruptive approach or instead use thumbnail images in sizes listed on https://w.wiki/GHai. (0c640b1)
+  FAIL: small_cliff — HTTP Error 429: Too many requests - please contact noc@wikimedia.org to discuss a less disruptive approach or instead use thumbnail images in sizes listed on https://w.wiki/GHai. (0c640b1)
+  FAIL: manet_cafe — HTTP Error 429: Too many requests - please contact noc@wikimedia.org to discuss a less disruptive approach or instead use thumbnail images in sizes listed on https://w.wiki/GHai. (0c640b1)
+  FAIL: vermeer_art — HTTP Error 429: Too many requests - please contact noc@wikimedia.org to discuss a less disruptive approach or instead use thumbnail images in sizes listed on https://w.wiki/GHai. (0c640b1)
+  FAIL: hdr_fire — HTTP Error 429: Too many requests - please contact noc@wikimedia.org to discuss a less disruptive approach or instead use thumbnail images in sizes listed on https://w.wiki/GHai. (0c640b1)
+
+────────────────────────────────────────────────────────────────────────
+  STEP 3: Generate programmatic synthetic images
+────────────────────────────────────────────────────────────────────────
+  Generated: noise_gauss50  shape=(256, 256)  range=[0.000,1.000]
+  Generated: noise_gauss10  shape=(256, 256)  range=[0.074,0.937]
+  Generated: noise_gauss05  shape=(256, 256)  range=[0.300,0.728]
+  Generated: pink_noise  shape=(256, 256)  range=[0.000,1.000]
+  Generated: checker8  shape=(256, 256)  range=[0.000,1.000]
+  Generated: checker32  shape=(256, 256)  range=[0.000,1.000]
+  Generated: stripes_h  shape=(256, 256)  range=[0.500,0.654]
+  Generated: stripes_d  shape=(256, 256)  range=[0.500,0.631]
+
+────────────────────────────────────────────────────────────────────────
+  STEP 4: ResNet50 reference centroid (16 ILSVRC2012 images)
+────────────────────────────────────────────────────────────────────────
+  Reference centroid from 16 ILSVRC2012 images
+  Within-ref cosine dist: mean=0.6299  min=0.4695  max=0.7805
+
+────────────────────────────────────────────────────────────────────────
+  STEP 5: SANITY CHECK — ResNet50 distance ordering
+────────────────────────────────────────────────────────────────────────
+  Must confirm: d(linear_gradient) > d(boardwalk) > d(hard_shapes???)
+  If natural < synthetic in distance, metric is wrong — stop here.
+
+  boardwalk_nature   d = 0.7858  (natural — should be NEAR)
+  linear_gradient    d = 0.9243  (synthetic — should be FAR)
+  hard_shapes        d = 0.8738  (synthetic — should be FAR)
+  noise_gauss50      d = 0.9154  (noise — should be FAR)
+
+  SANITY CHECK PASSED.
+  linear_d (0.9243) > boardwalk_d (0.7858) ✓
+  hard_d   (0.8738) > boardwalk_d (0.7858) ✓
+
+────────────────────────────────────────────────────────────────────────
+  STEP 6: Load ResShift engine for calibrations
+────────────────────────────────────────────────────────────────────────
+
+────────────────────────────────────────────────────────────────────────
+  STEP 7: ResNet50 distances for all images
+────────────────────────────────────────────────────────────────────────
+  Image            group              dist
+  ──────────────────────────────────────────
+  boardwalk        natural          0.7858
+  frog_on_log      natural          0.8663
+  nature_land      natural          0.8023
+  boy_face         faces            0.8018
+  girl_sad         faces            0.7365
+  wayuu_woman      faces            0.7203
+  wood_grain       texture          0.9483
+  dirt_soil        texture          0.9099
+  grass_meadow     texture          0.9140
+  soft_blobs       synthetic        0.8890
+  hard_shapes      synthetic        0.8738
+  linear_grad      synthetic        0.9243
+  radial_grad      synthetic        0.9075
+  nat_landscape2   natural          0.8041
+  nat_landscape3   natural          0.8177
+  noise_gauss50    synthetic_gen    0.9154
+  noise_gauss10    synthetic_gen    0.9097
+  noise_gauss05    synthetic_gen    0.9246
+  pink_noise       synthetic_gen    0.9273
+  checker8         synthetic_gen    0.9289
+  checker32        synthetic_gen    0.7891
+  stripes_h        synthetic_gen    0.9246
+  stripes_d        synthetic_gen    0.8821
+
+────────────────────────────────────────────────────────────────────────
+  STEP 8: null_frac_gt
+────────────────────────────────────────────────────────────────────────
+  boardwalk         null_frac_gt = 0.0046  (prior)
+  frog_on_log       null_frac_gt = 0.0111  (prior)
+  nature_land       null_frac_gt = 0.0128  (prior)
+  boy_face          null_frac_gt = 0.0049  (prior)
+  girl_sad          null_frac_gt = 0.0032  (prior)
+  wayuu_woman       null_frac_gt = 0.0162  (prior)
+  wood_grain        null_frac_gt = 0.0159  (prior)
+  dirt_soil         null_frac_gt = 0.0088  (prior)
+  grass_meadow      null_frac_gt = 0.0477  (prior)
+  soft_blobs        null_frac_gt = 0.0014  (prior)
+  hard_shapes       null_frac_gt = 0.0426  (prior)
+  linear_grad       null_frac_gt = 0.0059  (prior)
+  radial_grad       null_frac_gt = 0.0000  (prior)
+  nat_landscape2    null_frac_gt = 0.0181  (measured)
+  nat_landscape3    null_frac_gt = 0.0120  (measured)
+  noise_gauss50     null_frac_gt = 0.3194  (measured)
+  noise_gauss10     null_frac_gt = 0.0359  (measured)
+  noise_gauss05     null_frac_gt = 0.0093  (measured)
+  pink_noise        null_frac_gt = 0.0172  (measured)
+  checker8          null_frac_gt = 0.1881  (measured)
+  checker32         null_frac_gt = 0.0602  (measured)
+  stripes_h         null_frac_gt = 0.0001  (measured)
+  stripes_d         null_frac_gt = 0.0001  (measured)
+
+────────────────────────────────────────────────────────────────────────
+  STEP 9: N=48 calibrations — 10 images
+  Estimated: 10 × 48 × ~1.1s ≈ 528s  (9 min)
+────────────────────────────────────────────────────────────────────────
+  [nat_landscape2] N=48 …
+  slope=1.2053  r=+0.9419  (53s)
+  [nat_landscape3] N=48 …
+  slope=1.0313  r=+0.9675  (52s)
+  [noise_gauss50] N=48 …
+  slope=0.0793  r=+0.4660  (52s)
+  [noise_gauss10] N=48 …
+  slope=0.0620  r=+0.6171  (52s)
+  [noise_gauss05] N=48 …
+  slope=0.0762  r=+0.7214  (52s)
+  [pink_noise] N=48 …
+  slope=0.1279  r=+0.8581  (52s)
+  [checker8] N=48 …
+  slope=0.0329  r=+0.0164  (52s)
+  [checker32] N=48 …
+  slope=5.4914  r=+0.5910  (52s)
+  [stripes_h] N=48 …
+  slope=5.0579  r=+0.9977  (52s)
+  [stripes_d] N=48 …
+  slope=3.0791  r=+0.9987  (52s)
+
+────────────────────────────────────────────────────────────────────────
+  STEP 10: Data table (sorted by distance)
+────────────────────────────────────────────────────────────────────────
+
+   rk image            group              dist    slope  null_f  slope_N
+  ────────────────────────────────────────────────────────────────
+    1 wayuu_woman      faces            0.7203   1.7483  0.0162  48
+    2 girl_sad         faces            0.7365   2.7834  0.0032  48
+    3 boardwalk        natural          0.7858   0.9510  0.0046  48
+    4 checker32        synthetic_gen    0.7891   5.4914  0.0602  48 *
+    5 boy_face         faces            0.8018   3.1829  0.0049  48
+    6 nature_land      natural          0.8023   1.1147  0.0128  48
+    7 nat_landscape2   natural          0.8041   1.2053  0.0181  48
+    8 nat_landscape3   natural          0.8177   1.0313  0.0120  48
+    9 frog_on_log      natural          0.8663   1.4238  0.0111  48
+   10 hard_shapes      synthetic        0.8738   8.0176  0.0426  48 *
+   11 stripes_d        synthetic_gen    0.8821   3.0791  0.0001  48 *
+   12 soft_blobs       synthetic        0.8890   4.2917  0.0014  48 *
+   13 radial_grad      synthetic        0.9075   0.6376  0.0000  48 *
+   14 noise_gauss10    synthetic_gen    0.9097   0.0620  0.0359  48 *
+   15 dirt_soil        texture          0.9099   0.8536  0.0088  48
+   16 grass_meadow     texture          0.9140   0.5778  0.0477  48
+   17 noise_gauss50    synthetic_gen    0.9154   0.0793  0.3194  48 *
+   18 linear_grad      synthetic        0.9243   6.5295  0.0059  48 *
+   19 stripes_h        synthetic_gen    0.9246   5.0579  0.0001  48 *
+   20 noise_gauss05    synthetic_gen    0.9246   0.0762  0.0093  48 *
+   21 pink_noise       synthetic_gen    0.9273   0.1279  0.0172  48 *
+   22 checker8         synthetic_gen    0.9289   0.0329  0.1881  48 *
+   23 wood_grain       texture          0.9483   0.5969  0.0159  192
+  (* synthetic or generated)
+
+────────────────────────────────────────────────────────────────────────
+  STEP 11: Correlation analysis
+────────────────────────────────────────────────────────────────────────
+
+  Fisher-z 95% CI. Treat every finding as PRELIMINARY (n is stated).
+
+  [all images, n=23]  n=23
+    Pearson r(dist,slope)      = -0.127  95% CI [-0.512,+0.301]  p=0.564
+    Spearman rho(dist,slope)   = -0.478  p=0.021
+    Pearson r(null,slope)      = -0.232  (confounder)
+    Partial r(dist,slope|null) = -0.077  95% CI [-0.483,+0.356]  (approx)
+
+  [non-synthetic only, n=11]  n=11
+    Pearson r(dist,slope)      = -0.618  95% CI [-0.889,-0.029]  p=0.043
+    Spearman rho(dist,slope)   = -0.736  p=0.010
+    Pearson r(null,slope)      = -0.503  (confounder)
+    Partial r(dist,slope|null) = -0.512  95% CI [-0.863,+0.174]  (approx)
+
+────────────────────────────────────────────────────────────────────────
+  STEP 12: Verdict
+────────────────────────────────────────────────────────────────────────
+
+  (a) POSITIVE — non-synthetic correlation survives; partial r consistent
+
+  n=23: r=-0.127  CI=[-0.512,+0.301]  partial_r=-0.077
+  n=11 (non-syn): r=-0.618  CI=[-0.889,-0.029]  partial_r=-0.512
+
+  KEY RESULT: the without-synthetics correlation (n={n_nonsyn}) is the
+  primary result. The all-images number is dominated by synthetic extremes.
+
+  Total runtime: 527s (8.8 min)
+

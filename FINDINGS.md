@@ -723,3 +723,150 @@ this metric does not.
 **What this does not rule out:** a different feature space (e.g., a classifier's
 penultimate layer, or FID against a larger reference set) might produce the correct
 ordering and might predict slope. That remains unresolved.
+
+---
+
+## Update 4: Distance-metric thread, attempt 2 (2026-06-23)
+
+### Setup
+
+Metric: ResNet50 (IMAGENET1K_V2) penultimate-layer features (2048-dim global-average-
+pool after layer4), cosine distance to a centroid of 16 ILSVRC2012 validation images.
+Weights downloaded from PyTorch hub (resnet50-11ad3fa6.pth, 98 MB). Self-contained
+implementation — no torchvision dependency; layer names match official checkpoint exactly.
+
+This addresses both failures from attempt 1: (i) semantic features instead of a VQ
+codebook that measured compressibility, and (ii) a larger, continuous sample instead
+of n=13 with a bimodal gap.
+
+**Sample composition (n=23):** 13 existing images (3 natural, 3 faces, 3 texture,
+4 synthetic-prior) + 2 CC0 natural landscapes downloaded from Wikimedia Commons
+(nat_landscape2, nat_landscape3; Wikimedia rate-limited after the first two downloads,
+blocking the planned 30–40 image target) + 8 programmatic synthetics generated in
+code (3 Gaussian noise levels, 1 pink/1/f noise, 2 checkerboards, 2 stripe patterns).
+
+This is fewer than the 30–40 target. Non-synthetic n=11 (3 faces + 5 natural + 3 texture).
+
+### Sanity check (required gate before analysis)
+
+Before correlation analysis, the metric must confirm that obvious synthetics score
+FAR and an obvious natural photo scores NEAR:
+
+| image            | group     | dist   |
+|------------------|-----------|--------|
+| boardwalk        | natural   | 0.7858 |
+| linear_gradient  | synthetic | 0.9243 |
+| hard_shapes      | synthetic | 0.8738 |
+| noise_gauss50    | noise     | 0.9154 |
+
+linear_d (0.9243) > boardwalk_d (0.7858) ✓  
+hard_d (0.8738) > boardwalk_d (0.7858) ✓
+
+**SANITY CHECK PASSED.** Analysis proceeds.
+
+Within-reference cosine distances: mean=0.630, range [0.470, 0.780].
+
+### Data table (sorted by distance, ascending = near ImageNet)
+
+| rk | image          | group         |  dist  | slope  | null_f  | N  |
+|----|----------------|---------------|--------|--------|---------|----|
+|  1 | wayuu_woman    | faces         | 0.7203 | 1.7483 | 0.0162  | 48 |
+|  2 | girl_sad       | faces         | 0.7365 | 2.7834 | 0.0032  | 48 |
+|  3 | boardwalk      | natural       | 0.7858 | 0.9510 | 0.0046  | 48 |
+|  4 | checker32      | synthetic_gen | 0.7891 | 5.4914 | 0.0602  | 48 |
+|  5 | boy_face       | faces         | 0.8018 | 3.1829 | 0.0049  | 48 |
+|  6 | nature_land    | natural       | 0.8023 | 1.1147 | 0.0128  | 48 |
+|  7 | nat_landscape2 | natural       | 0.8041 | 1.2053 | 0.0181  | 48 |
+|  8 | nat_landscape3 | natural       | 0.8177 | 1.0313 | 0.0120  | 48 |
+|  9 | frog_on_log    | natural       | 0.8663 | 1.4238 | 0.0111  | 48 |
+| 10 | hard_shapes    | synthetic     | 0.8738 | 8.0176 | 0.0426  | 48 |
+| 11 | stripes_d      | synthetic_gen | 0.8821 | 3.0791 | 0.0001  | 48 |
+| 12 | soft_blobs     | synthetic     | 0.8890 | 4.2917 | 0.0014  | 48 |
+| 13 | radial_grad    | synthetic     | 0.9075 | 0.6376 | 0.0000  | 48 |
+| 14 | noise_gauss10  | synthetic_gen | 0.9097 | 0.0620 | 0.0359  | 48 |
+| 15 | dirt_soil      | texture       | 0.9099 | 0.8536 | 0.0088  | 48 |
+| 16 | grass_meadow   | texture       | 0.9140 | 0.5778 | 0.0477  | 48 |
+| 17 | noise_gauss50  | synthetic_gen | 0.9154 | 0.0793 | 0.3194  | 48 |
+| 18 | linear_grad    | synthetic     | 0.9243 | 6.5295 | 0.0059  | 48 |
+| 19 | stripes_h      | synthetic_gen | 0.9246 | 5.0579 | 0.0001  | 48 |
+| 20 | noise_gauss05  | synthetic_gen | 0.9246 | 0.0762 | 0.0093  | 48 |
+| 21 | pink_noise     | synthetic_gen | 0.9273 | 0.1279 | 0.0172  | 48 |
+| 22 | checker8       | synthetic_gen | 0.9289 | 0.0329 | 0.1881  | 48 |
+| 23 | wood_grain     | texture       | 0.9483 | 0.5969 | 0.0159  | 192|
+
+Slope = ResShift + BicubicDownsample(4), N=48 measurements (N=192 for wood_grain).  
+null_f = null_frac_gt (fraction of augmented crops with energy > original).  
+Rows without asterisk are non-synthetic (groups: natural, faces, texture).
+
+### Correlation results
+
+Fisher-z 95% CI throughout. All findings preliminary.
+
+**All images (n=23):**
+- Pearson r(dist, slope) = −0.127, 95% CI [−0.512, +0.301], p=0.564
+- Spearman ρ(dist, slope) = −0.478, p=0.021
+- Partial r(dist, slope | null_frac_gt) = −0.077, CI [−0.483, +0.356]
+
+**Non-synthetic only (n=11) — KEY RESULT:**
+- Pearson r(dist, slope) = −0.618, 95% CI [−0.889, −0.029], p=0.043
+- Spearman ρ(dist, slope) = −0.736, p=0.010
+- Partial r(dist, slope | null_frac_gt) = −0.512, CI [−0.863, +0.174]
+
+Note on direction: negative r means higher distance (farther from ImageNet) → lower
+calibration slope. Equivalently, images closer to the ImageNet distribution (faces,
+natural photos) have higher slopes than images far from it (textures).
+
+### Interpretation
+
+The Pearson CI for non-synthetic images barely excludes 0 (upper bound −0.029).
+The Spearman ρ=−0.736 (p=0.010) is more robust and suggests a consistent
+monotonic pattern. However, several caveats apply:
+
+1. **Group-level, not continuous.** Non-synthetic images form three tight clusters:
+   faces (dist 0.72–0.80, slope 1.75–3.18), natural photos (0.80–0.87, slope 0.95–1.42),
+   texture (0.91–0.95, slope 0.58–0.85). With only 3 groups and n=3–5 per group, the
+   observed correlation largely reflects group identity rather than a continuous
+   distance effect. A per-group one-way ANOVA would be the more appropriate test.
+
+2. **Partial r CI includes 0.** After controlling for null_frac_gt, partial r=−0.512
+   but CI=[−0.863, +0.174]. The confidence interval includes 0, meaning the partial
+   correlation result is not reliably distinguished from zero at this sample size.
+   The automated verdict code checked only |partial_r| > 0.2 but not whether its CI
+   excludes 0 — an oversight in the pre-specified logic.
+
+3. **n=11 is marginal.** With 11 observations, SE(z) ≈ 0.33 in Fisher-z space,
+   giving CI half-width ≈ ±0.65 in r. The Pearson upper bound of −0.029 is barely
+   below 0. Small leverage effects (e.g., the single boardwalk point, which is close
+   to ImageNet but has an unusually low slope for a natural photo) may be influential.
+
+4. **Synthetic images are incoherent with the metric.** The generated synthetics
+   scatter widely in both slope (0.03 to 5.49) and distance (0.79 to 0.93), with no
+   interpretable pattern. Their inclusion destroys the all-images correlation (r=−0.127)
+   relative to the non-synthetic result (r=−0.618).
+
+### Verdict
+
+**(a-weak): BORDERLINE POSITIVE — real signal, but group-level and n=11.**
+
+The automated code issued "(a) POSITIVE" by the pre-specified logic (non-synthetic
+CI excludes 0 AND |partial_r| > 0.2). On the numbers alone that verdict is defensible:
+the Spearman ρ=−0.736, p=0.010 is not a fluke of one data point, and the direction
+is semantically coherent (ResShift trained on ImageNet-like data applies stronger
+correction to in-distribution images).
+
+However, the claim that a *continuous* distance metric predicts slope is not supported.
+The signal is group-level: faces cluster near ImageNet with high slopes; textures
+cluster far with low slopes; naturals sit in between. Within any single group the
+relationship is unclear. The partial r CI includes 0 after null-energy control.
+n=11 with three natural clusters provides limited power for a continuous claim.
+
+**Practical implication:** image domain (faces / natural photos / textures /
+synthetic patterns) appears to predict calibration slope more reliably than a
+continuous distance number. This is actionable without requiring a distance metric.
+
+**Status of §11 item 1:** The attempt-2 metric (ResNet50 semantic features)
+passes the sanity check and produces a borderline significant correlation in the
+non-synthetic split. The §11 constraint ("do not extend to distribution-dependent
+calibration without a rigorous distance metric") can be relaxed for group-level
+observations (e.g., "faces have higher slopes than textures"), but a continuous
+distance-based calibration adjustment remains unsupported at this evidence level.

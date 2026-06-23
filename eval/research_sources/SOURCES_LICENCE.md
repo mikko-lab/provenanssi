@@ -71,3 +71,15 @@ No attribution is legally required; sources documented here for transparency.
 ### hard_shapes.png
 - **Author:** generated
 - **Licence:** no licence required
+
+## new_v2 (distance metric v2 study)
+
+### nat_landscape2.* (new_v2/)
+- **Author:** Unknown photographer
+- **Licence:** CC0 1.0
+- **Source:** https://commons.wikimedia.org/wiki/File:Nature_Landscape_(248036121).jpeg
+
+### nat_landscape3.* (new_v2/)
+- **Author:** Unknown photographer
+- **Licence:** CC0 1.0
+- **Source:** https://commons.wikimedia.org/wiki/File:Nature_Landscape_(248036053).jpeg
