@@ -870,3 +870,152 @@ non-synthetic split. The §11 constraint ("do not extend to distribution-depende
 calibration without a rigorous distance metric") can be relaxed for group-level
 observations (e.g., "faces have higher slopes than textures"), but a continuous
 distance-based calibration adjustment remains unsupported at this evidence level.
+
+---
+
+## Update 5: Distance-metric thread — SHELVED (2026-06-23)
+
+**Status:** Shelved at a known state. No data or code deleted. Resume recipe below.
+
+**Three attempts, in order:**
+
+1. **Intuitive grouping** (natural / faces / texture / synthetic): Established that
+   slope varies between groups above noise (natural↔faces 9.2× noise floor). The grouping
+   is an intuitive proxy, not a metric. Result: (a) SURVIVES — group-level only.
+
+2. **VQ-encoder cosine distance** (ResShift autoencoder_vq_f4 pre-quantisation latents):
+   Metric places synthetic images CLOSER to the ImageNet centroid than natural images —
+   opposite of the expected ordering. Correlation with slope is driven entirely by the
+   synthetic group; non-synthetic r=−0.087. Result: (b) NULL — metric measures
+   compressibility, not distribution membership.
+
+3. **ResNet50 penultimate-layer features** (2048-dim, IMAGENET1K_V2): Sanity check passes
+   (synthetics score far, naturals near). Non-synthetic n=11: Spearman ρ=−0.736 p=0.010,
+   Pearson r=−0.618 CI [−0.889, −0.029] (barely excludes 0). Partial r controlling
+   null_frac_gt = −0.512, CI [−0.863, +0.174] — includes 0. All-images (n=23): r=−0.127,
+   no signal. Result: (a-weak) BORDERLINE — group-level signal, not continuous distance
+   effect.
+
+**Why this thread is shelved, not closed:**
+The bottleneck is statistical power, not the metric. Non-synthetic images form three
+tight clusters (faces / natural / texture), n=3–5 per cluster. With n=11 total, any
+observed correlation largely reflects group identity. A continuous distance effect
+cannot be separated from a group-level effect at this sample size (Fisher-z CI
+half-width ≈ ±0.65 in r at n=11).
+
+**Resume recipe:**
+- Same metric: ResNet50 penultimate-layer cosine distance to 16-image ImageNet centroid
+  (script: `eval/distance_metric_v2.py`, data: `eval/distance_metric_v2_results.txt`)
+- Sample: ~60–100 CC0/PD images, balanced across the distance axis, with 10–15 images
+  per distance band (not per intuitive group), so within-band and between-band effects
+  can be separated
+- Same calibration protocol: N=48 ResShift passes, 5×N=12 noise-floor windows per image
+- Same analysis: Spearman ρ + partial r + power law fit for the distance→slope relationship
+- Estimated runtime: 48 passes × 100 images × 1.1s ≈ 1.5h on MPS
+- This is research-paper scope, not a session task. Do not start without a dedicated block.
+
+---
+
+## Update 6: Slope → noise-floor mechanism (2026-06-23)
+
+**Script:** `eval/slope_noise_mechanism.py`
+**Data:** `eval/slope_noise_mechanism_results.txt`
+**Input:** all existing per-window slope data — no new GPU passes.
+
+**Question:** Is the per-image slope noise floor driven by slope magnitude as an OLS
+estimator artifact, or is it a model/data property?
+
+---
+
+### Analytic derivation
+
+The calibration slope β̂ is the OLS slope of binned (predicted_std, actual_error).
+Working from the regression formula with heteroscedastic bin variances:
+
+- `x_out_i = A⁺y + (I−A⁺A)x̂_i`: the range part A⁺y is fixed; only the null-space
+  component varies across seeds.
+- For null-space pixels: `actual_err[p] ≈ |bias[p] + δ[p]|` where `bias[p]` is the
+  irreducible model error and `δ[p] ~ N(0, pred_std²[p]/N)` is sampling noise.
+- In the calibrated regime (bias >> δ): `Var_windows[y_k] ≈ x_k²/(n_eff·N)`.
+
+Under the **iid pixel assumption** (independent actual_err values within a bin):
+
+```
+Var(β̂) = Σ_k c_k² · x_k²/(n_eff·N)    where c_k = (x_k−x̄)/Σ(x_j−x̄)²
+```
+
+**Key algebraic property — scale invariance:** if all x_k → s·x_k (same distribution
+shape, rescaled), then c_k → c_k/s and Var(y_k) → s²·Var(y_k), leaving Var(β̂) unchanged.
+The OLS slope variance is β-INDEPENDENT under iid pixels. Prediction: **α = 0**.
+
+If α > 0 empirically, the iid assumption is violated — pixel reconstruction errors are
+spatially correlated within bins. The free parameter is n_eff < n_k (effective independent
+pixels per bin). If n_eff varies with image type, a slope→noise correlation emerges as a
+**model/data effect**, not an estimator artifact.
+
+---
+
+### Empirical test (existing data: 6 images, 5×N=12 windows each)
+
+Power law fit `std(β̂) ≈ a · slope^α` in log-log space (OLS):
+
+| Fit | n | α̂ | SE | t-CI (95%) | α=0 excluded? |
+|-----|---|----|----|------------|---------------|
+| All images | 6 | 0.69 | 0.316 | [−0.19, 1.56] | NO |
+| Excl. soft_blobs | 5 | 0.36 | 0.089 | [0.07, 0.64] | YES (p<0.05) |
+
+The full fit includes 0 because soft_blobs is a high-leverage outlier (separate
+mechanism, see below). The restricted fit (n=5) excludes 0 at p<0.05 (df=3, t_{0.025}=3.182).
+
+**Matched-pair evidence (boardwalk vs. boy_face — nearly identical null_frac ≈ 0.0046):**
+
+| | boardwalk | boy_face | ratio |
+|--|-----------|----------|-------|
+| slope | 0.95 | 3.18 | 3.35× |
+| std(β̂) | 0.0286 | 0.0511 | 1.78× |
+
+Under α=0: expected std ratio = 1.00×. Under α=1: expected = 3.35×. Under α=0.5:
+expected = √3.35 = 1.83× — **matches actual 1.78×**.
+
+**N-scaling (SD at N=48 vs. N=12 for three face images):**
+Under iid, SD ∝ 1/√N → SD(N=48)/SD(N=12) = 0.50. Observed ratios: 0.40–0.80.
+With 5-window std estimates (SE ≈ std/2.8), these are noisy but not contradictory.
+
+**soft_blobs as a separate regime:** null_frac_gt=0.0014 — near-zero null-space energy.
+The calibration bins have tiny x_k; fitting a near-flat signal makes slope estimates
+ill-conditioned. std=0.339 (11× boardwalk) is a low-signal estimator artifact: when
+x_k·√n_k is small, even small fluctuations in y_k drive large slope changes. This is
+consistent with the iid model (Var(y_k) ∝ x_k²/(n_k·N) explodes when x_k→0) and
+is NOT driven by slope magnitude.
+
+---
+
+### Verdict
+
+**(b) MODEL/DATA EFFECT — sub-proportional (α ≈ 0.35–0.5).**
+
+- The OLS estimator predicts α=0 under iid pixels. This is not approximate — it is a
+  scale-invariance property of the regression formula. Any α>0 must come from the data.
+- Empirical evidence: α=0 excluded at p<0.05 (restricted fit); boardwalk/boy_face pair
+  consistent with α≈0.5.
+- Mechanism: pixel reconstruction errors are spatially correlated within ensemble windows.
+  The effective sample size n_eff < n_k. Images where ResShift generates spatially coherent
+  hallucinations (faces) have lower n_eff → higher slope noise floor at fixed N.
+- soft_blobs is a SEPARATE estimator artifact (ill-conditioning, iid-consistent).
+
+**α ≈ 1 (proportional) is ruled out** by the boardwalk/boy_face matched pair (1.78× actual
+vs. 3.35× predicted). The effect is sub-proportional.
+
+---
+
+### Implication for §10 domain-shift SNR — FLAG (not self-edited)
+
+**The §10 9.2× SNR verdict is UNCHANGED and, if anything, is conservative.**
+
+The SNR calculation already used the FACES group's own noise floor (boy_face, range=0.1497)
+as the denominator. This is the higher-slope side of the contrast. If the faces noise floor
+is partly inflated by slope magnitude (model effect), the denominator is inflated, making
+the 9.2× a lower bound rather than a biased overestimate.
+
+Under a slope-normalised noise measure, the natural↔faces SNR would be HIGHER than 9.2×.
+The §10 verdict does not need revision. This finding does not require editing §10.
