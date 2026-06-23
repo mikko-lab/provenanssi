@@ -1,0 +1,245 @@
+========================================================================
+  PHASE 1 — SAMPLE ASSEMBLY + DISTANCE COVERAGE CHECK
+  Date: 2026-06-23  Target: ~40 images, continuous distance axis
+========================================================================
+
+Loading ResNet50 (IMAGENET1K_V2) …
+Computing ImageNet reference centroid (16 images) …
+  Centroid computed (L2-normalized, dim=2048)
+
+────────────────────────────────────────────────────────────────────────
+  STEP 1: Download candidate images via Wikimedia API
+────────────────────────────────────────────────────────────────────────
+
+  QUERY   face_red_hair  (Red_Hair_Woman.jpg)
+  FETCH   face_red_hair  → https://upload.wikimedia.org/wikipedia/commons/b/b5/Red_Hair_Woman.jpg…
+  OK      face_red_hair  (230 KB)
+  QUERY   face_algerian  (Algerian_man_with_turban.jpg)
+  FETCH   face_algerian  → https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Algerian_man_with_turb…
+  OK      face_algerian  (449 KB)
+  QUERY   face_pexels_woman  (Pexels_woman_1239291.jpg)
+  FAIL    face_pexels_woman  — not found on Wikimedia Commons
+  QUERY   texture_sand  (Gfp-grainy-sand-texture.jpg)
+  FETCH   texture_sand  → https://upload.wikimedia.org/wikipedia/commons/thumb/0/0a/Gfp-grainy-sand-textur…
+  OK      texture_sand  (528 KB)
+  QUERY   texture_brick  (Brick_wall_close-up_view.jpg)
+  FETCH   texture_brick  → https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Brick_wall_close-up_vi…
+  OK      texture_brick  (448 KB)
+  QUERY   texture_stone  (Square_stone_brick_Texture.jpg)
+  FETCH   texture_stone  → https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/Square_stone_brick_Tex…
+  OK      texture_stone  (717 KB)
+  QUERY   texture_cement  (Cement_texture.jpg)
+  FETCH   texture_cement  → https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Cement_texture.jpg/128…
+  OK      texture_cement  (367 KB)
+  QUERY   texture_asphalt  (Asphalt_close_800x600.jpg)
+  FAIL    texture_asphalt  — not found on Wikimedia Commons
+  QUERY   texture_bark  (Gfp-tree-bark.jpg)
+  FAIL    texture_bark  — not found on Wikimedia Commons
+  QUERY   natural_snow_mountain  (Snowy_mountains_in_Valloire_(Unsplash).jpg)
+  FETCH   natural_snow_mountain  → https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/Snowy_mountains_in_Val…
+  OK      natural_snow_mountain  (209 KB)
+  QUERY   natural_coral_reef  (Underwater_photo_of_coral_reef.jpg)
+  FETCH   natural_coral_reef  → https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/Underwater_photo_of_co…
+  OK      natural_coral_reef  (260 KB)
+  QUERY   natural_caribou  (Barren_ground_caribou_grazing_with_autumn_foliage_in_backgro)
+  FETCH   natural_caribou  → https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Barren_ground_caribou_…
+  OK      natural_caribou  (233 KB)
+  QUERY   natural_fir_snow  (Fir_trees_in_the_cold_snow_(Unsplash).jpg)
+  FETCH   natural_fir_snow  → https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Fir_trees_in_the_cold_…
+  OK      natural_fir_snow  (290 KB)
+  QUERY   paint_vermeer_pearl  (Johannes_Vermeer_-_Girl_with_a_Pearl_Earring_-_670_-_Maurits)
+  FETCH   paint_vermeer_pearl  → https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/Johannes_Vermeer_-_Gir…
+  OK      paint_vermeer_pearl  (604 KB)
+  QUERY   paint_vermeer_milk  (Johannes_Vermeer_-_Het_melkmeisje_-_Google_Art_Project.jpg)
+  FETCH   paint_vermeer_milk  → https://upload.wikimedia.org/wikipedia/commons/thumb/2/20/Johannes_Vermeer_-_Het…
+  OK      paint_vermeer_milk  (601 KB)
+  QUERY   paint_rembrandt_self  (Rembrandt_van_Rijn_-_Self-Portrait_-_Google_Art_Project.jpg)
+  FETCH   paint_rembrandt_self  → https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Rembrandt_van_Rijn_-_S…
+  OK      paint_rembrandt_self  (350 KB)
+  QUERY   paint_monet_magpie  (Claude_Monet_-_The_Magpie_-_Google_Art_Project.jpg)
+  FETCH   paint_monet_magpie  → https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Claude_Monet_-_The_Mag…
+  OK      paint_monet_magpie  (349 KB)
+  QUERY   paint_monet_lilies  (Claude_Monet_-_Water_Lilies_-_Google_Art_Project_(462013).jp)
+  FETCH   paint_monet_lilies  → https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/Claude_Monet_-_Water_L…
+  OK      paint_monet_lilies  (481 KB)
+  QUERY   paint_renoir_galette  (Auguste_Renoir_-_Dance_at_Le_Moulin_de_la_Galette_-_Google_A)
+  FETCH   paint_renoir_galette  → https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/Auguste_Renoir_-_Dance…
+  QUERY   paint_renoir_piano  (Auguste_Renoir_-_Young_Girls_at_the_Piano_-_Google_Art_Proje)
+  FETCH   paint_renoir_piano  → https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/Auguste_Renoir_-_Young…
+  QUERY   paint_vangogh_starry  (Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg)
+  FETCH   paint_vangogh_starry  → https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Van_Gogh_-_Starry_Nigh…
+  QUERY   arch_street_sf  (Street_View_urban_street_(Unsplash).jpg)
+  FETCH   arch_street_sf  → https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Street_View_urban_stre…
+  QUERY   arch_nyc_street  (People_walking_across_urban_street_(Unsplash).jpg)
+  FETCH   arch_nyc_street  → https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/People_walking_across_…
+  QUERY   arch_bologna  (Metropolitan_City_of_Bologna,_Italy_(Unsplash).jpg)
+  FETCH   arch_bologna  → https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/Metropolitan_City_of_B…
+  QUERY   arch_interior  (Living_room_(Unsplash).jpg)
+  FETCH   arch_interior  → https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Living_room_%28Unsplas…
+  QUERY   arch_building  (Moore_Hall,_Western_Carolina_University,_Cullowhee,_NC_(4572)
+  FETCH   arch_building  → https://upload.wikimedia.org/wikipedia/commons/thumb/7/75/Moore_Hall%2C_Western_…
+
+  Downloaded: 15 / 26  Failed: 11
+  Failed: face_pexels_woman, texture_asphalt, texture_bark, paint_renoir_galette, paint_renoir_piano, paint_vangogh_starry, arch_street_sf, arch_nyc_street, arch_bologna, arch_interior, arch_building
+
+────────────────────────────────────────────────────────────────────────
+  STEP 2: ResNet50 distances — existing + new images
+────────────────────────────────────────────────────────────────────────
+
+  [Existing images]
+  boardwalk               natural         d=0.7828  (prior=0.7858)
+  frog_on_log             natural         d=0.8626  (prior=0.8663)
+  nature_land             natural         d=0.7989  (prior=0.8023)
+  nat_landscape2          natural         d=0.7985  (prior=0.8041)
+  nat_landscape3          natural         d=0.8118  (prior=0.8177)
+  boy_face                faces           d=0.8078  (prior=0.8018)
+  girl_sad_face           faces           d=0.7584  (prior=0.7365)
+  wayuu_woman             faces           d=0.7387  (prior=0.7203)
+  wood_grain              texture         d=0.9444  (prior=0.9483)
+  dirt_soil               texture         d=0.9118  (prior=0.9099)
+  grass_meadow            texture         d=0.9036  (prior=0.9140)
+  soft_blobs              synthetic       d=0.8906  (prior=0.8890)
+  noise_gauss50           synthetic       d=0.9118  (prior=0.9154)
+  checker32               synthetic       d=0.7745  (prior=0.7891)
+
+  [New images]
+  face_red_hair           faces           d=0.7213
+  face_algerian           faces           d=0.8032
+  texture_sand            texture         d=0.9253
+  texture_brick           texture         d=0.9257
+  texture_stone           texture         d=0.9266
+  texture_cement          texture         d=0.9258
+  natural_snow_mountain   natural         d=0.9253
+  natural_coral_reef      natural         d=0.8339
+  natural_caribou         natural         d=0.8239
+  natural_fir_snow        natural         d=0.8421
+  paint_vermeer_pearl     painting        d=0.7596
+  paint_vermeer_milk      painting        d=0.7712
+  paint_rembrandt_self    painting        d=0.7867
+  paint_monet_magpie      painting        d=0.8294
+  paint_monet_lilies      painting        d=0.8309
+
+  Total measured: 29 images
+
+────────────────────────────────────────────────────────────────────────
+  STEP 3: Distribution table (sorted by distance)
+────────────────────────────────────────────────────────────────────────
+
+   #  label                   category          dist  new?
+  ────────────────────────────────────────────────────────
+   1  face_red_hair           faces           0.7213  NEW
+   2  wayuu_woman             faces           0.7387     
+   3  girl_sad_face           faces           0.7584     
+   4  paint_vermeer_pearl     painting        0.7596  NEW
+   5  paint_vermeer_milk      painting        0.7712  NEW
+   6  checker32               synthetic       0.7745     
+   7  boardwalk               natural         0.7828     
+   8  paint_rembrandt_self    painting        0.7867  NEW
+   9  nat_landscape2          natural         0.7985     
+  10  nature_land             natural         0.7989     
+  11  face_algerian           faces           0.8032  NEW
+  12  boy_face                faces           0.8078     
+  13  nat_landscape3          natural         0.8118     
+  14  natural_caribou         natural         0.8239  NEW
+  15  paint_monet_magpie      painting        0.8294  NEW
+  16  paint_monet_lilies      painting        0.8309  NEW
+  17  natural_coral_reef      natural         0.8339  NEW
+  18  natural_fir_snow        natural         0.8421  NEW
+  19  frog_on_log             natural         0.8626     
+  20  soft_blobs              synthetic       0.8906     
+  21  grass_meadow            texture         0.9036     
+  22  dirt_soil               texture         0.9118     
+  23  noise_gauss50           synthetic       0.9118     
+  24  natural_snow_mountain   natural         0.9253  NEW
+  25  texture_sand            texture         0.9253  NEW
+  26  texture_brick           texture         0.9257  NEW
+  27  texture_cement          texture         0.9258  NEW
+  28  texture_stone           texture         0.9266  NEW
+  29  wood_grain              texture         0.9444     
+
+────────────────────────────────────────────────────────────────────────
+  STEP 4: Coverage analysis — non-synthetic images only
+────────────────────────────────────────────────────────────────────────
+
+  Non-synthetic n = 26
+  Range:  [0.7213, 0.9444]   span = 0.2231
+  Mean:   0.8365   Std: 0.0658
+  Q10–Q90: [0.7590, 0.9257]
+
+  Per-category ranges:
+    faces           n= 5  [0.7213, 0.8078]  mean=0.7659
+    natural         n= 9  [0.7828, 0.9253]  mean=0.8311
+    painting        n= 5  [0.7596, 0.8309]  mean=0.7955
+    texture         n= 7  [0.9036, 0.9444]  mean=0.9233
+
+  Largest gaps (top 3):
+    gap=0.0409  between 0.8626(['natural']) and 0.9036(['texture'])
+    gap=0.0205  between 0.8421(['natural']) and 0.8626(['natural'])
+    gap=0.0197  between 0.7387(['faces']) and 0.7584(['faces', 'painting'])
+
+  Bimodality check: OK (no large mid-range gap detected)
+
+────────────────────────────────────────────────────────────────────────
+  STEP 5: Phase 2 runtime budget
+────────────────────────────────────────────────────────────────────────
+
+  Non-synthetic images total: 26
+  Fresh calibrations needed (new images): 15
+  Noise-floor + coherence only (existing N≥48): 11
+
+  Time per fresh image (N=48 cal + 5×NF×N=12 + 1×coh×N=12):
+    N=48 cal:         53s
+    5×NF windows ×12: 66s
+    1 coherence ×12:  13s
+    Total per fresh:  ~132s
+
+  Time per existing image (NF + coherence only):  ~79s
+
+  Estimated total: 15×132s + 11×79s = 2849s
+                   = 47 min (0.8 h)
+
+  PROPOSED PROTOCOL:
+  ─────────────────
+  N=48 for calibration slope (same as prior results — comparable).
+  5 independent NF windows at N=12 (same as Update 6 — directly comparable).
+  1 coherence run at N=12 (same as Update 7).
+
+  Why N=48 for slope, not higher:
+  · At N=48, slope SE ≈ noise_floor/√5 ≈ 0.013–0.023 (for faces group),
+    which is ~10–20% of the slope signal. Adequate for correlations at n≥20.
+  · N=96 halves SE but doubles runtime. Marginal gain at n=30+ images.
+  · N=48 matches the prior CERTIFIED result — keeps everything comparable.
+
+  Statistical power at n=30 non-synthetic images:
+  · For r=0.5 (medium effect): power≈0.82 at α=0.05 (two-tailed)
+  · For r=0.4 (smaller effect): power≈0.60 — marginal
+  · Minimum detectable r at 80% power, α=0.05: r≈0.48 (n=30)
+
+  Tradeoff: if budget allows, ≥40 non-synthetic would give power≈0.89 at r=0.45.
+  Recommendation: proceed with all available non-synthetic images.
+
+────────────────────────────────────────────────────────────────────────
+  STEP 6: Pre-registered analysis plan (written BEFORE seeing results)
+────────────────────────────────────────────────────────────────────────
+
+  [Written to pre_registration.md]
+
+  Pre-registration written to: /Users/mikkotarkiainen/Projects/provenanssi/eval/pre_registration.md
+
+========================================================================
+  PHASE 1 SUMMARY — FOR HUMAN REVIEW
+========================================================================
+
+  Images assembled:      29 total (26 non-synthetic)
+  New images downloaded: 15
+  Download failures:     11
+
+  Distance range (non-syn): [0.7213, 0.9444]
+  Bimodality:               NO — axis covered
+
+  Phase 2 estimated runtime: 2849s (47 min, 0.8h)
+  Proposed N: 48 calibration + 5×NF×12 + 1×coherence×12 per image
+
+  Pre-registered analysis plan: WRITTEN (eval/pre_registration.md)
+
+  AWAITING APPROVAL before Phase 2.
