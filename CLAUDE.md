@@ -401,3 +401,11 @@ Full derivation and data: FINDINGS.md Update 6; script: `eval/slope_noise_mechan
 
 - **Slope-magnitude → noise-floor mechanism — RESOLVED.** No longer open. See §10
   "Slope→noise-floor mechanism" and FINDINGS.md Update 6.
+
+- **Coherence mechanism — direct test COMPLETE, verdict (a-weak).** Directly measured
+  the spatial correlation of seed-to-seed null-space deviations (rho_nn, 2D ACF at r=1).
+  Sanity check passes (noise_gauss50 rho_nn ≈ 0). rho_nn is higher for face images
+  (0.22–0.24) than texture images (0.10–0.16); r(rho_nn, slope) = +0.549, n=5, CI includes 0.
+  Mechanism is CONSISTENT with Update 6 but not confirmed. Update 6's causal language
+  ("spatially coherent hallucinations → lower n_eff") remains "hypothesised, consistent
+  with direct measurement." See FINDINGS.md Update 7 and `eval/spatial_coherence.py`.

@@ -1,0 +1,152 @@
+Loading ResShift engine …
+
+========================================================================
+  SPATIAL COHERENCE OF NULL-SPACE HALLUCINATION — DIRECT MEASUREMENT
+  ResShift + BicubicDownsample(4), N=12 members per image
+========================================================================
+
+  Primary metrics:
+    rho_nn = mean nearest-neighbor (r=1) spatial ACF of normalized
+             seed-to-seed null-space deviations.  Directly measures
+             whether nearby pixels co-vary across seeds.
+    Gamma  = spatial coherence integral Σ_r ACF(r)*count(r)/n.
+             n_eff ≈ n / (1 + 2*Gamma) — key quantity for noise floor.
+  Note: L (1/e length) is also shown but resolves to 1px for all images
+  when the ACF decays very quickly; rho_nn and Gamma are the informative
+  metrics in that regime.
+
+────────────────────────────────────────────────────────────────────────
+  SANITY CHECK — noise_gauss50
+────────────────────────────────────────────────────────────────────────
+
+  Gaussian white-noise image: null-space deviations should be spatially
+  uncorrelated → rho_nn ≈ 0, Gamma ≈ 0.
+
+  noise_gauss50 (15s):
+    null_frac = 0.3194
+    rho_nn  = -0.0022 ± 0.0144
+    gamma_nn= -0.783 ± 0.051  (n_eff/n ≈ 1.000)
+    L_1e    = 1.0 px
+    rho_r[0..5]: ['1.0000', '-0.0022', '-0.0663', '-0.0193', '-0.0005', '0.0173']
+
+  Sanity reference: noise_gauss50 rho_nn = -0.0022
+
+────────────────────────────────────────────────────────────────────────
+  MAIN MEASUREMENTS
+────────────────────────────────────────────────────────────────────────
+
+  wood_grain (slope=0.2323, 13s):
+    rho_nn  = 0.0984 ± 0.0219
+    gamma_nn= 0.269 ± 0.133  (n_eff/n ≈ 0.788)
+    L_1e    = 1.0 px
+    rho_r[0..5]: ['1.0000', '0.0984', '-0.0456', '-0.0240', '-0.0011', '0.0179']
+
+  boardwalk (slope=0.9475, 13s):
+    rho_nn  = 0.1613 ± 0.0201
+    gamma_nn= -0.426 ± 0.208  (n_eff/n ≈ 1.000)
+    L_1e    = 1.0 px
+    rho_r[0..5]: ['1.0000', '0.1613', '-0.0445', '-0.0732', '-0.0279', '0.0282']
+
+  wayuu_woman (slope=1.5848, 13s):
+    rho_nn  = 0.2447 ± 0.0375
+    gamma_nn= -1.609 ± 0.150  (n_eff/n ≈ 1.000)
+    L_1e    = 1.0 px
+    rho_r[0..5]: ['1.0000', '0.2447', '-0.0477', '-0.1197', '-0.0557', '0.0232']
+
+  girl_sad_face (slope=2.7961, 13s):
+    rho_nn  = 0.1540 ± 0.0202
+    gamma_nn= -1.462 ± 0.203  (n_eff/n ≈ 1.000)
+    L_1e    = 1.0 px
+    rho_r[0..5]: ['1.0000', '0.1540', '0.0169', '-0.0895', '-0.0725', '0.0142']
+
+  boy_face (slope=3.1776, 14s):
+    rho_nn  = 0.2188 ± 0.0706
+    gamma_nn= -1.287 ± 0.124  (n_eff/n ≈ 1.000)
+    L_1e    = 1.0 px
+    rho_r[0..5]: ['1.0000', '0.2188', '-0.0323', '-0.1154', '-0.0562', '0.0284']
+
+  soft_blobs (slope=4.3725, 13s):
+    rho_nn  = 0.0136 ± 0.0152
+    gamma_nn= -1.482 ± 0.233  (n_eff/n ≈ 1.000)
+    L_1e    = 1.0 px
+    rho_r[0..5]: ['1.0000', '0.0136', '0.0781', '-0.0519', '-0.1077', '0.0196']
+
+────────────────────────────────────────────────────────────────────────
+  DATA TABLE (sorted by slope)
+────────────────────────────────────────────────────────────────────────
+
+  Image             null_frac    slope   nf_std   rho_nn  gamma_nn  n_eff/n  note
+  ────────────────────────────────────────────────────────────────────────────────
+  wood_grain           0.0159   0.2323   0.0186   0.0984      0.27    0.788  
+  boardwalk            0.0046   0.9475   0.0286   0.1613     -0.43    1.000  
+  wayuu_woman          0.0162   1.5848   0.0471   0.2447     -1.61    1.000  
+  girl_sad_face        0.0032   2.7961   0.0374   0.1540     -1.46    1.000  
+  boy_face             0.0049   3.1776   0.0511   0.2188     -1.29    1.000  
+  soft_blobs           0.0014   4.3725   0.3391   0.0136     -1.48    1.000  [DEGENERATE]
+
+────────────────────────────────────────────────────────────────────────
+  CORRELATION ANALYSIS
+────────────────────────────────────────────────────────────────────────
+
+  Two metrics: rho_nn (nearest-neighbour ACF at r=1, PRIMARY) and gamma_nn
+  (first-5-ring coherence integral: Σ_{r=1}^{5} ρ(r)*N_full(r)).
+  Mechanism prediction: POSITIVE correlation with slope and with noise_floor_std.
+
+  ── rho_nn (primary) ────────────────────────────────────────────────
+
+  A1. r(rho_nn, slope)
+      Full (n=6) r(rho_nn, slope) = -0.307  CI [-0.958, +0.858]  n=6  [0 in CI]
+      Excl. soft_blobs (n=5) r(rho_nn, slope) = +0.549  CI [-0.927, +0.994]  n=5  [0 in CI]
+
+  B1. r(rho_nn, noise_floor_std)
+      Full (n=6) r(rho_nn, nf_std) = -0.730  CI [-0.987, +0.587]  n=6  [0 in CI]
+      Excl. soft_blobs (n=5) r(rho_nn, nf_std) = +0.925  CI [-0.555, +0.999]  n=5  [0 in CI]
+
+  ── gamma_nn (secondary) ────────────────────────────────────────────
+
+  A2. r(gamma_nn, slope)
+      Full (n=6) r(gamma_nn, slope) = -0.766  CI [-0.989, +0.531]  n=6  [0 in CI]
+      Excl. soft_blobs (n=5) r(gamma_nn, slope) = -0.804  CI [-0.998, +0.815]  n=5  [0 in CI]
+
+  B2. r(gamma_nn, noise_floor_std)
+      Full (n=6) r(gamma_nn, nf_std) = -0.394  CI [-0.965, +0.829]  n=6  [0 in CI]
+      Excl. soft_blobs (n=5) r(gamma_nn, nf_std) = -0.900  CI [-0.999, +0.652]  n=5  [0 in CI]
+
+  ── Direct slope↔noise (for mediation reference) ───────────────────
+
+      Full (n=6) r(slope, nf_std) = +0.749  CI [-0.560, +0.988]  n=6  [0 in CI]
+      Excl. soft_blobs (n=5) r(slope, nf_std) = +0.814  CI [-0.805, +0.998]  n=5  [0 in CI]
+
+  ── Mediation: partial r(slope, nf_std | rho_nn) ────────────────────
+
+    Full (n=6)  partial_r(slope, nf_std | rho_nn) = +0.807
+    Excl. (n=5) partial_r(slope, nf_std | rho_nn) = +0.964  CI [-0.244, +1.000]
+    Attenuation (excl.): -19%
+
+  ── Mediation: partial r(slope, nf_std | gamma_nn) ──────────────────
+
+    Full (n=6)  partial_r(slope, nf_std | gamma_nn) = +0.757
+    Excl. (n=5) partial_r(slope, nf_std | gamma_nn) = +0.348  CI [-0.955, +0.989]
+    Attenuation (excl.): 57%
+
+────────────────────────────────────────────────────────────────────────
+  VERDICT
+────────────────────────────────────────────────────────────────────────
+
+  rho_nn   ~ slope: POSITIVE_MODERATE  (r=+0.549, excl. soft_blobs)
+  gamma_nn ~ slope: NON_POSITIVE  (r=-0.804, excl. soft_blobs)
+
+  (a-mixed) MIXED — one metric shows positive trend, the other does not.
+      rho_nn: POSITIVE_MODERATE, gamma_nn: NON_POSITIVE.
+      Update 6's mechanism is plausible but not robustly supported.
+
+  CAVEATS:
+  - n=5 (excl. soft_blobs): all correlations are severely underpowered.
+    CIs span most of [−1, +1]. This test is indicative only.
+  - Sanity check provides reference but not a within-analysis control.
+  - n≥20 images spanning the slope range needed for definitive resolution.
+
+────────────────────────────────────────────────────────────────────────
+  Total runtime: 95s (1.6 min)
+  ResShift passes: 84
+────────────────────────────────────────────────────────────────────────
