@@ -323,7 +323,9 @@ The following is what was found and what was retracted. Both carry equal weight.
 natural↔faces group contrast (N=48 means: natural 1.1874, faces 2.5715, difference
 1.3841) is **9.2× the worst in-contrast noise floor** (boy_face N=12 range = 0.1497,
 measured directly from the faces group's own noise floor). Slope is image-dependent
-beyond noise.
+beyond noise. The 9.2× figure is a **lower bound**: the mechanism analysis (§10 below)
+established that the faces noise floor is partly inflated by slope magnitude, making
+the denominator conservative.
 
 **Why the grouping is weak:** "faces vs natural" is a weak domain label. The
 within-faces slope span at N=48 is 1.75–3.18, which exceeds the full natural range
@@ -341,30 +343,61 @@ extend this to "distribution-dependent calibration" without a rigorous distance 
 - **Inverse energy→noise curve = confounded by slope magnitude.** The pattern "higher
   null_frac_gt → lower noise floor" was confounded: face images with similar null
   energy to boardwalk but ~3× higher slope had 1.5–1.8× higher noise floors. Null
-  energy alone does not predict the noise floor.
+  energy alone does not predict the noise floor. The mechanism is now characterised
+  (see slope-noise mechanism below): spatial correlation of reconstruction errors
+  reduces effective sample size n_eff for high-slope images.
 
 **If you read this section and conclude we have a domain-shift detector or a clean
 group-level result, re-read the withdrawals above.** The honest summary: slope is
 image-dependent above noise, grouping is weak, one contrast measured, three prior
 claims retracted.
 
+### Distance-metric thread — SHELVED (not closed)
+
+Three attempts to replace intuitive grouping with a rigorous per-image distance metric:
+
+1. **VQ-encoder cosine distance** (ResShift autoencoder_vq_f4): null result — metric
+   measured compressibility, placed synthetics closer to ImageNet centroid than naturals.
+2. **ResNet50 penultimate-layer cosine distance** (IMAGENET1K_V2, 2048-dim): borderline
+   signal in non-synthetic split (Spearman ρ=−0.736 p=0.010, n=11), but the correlation
+   reflects group identity (3 clusters × 3–5 images) not a continuous distance effect.
+   Partial r controlling null_frac has CI including 0.
+
+The bottleneck is **statistical power**, not the metric. n=11 non-synthetic images in 3
+tight clusters cannot separate a continuous distance effect from a group-level one.
+Scripts and data are preserved; resume recipe in FINDINGS.md Update 5.
+Do not restart this thread without a dedicated block (~60–100 images, ~1.5h GPU time).
+
+### Slope→noise-floor mechanism — RESOLVED
+
+The calibration slope noise floor scales as slope^α (sub-proportional, α≈0.35–0.5),
+not as an OLS estimator artifact. Analytic derivation shows the OLS estimator is
+scale-invariant under iid pixels (predicts α=0). Empirical fit excluding soft_blobs
+(n=5): α̂=0.36, t-CI [0.07, 0.64], excluding 0 at p<0.05. Mechanism: pixel
+reconstruction errors are spatially correlated within windows; images where ResShift
+generates coherent null-space hallucinations (faces) have lower effective sample size
+n_eff. soft_blobs is a separate ill-conditioning artifact (near-zero null-space signal).
+Full derivation and data: FINDINGS.md Update 6; script: `eval/slope_noise_mechanism.py`.
+
 ---
 
 ## 11. Open / not yet attempted
 
-None of the following has been done. They are possible future directions only.
+- **Rigorous distribution-distance metric — SHELVED, not closed.** Three attempts made
+  (VQ-encoder: null; ResNet50 group-level: borderline). The bottleneck is statistical
+  power (n=11 non-synthetic in 3 clusters). Resume recipe in FINDINGS.md Update 5.
+  Any future claim that slope tracks distribution distance on a *continuous* scale still
+  requires a properly powered study (~60–100 images, balanced across the distance axis).
 
-- **Rigorous distribution-distance metric.** The grouping (natural / faces / texture /
-  synthetic) is intuitive. No FID, FD∞, CLIP distance, or embedding-space metric was
-  computed. Any future claim that slope tracks distribution distance requires substituting
-  a rigorous metric for the intuitive proxy.
 - **GT-free shift detection.** Whether domain shift can be detected from slope alone,
-  without ground-truth images, was never attempted. Two prerequisites were not fully met
-  when the investigation closed: the texture group's per-image noise floor, and
-  sufficient faces-group coverage.
+  without ground-truth images, was never attempted. Prerequisites: (a) texture noise
+  floor — now characterised (wood_grain converges to ~0.60, inside calibrated window);
+  (b) rigorous distance metric — still open (shelved). GT-free detection is still
+  premature; the group-level signal is established but a detector needs a metric.
+
 - **Faces-group generality.** The slope elevation finding rests on 3 face images (CC0,
   one photographer, Wilfredor). Whether this generalises to other face images, other
   photographers, or other lighting conditions is untested.
-- **Slope-magnitude → noise-floor mechanism.** The observation that noise floor scales
-  with slope magnitude (not null energy alone) is a measurement, not an explanation.
-  The mechanism is unknown and would need its own investigation.
+
+- **Slope-magnitude → noise-floor mechanism — RESOLVED.** No longer open. See §10
+  "Slope→noise-floor mechanism" and FINDINGS.md Update 6.
