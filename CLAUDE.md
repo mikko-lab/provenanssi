@@ -419,14 +419,15 @@ Full derivation: FINDINGS.md Updates 6 and 9. Scripts: `eval/slope_noise_mechani
   aggregate r(dist, slope)=−0.689 is a between-group contrast, not a continuous effect.
 
 - **Which content property drives the elevation — SEMANTICS-ROBUST: dominant foreground
-  subject (A_dom_broad: prominent animal or human) independently predicts slope above an
-  expanded 5-feature low-level control set (spectral slope H1, GT autocorrelation H2,
-  mean patch variance C1, mean gradient magnitude C2, patch variance heterogeneity C3),
-  robust to single-observation removal (LOO 24/24). Full-5 partial r=+0.731,
-  CI [+0.382, +0.897]. SCOPE: ResShift+BicubicDownsample(4) only; behavioural label, no
-  mechanism claim; content-vs-style not testable at this n (painting contrast n=3 vs n=2
-  confounded); single-annotator annotation, not inter-rater-validated; C1/C2 near-
-  collinear (r=0.94) — expanded set adds ~2 genuinely independent controls beyond H1+H2.
+  subject (A_dom_broad: prominent animal or human) independently predicts slope above five
+  tested low-level controls (H1 −β_spec, H2 rho_gt, C1 V_patch, C2 G_mean, C3 V_het),
+  robust to single-observation removal (LOO 24/24); this independence is supported against
+  the tested controls but not exhausted against all possible low-level confounds, because
+  C1 and C2 are near-collinear (r=0.94, VIF≈38), leaving the expanded set with only ~2
+  effective independent dimensions beyond H1+H2 — a non-redundant replacement for C1 or
+  C2 would be more decisive. SCOPE: ResShift+BicubicDownsample(4) only; behavioural label,
+  no mechanism claim; content-vs-style not testable at this n (painting contrast n=3 vs
+  n=2 confounded); single-annotator annotation, not inter-rater-validated.
   (Update 10 + robustness addendum + Update 11 mechanism gate)** Pre-registered, n=24:
   H1/H2/H3 all CONFIRMED marginally; A_dom_broad survives both 2-control (P1'=+0.661,
   CI [+0.305,+0.854]) and 5-control (r=+0.731, CI [+0.382,+0.897]) partial; LOO 24/24

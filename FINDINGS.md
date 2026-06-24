@@ -1871,10 +1871,13 @@ the low-level control set by ~2 independent dimensions (not 3). A non-redundant 
 choice replacing C1 or C2 would make a stronger test. This is a limitation of this
 session's design; a future test with better-conditioned controls would be more decisive.
 
-**Status: SEMANTICS-ROBUST — A_dom_broad (dominant foreground subject: prominent animal
-or human) independently predicts slope elevation above an expanded 5-feature low-level
-control set (spectral slope H1, GT autocorrelation H2, mean patch variance C1, mean
-gradient magnitude C2, patch variance heterogeneity C3), robust to single-observation
-removal (LOO 24/24). SCOPE: ResShift+BicubicDownsample(4) only; behavioural label, no
-mechanism claim; content-vs-style not testable at this n; single-annotator annotation;
-C1/C2 near-collinear (r=0.94) — expanded set adds ~2 genuinely independent controls.**
+**Status: SEMANTICS-ROBUST — A_dom_broad (dominant foreground subject: prominent animal or
+human) independently predicts slope elevation above five tested low-level controls (H1
+−β_spec, H2 rho_gt, C1 V_patch, C2 G_mean, C3 V_het), robust to single-observation
+removal (LOO 24/24); this independence is supported against the tested controls but not
+exhausted against all possible low-level confounds, because C1 and C2 are near-collinear
+(r=0.94, VIF≈38), leaving the expanded set with only ~2 effective independent dimensions
+beyond H1+H2 — a non-redundant replacement for C1 or C2 would be more decisive. SCOPE:
+ResShift+BicubicDownsample(4) only; behavioural label, no mechanism claim; content-vs-
+style not testable at this n (painting contrast n=3 vs n=2 confounded); single-annotator
+annotation, not inter-rater-validated.**
