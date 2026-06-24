@@ -178,17 +178,37 @@ Phase 2 slopes (for reference, computed before this registration):
 
 ---
 
-## Discriminating contrast: within paintings (n=3 vs n=2)
+## ADDITION A — Painting-contrast power limitation and content-vs-style ceiling
+## (Added 2026-06-24, BEFORE any feature computation)
 
-Portrait paintings: paint_vermeer_pearl, paint_vermeer_milk, paint_rembrandt_self
-Landscape paintings: paint_monet_magpie, paint_monet_lilies
+Portrait paintings: paint_vermeer_pearl, paint_vermeer_milk, paint_rembrandt_self (n=3)
+Landscape paintings: paint_monet_magpie, paint_monet_lilies (n=2)
 
-POWER WARNING: n=3 vs n=2 → C(5,2)=10 possible arrangements. Minimum achievable
-one-tailed p for any rank test = 1/10 = 0.10. Statistical significance (p<0.05) is
-structurally impossible at these group sizes. NO statistical test is reported for this
-contrast. It is a DIRECTIONAL CHECK only.
+POWER WARNING — structural: n=3 vs n=2 → C(5,2)=10 possible arrangements. Minimum
+achievable one-tailed p for any rank test = 1/10 = 0.10. Statistical significance (p<0.05)
+is structurally impossible at these group sizes. NO statistical test is reported.
+This contrast is a DIRECTIONAL CHECK only.
 
-For each feature, the check passes if:
+CEILING ON INTERPRETATION — content vs style: The portrait-vs-landscape painting split
+confounds two things simultaneously: (a) content (face/figure vs scene), and (b) painting
+style (Vermeer/Rembrandt chiaroscuro vs Monet impressionism). These are not separable in
+the current dataset. THEREFORE:
+
+  THIS SESSION CANNOT CONFIRM "CONTENT, NOT PAINTING STYLE" AS THE DRIVER.
+
+Even a perfect directional check (all three portrait features above all landscape features)
+would not establish that content drives slope rather than stylistic painting conventions.
+This limitation must appear in every written verdict. Specifically:
+  - "portrait paintings have X > landscape paintings" is acceptable.
+  - "this shows content, not style, drives slope" is NOT — content and style are
+    confounded at n=3 vs n=2.
+
+What the painting contrast CAN do: serve as an out-of-sample directional consistency
+check for correlations established across the full n=24 sample. If a feature separates
+portrait from landscape paintings in the same direction as its n=24 correlation, that is
+evidence of consistency. It is not evidence of the mechanism.
+
+For each feature, the directional check passes if:
   H1: mean(−β_spec, portraits) > mean(−β_spec, landscapes)
   H2: mean(rho_gt, portraits) > mean(rho_gt, landscapes)
   H3: trivially passes (portrait paintings all A_dom=1, landscape paintings all A_dom=0)
@@ -221,7 +241,81 @@ For H3 (binary A_dom): point-biserial correlation treated identically to Pearson
 - 3 primary tests (H1, H2, H3): Bonferroni α = 0.0167
 - All 3 reported regardless of outcome; no selective omission
 - A_dom_broad: secondary, separate, excluded from Bonferroni
+- Partial correlations (Addition B below): separate section, labeled discriminating analysis
 - Any additional test not listed here: POST-HOC EXPLORATORY, excluded from confirmatory table
+
+---
+
+## ADDITION B — Discriminating partial-correlation structure
+## (Added 2026-06-24, BEFORE any feature computation)
+
+### Motivation
+
+H1 (−β_spec), H2 (rho_gt), and H3 (A_dom) are expected to co-vary: all three separate
+faces and portrait paintings from landscapes/textures, so all three may correlate with
+slope for the same underlying reason — the face/non-face split. Three separate
+"CONFIRMED" marginal correlations would NOT establish three independent drivers; they
+could be three measurements of one underlying face/portrait identity.
+
+To discriminate the hypotheses, we pre-register partial correlations that ask: does each
+feature predict slope BEYOND the other two?
+
+### Pre-stated partial correlations
+
+Three partials computed by regressing out the other two predictors (OLS residuals):
+
+  P1: partial r(A_dom, slope | −β_spec, rho_gt)
+      Does semantic face/figure content predict slope after removing spectral and coherence
+      effects? If yes → A_dom is an independent driver beyond low-level statistics.
+      If collapses to ~0 → semantic label is a proxy for spectral/coherence structure.
+
+  P2: partial r(−β_spec, slope | rho_gt, A_dom)
+      Does global spectral slope predict slope after removing local coherence and semantic
+      content? If yes → spectral structure is an independent driver.
+
+  P3: partial r(rho_gt, slope | −β_spec, A_dom)
+      Does local nearest-neighbor coherence predict slope after removing spectral and
+      semantic effects? If yes → local coherence is an independent driver.
+
+### Decision rule for independence
+
+A hypothesis is an INDEPENDENT DRIVER if: its partial correlation CI (computed from OLS
+residual Pearson r, df=n-2-2=20 for n=24 with 2 controls) excludes 0.
+
+IMPORTANT CAVEAT ON POWER: df=20 for a single-predictor correlation gives t-critical
+≈ 2.09 (α=0.05). At n=24, controlling 2 covariates, the CI for partial r will be
+substantially wider than for the marginal r. Even a true partial r of 0.45 has only
+~50% power at df=20. Partials should be treated as the discriminating evidence when they
+clearly include or exclude 0, but intermediate results are genuinely inconclusive.
+
+### Collinearity check (pre-stated, not optional)
+
+Before interpreting partials, report:
+  - Pairwise Pearson r among the three predictors: r(H1,H2), r(H1,H3), r(H2,H3)
+  - Variance Inflation Factor (VIF) for each predictor in the multiple regression of
+    slope on H1, H2, H3: VIF_i = 1/(1 − R²_i) where R²_i is from regressing predictor
+    i on the other two.
+  - VIF > 5 is treated as "high collinearity." VIF > 10 is "severe."
+
+### Entanglement verdict (pre-stated — the honest outcome if partials are inconclusive)
+
+If ALL THREE partial CIs include 0 AND at least two pairwise r's among predictors are
+|r| > 0.70: report verdict as "ENTANGLED — cannot separate drivers at n=24." This is a
+valid and informative result, not a failure. In that case, state:
+  - What the marginals establish: the full predictor set tracks the face/portrait split
+  - What they do not establish: which specific property (spectral, coherence, semantic)
+    is the active mechanism
+  - What would resolve it: approximate sample size or design change needed to separate
+    the drivers (e.g., add smooth non-face images with high −β_spec but A_dom=0; add
+    face images with disrupted spectral structure)
+
+If ONE partial CI clearly excludes 0 while the others clearly include 0: report that
+predictor as the independent driver with its caveats (VIF, n=24 limitation, no
+content-vs-style claim).
+
+If TWO OR MORE partial CIs exclude 0: report that collinearity has not screened them
+apart and both remain candidate drivers — this is the same as entanglement at two
+predictors, not confirmation of two independent mechanisms.
 
 ---
 
@@ -248,10 +342,3 @@ segmentation structure) and a new pre-registration.
 All results are ResShift+BicubicDownsample(4) specific. GT images are 256×256 grayscale
 crops from the Phase 2 natural_images/ collection (same images used in Phase 2). No
 generalization to other engines or operators is claimed.
-
----
-
-## STOP
-
-This document defines Phase 1 (design). Phase 2 (feature computation and correlation
-tests) does not begin until this document is committed and user approval is given.
