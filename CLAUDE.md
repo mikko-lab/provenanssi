@@ -411,26 +411,24 @@ Full derivation: FINDINGS.md Updates 6 and 9. Scripts: `eval/slope_noise_mechani
   (b) rigorous distance metric — still open (shelved). GT-free detection is still
   premature; the group-level signal is established but a detector needs a metric.
 
-- **Content-type vs distance as driver of slope — RESOLVED (Update 8).** Phase 2
-  (n=24, pre-registered) confirmed DISSOCIATION: at the same ResNet50 distance (0.72–0.87),
-  face photographs and portrait paintings have mean slope ~2.1 while landscape naturals
-  have mean slope ~1.3 (KW p=0.019). Distance is a correlate (r=−0.689, n=24), but
-  content type is the proximate driver. "Face-like representational content" — including
-  portrait paintings — elevates slope regardless of distance.
+- **Content-type vs distance as driver of slope — RESOLVED: slope is content-bound,
+  not distance-bound, within the 0.72–0.87 ResNet50 distance window (KW p=0.019, η²=0.40,
+  n=24, pre-registered; per-group n=5 faces/paintings — KW power is modest at this n;
+  ResShift+BicubicDownsample(4) only). (Update 8)** "Face-like representational content"
+  — including portrait paintings — elevates slope regardless of ResNet50 distance. The
+  aggregate r(dist, slope)=−0.689 is a between-group contrast, not a continuous effect.
 
-- **Which content property drives the elevation — SUPPORTED/LOO-robust (Update 10 +
-  robustness addendum).** Pre-registered investigation of three features (H1 −β_spec,
-  H2 rho_gt, H3 A_dom human-figure), n=24. All three CONFIRMED marginally
-  (Bonferroni-corrected). Partial analysis (collinearity LOW/MODERATE, VIF max=4.1):
-  ONE_INDEPENDENT — A_dom survives controlling H1+H2 (P1=+0.612, CI [+0.229,+0.831]).
-  LOO robustness: 24/24 single-image drops keep P1 CI above zero — independence is not
-  point-driven. A_dom_broad (prominent animal OR human) is equally robust (24/24 LOO),
-  has higher partial r (+0.661 vs +0.612), and explains the caribou case (z=−0.21 within
-  the A_dom_broad=1 group). Pre-registered verdict: A_dom_ROBUST; A_dom_broad is a
-  marginally more complete operationalisation. Key caveats: (a) single-annotator
-  annotation, no inter-rater validation (standing limitation); (b) NO content-vs-style
-  claim (painting contrast n=3 vs n=2 confounded); (c) no mechanism claim (A_dom is a
-  behavioral label). See FINDINGS.md Update 10 + robustness addendum.
+- **Which content property drives the elevation — SUPPORTED: dominant foreground subject
+  (A_dom_broad: prominent animal or human) independently predicts slope above low-level
+  spectral and coherence features, robust to single-observation removal (LOO 24/24).
+  SCOPE: ResShift+BicubicDownsample(4) only; behavioural label, no mechanism claim;
+  content-vs-style not testable at this n (painting contrast n=3 vs n=2 confounded);
+  single-annotator annotation, not inter-rater-validated. (Update 10 + robustness
+  addendum)** Pre-registered, n=24: all three features (H1 −β_spec, H2 rho_gt, H3
+  A_dom) CONFIRMED marginally. Partial ONE_INDEPENDENT: A_dom_broad survives controlling
+  H1+H2 (P1'=+0.661, CI [+0.305,+0.854]; A_dom P1=+0.612, CI [+0.229,+0.831]);
+  24/24 LOO drops keep CI above zero for both. Caribou (A_dom=0) consistent with
+  A_dom_broad=1 group (z=−0.21). See FINDINGS.md Update 10 + robustness addendum.
 
 - **Faces-group generality — PARTIALLY RESOLVED.** Phase 2 includes 5 diverse face images
   (3 Wilfredor CC0 + 2 new: face_red_hair, face_algerian). All 5 have slopes 1.60–3.18,

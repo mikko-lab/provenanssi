@@ -1419,7 +1419,10 @@ content" rather than "face photograph" specifically. This interpretation is POST
 (not pre-stated) and is flagged as exploratory support; it does not contribute to the
 confirmatory verdict.
 
-**Status: RESOLVED.** Dissociation confirmed at pre-stated threshold, n=24.
+**Status: RESOLVED — slope is content-bound, not distance-bound, within the 0.72–0.87
+ResNet50 distance window; KW p=0.019, pre-registered, n=24. SCOPE: ResShift+
+BicubicDownsample(4) only; per-group n=5 faces/paintings (KW power is modest; replication
+at n≥10 per group would materially strengthen the result).**
 
 ---
 
@@ -1754,14 +1757,13 @@ All content-driver results are conditional on this annotation scheme.
 
 #### Revised status
 
-**SUPPORTED (LOO-robust, annotation-conditioned, no mechanism, no style claim).**
+**SUPPORTED — dominant foreground subject (A_dom_broad: prominent animal or human)
+independently predicts slope elevation above low-level image statistics (spectral slope
+H1, GT autocorrelation H2), robust to single-observation removal (LOO 24/24, no pivotal
+images). SCOPE: ResShift+BicubicDownsample(4) only; behavioural label, no mechanism
+claim; content-vs-style not testable at this n (painting contrast n=3 vs n=2 confounded);
+single-annotator annotation, not inter-rater-validated.**
 
-Upgraded from PROVISIONAL: the independence of A_dom (and A_dom_broad) from spectral
-and coherence features is stable across all 24 single-image leave-one-out drops. The
-result is not a statistical artifact of any single observation.
-
-Remaining limitations (unchanged):
-- Single-annotator labels, no inter-rater validation
-- No mechanism claim (A_dom is a behavioral label)
-- No content-vs-style claim (painting contrast n=3 vs n=2, Addition A)
-- ResShift + BicubicDownsample(4) only
+Upgraded from PROVISIONAL: all 24 single-image LOO drops keep both P1 (A_dom) and P1'
+(A_dom_broad) CIs above zero. Independence from spectral/coherence features is not a
+statistical artifact of any single observation.
