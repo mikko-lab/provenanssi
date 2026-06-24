@@ -352,39 +352,48 @@ group-level result, re-read the withdrawals above.** The honest summary: slope i
 image-dependent above noise, grouping is weak, one contrast measured, three prior
 claims retracted.
 
-### Distance-metric thread — SHELVED (not closed)
+### Distance-metric thread — RESOLVED (not shelved)
 
-Three attempts to replace intuitive grouping with a rigorous per-image distance metric:
+Phase 2 (n=24, pre-registered) resolved this thread. The question was whether
+r(dist, slope) reflects a continuous distance effect or a group-level contrast.
 
-1. **VQ-encoder cosine distance** (ResShift autoencoder_vq_f4): null result — metric
-   measured compressibility, placed synthetics closer to ImageNet centroid than naturals.
-2. **ResNet50 penultimate-layer cosine distance** (IMAGENET1K_V2, 2048-dim): borderline
-   signal in non-synthetic split (Spearman ρ=−0.736 p=0.010, n=11), but the correlation
-   reflects group identity (3 clusters × 3–5 images) not a continuous distance effect.
-   Partial r controlling null_frac has CI including 0.
+Result: the aggregate correlation is real (r=−0.689, CI [−0.855, −0.396], n=24) but
+within-group correlations are near-zero for faces and naturals (CIs include 0, directions
+inconsistent with hypothesis). The correlation is entirely a between-group contrast
+(textures far/low slope vs face-like content near/high slope). Distance is a proxy for
+category identity, not a continuous causal driver.
 
-The bottleneck is **statistical power**, not the metric. n=11 non-synthetic images in 3
-tight clusters cannot separate a continuous distance effect from a group-level one.
-Scripts and data are preserved; resume recipe in FINDINGS.md Update 5.
-Do not restart this thread without a dedicated block (~60–100 images, ~1.5h GPU time).
+**The continuous distance→slope hypothesis is NOT supported.** The group-level finding
+is real. Claim any continuous slope→distance effect requires within-group evidence, which
+is not present. See FINDINGS.md Update 9.
 
-### Slope→noise-floor mechanism — RESOLVED (α estimate revised, see FLAG)
+### Slope→noise-floor scaling — α CONFIRMED POSITIVE, MECHANISM OPEN
 
-The calibration slope noise floor scales as slope^α, not as an OLS estimator artifact.
-Analytic derivation shows α=0 under iid pixels. Empirical fit at n=24 (Phase 2,
-pre-registered, 2026-06-24): **α̂=0.77, CI [0.51, 1.04]** — CI excludes 0 (H0 rejected),
-but CI includes 1.0 (sub-proportional claim NOT confirmed at n=24). Mechanism: spatial
-correlation of null-space deviations (rho_nn > 0, now confirmed at n=24) reduces n_eff.
-Full derivation: FINDINGS.md Update 6; script: `eval/slope_noise_mechanism.py`.
+The calibration slope noise floor scales with slope (α>0 confirmed at n=24). The simple
+OLS scale-invariance artifact (α=0 under iid pixels) is ruled out.
 
-**⚠ FLAG — §10 SUPERSEDED ESTIMATE:** Update 6 reported α̂=0.36, CI [0.07, 0.64] at
-n=5. Phase 2 (n=24) gives α̂=0.77, CI [0.51, 1.04]. The n=5 estimate was severely
-underpowered and biased. Do NOT use α≈0.35–0.5 or "sub-proportional" in any claims.
-See FINDINGS.md Update 8 (Thread 2) for full account.
+**Current estimate (Phase 2, n=24, pre-registered):** α̂=0.77, CI [0.51, 1.04].
+This supersedes the n=5 estimate from Update 6 (α̂=0.36, CI [0.07, 0.64] — that
+estimate was severely underpowered and biased). Do NOT use α≈0.35–0.5 in any claim.
 
-**⚠ FLAG — §10 "9.2× SNR" UNAFFECTED:** The 9.2× noise-floor signal-to-noise ratio
-(natural↔faces contrast) was computed from within-group noise floors, not from α. It
-remains valid as reported.
+**Mechanism is OPEN, not resolved.** Because CI includes 1.0, two explanations remain
+compatible with the data:
+- Spatial-correlation mechanism (Update 6): pixel errors correlated → n_eff < N →
+  sub-proportional scaling (α<1). Requires α to be clearly below 1.
+- Proportional amplitude effect: higher-slope images have larger null-space amplitudes;
+  OLS window variance scales proportionally with slope (α≈1). No n_eff reduction needed.
+
+Update 6's "model/data effect, not estimator artifact" claim depended on α<1. Since
+the CI [0.51, 1.04] includes 1.0, sub-proportionality is unconfirmed and the mechanism
+claim is weakened (not refuted). **Do not describe the mechanism as settled.**
+
+**9.2× SNR — remains a lower bound at any α>0.** The 9.2× is a directly measured
+ratio (slope contrast / face-group noise floor) independent of α. At any positive α,
+using the face-group noise floor as denominator is conservative (elevated by slope),
+so 9.2× is a lower bound. At α̂=0.77, the conservatism is larger than at α̂=0.36.
+
+Full derivation: FINDINGS.md Updates 6 and 9. Scripts: `eval/slope_noise_mechanism.py`,
+`eval/phase2_analysis.py`.
 
 ---
 
@@ -414,10 +423,13 @@ remains valid as reported.
   consistently above naturals. Slope elevation is not specific to one photographer.
   Within-faces coherence→slope analysis remains underpowered (n=5, CI spans [−0.86, +0.90]).
 
-- **Slope-magnitude → noise-floor mechanism — RESOLVED (α provisional).** α>0 confirmed
-  at n=24. α̂=0.77, CI [0.51, 1.04]. Sub-proportional (α<1) not confirmed. See §10 FLAG.
+- **Slope→noise-floor α — OPEN.** α>0 established (CI [0.51, 1.04] excl. 0, n=24).
+  α<1 not confirmed (CI includes 1.0). Mechanism (spatial correlation vs proportional
+  amplitude) unresolved. See §10 and FINDINGS.md Update 9.
 
-- **Coherence mechanism — CONFIRMED (a) POSITIVE at n=24.** r(rho_nn, slope)=+0.441,
-  CI [+0.046, +0.717], n=24 (Update 8). Upgraded from (a-weak) at n=5 (Update 7).
-  Mediation (rho_nn screens off slope→nf_std) NOT confirmed: partial r=+0.515 >
-  threshold 0.445. See FINDINGS.md Update 8 and `eval/phase2_analysis.py`.
+- **Coherence (rho_nn) — CORRELATED, FRAGILE, NOT CONFIRMED MEDIATOR.** r(rho_nn,
+  slope)=+0.441, CI [+0.046, +0.717], n=24 — pre-stated threshold met, but lower bound
+  ≈0.05 (fragile). Mediation test failed: partial r=+0.515 > threshold 0.445 → rho_nn
+  does NOT screen off slope→nf_std. Coherence is a correlated side-property of high-slope
+  images, not a confirmed causal intermediate. Update 6's causal chain (slope → coherence
+  → n_eff reduction → noise floor) is not established. See FINDINGS.md Update 9.

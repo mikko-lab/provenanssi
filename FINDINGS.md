@@ -1354,3 +1354,231 @@ zero across all seeds (uniform textures with no semantic content), the predicted
 collapse and the calibration curve is underdetermined. This is NOT a failure of the
 calibration method — it is the correct behaviour: these images have near-zero null-space
 signal and should not be reported as reliably calibrated.
+
+---
+
+## Update 9 — Phase 2 audit (peer-review pass, 2026-06-24)
+
+**Date:** 2026-06-24  
+**Purpose:** Honest-strength recording of Phase 2 verdicts. No new experiments.  
+**Scope caveat (standing limitation on all Phase 2 claims):** All findings below are
+specific to ResShift (4-step conditional diffusion SR) on BicubicDownsample(4). "Content-
+bound slope elevation," the α estimate, and the coherence correlation are properties
+observed in this model–operator pair. Whether they hold for other SR models, other
+degradation operators, or other model families is untested.
+
+---
+
+### 1. Pre-registration integrity check
+
+**Question:** Was the cal_r < 0.90 exclusion criterion pre-registered before the run?
+
+**Answer: YES.** The original pre-registration (commit f7bc949, written 2026-06-23 before
+any Phase 2 data was collected) states under **Sample → Exclusions**:
+
+> "Any image where N=48 calibration fails to converge (r < 0.90)"
+
+This exact criterion was applied: texture_brick (cal_r=0.586) and texture_stone
+(cal_r=0.832) were excluded. Both values fall below 0.90. The exclusion is legitimate
+and pre-registered. Thread 1 retains confirmatory status.
+
+Note: the dissociation test was added in a separate amendment commit (8b5e68b,
+2026-06-24) also before the run. Both pre-registration commits precede any data
+collection.
+
+**No post-hoc exclusions. n=26 → n=24 is legitimate.**
+
+---
+
+### 2. Threads recorded at honest strength
+
+---
+
+#### DISSOCIATION (lead result) — CONFIRMED, pre-registered
+
+**Result:** KW p=0.019, η²=0.40. At the same ResNet50 distance (0.72–0.87):
+- Faces mean slope = 2.20 ± 0.73, n=5
+- Paintings mean slope = 2.07 ± 0.69, n=5
+- Naturals mean slope = 1.33 ± 0.37, n=8
+- Mann-Whitney faces vs naturals: U=37, p=0.011, mean difference +0.88
+
+**Limitation:** n=5 per group (faces, paintings); the KW test has modest power at these
+group sizes. The finding meets the pre-stated threshold (KW p<0.05 AND max mean
+difference >0.5) but rests on small per-group n. A replication at n≥10 per group
+would materially strengthen it.
+
+**Interpretation (pre-registered):** Slope varies significantly where distance does not.
+Distance is NOT the proximal driver of slope elevation within the 0.72–0.87 band.
+
+**Post-hoc observation (NOT pre-registered, flagged exploratory):** The within-painting
+correlation (Test E, pre-stated) is r=−0.930 CI [−0.995, −0.263], p=0.022, n=5.
+Inspecting the data: Vermeer and Rembrandt portrait paintings have slopes 2.3–2.7 while
+Monet landscape paintings have slopes 1.3–1.4 — replicating the faces/naturals pattern
+within the painting category. This suggests the relevant variable is "portrait/figure
+content" rather than "face photograph" specifically. This interpretation is POST-HOC
+(not pre-stated) and is flagged as exploratory support; it does not contribute to the
+confirmatory verdict.
+
+**Status: RESOLVED.** Dissociation confirmed at pre-stated threshold, n=24.
+
+---
+
+#### THREAD 1 — Distance → slope: POSITIVE but BETWEEN-GROUP ONLY
+
+**Pre-stated verdict (A+C rule): (a) POSITIVE.**
+- Test A: Pearson r=−0.689, CI [−0.855, −0.396], n=24, p<0.001
+- Test C: Partial r(dist, slope | null_frac) = −0.663, CI [−0.844, −0.345], n=24
+- Both CI exclude 0, r<0 ✓ — pre-stated rule met.
+
+**What the within-group analysis (Test E, pre-stated) shows — decisive context:**
+
+| Group | n | r(dist, slope) | CI [95%] | Significant? | Direction |
+|-------|---|----------------|----------|--------------|-----------|
+| faces | 5 | +0.438 | [−0.724, +0.952] | No | WRONG (predicted: −) |
+| naturals | 9 | +0.136 | [−0.581, +0.734] | No | WRONG (predicted: −) |
+| paintings | 5 | −0.930 | [−0.995, −0.263] | Yes | correct |
+| textures | 5 | −0.570 | [−0.966, +0.628] | No | correct |
+
+The pre-stated Test E decision rule states: "if within-group r is near zero for ALL
+groups but between-group r is large → it's a group-level effect, not continuous. Report
+explicitly."
+
+This applies exactly. Within faces and naturals (the two groups with the most images
+and the largest between-group contrast), the within-group r is near zero and in the
+WRONG direction. The aggregate r=−0.689 is **entirely a between-group contrast**:
+textures (dist~0.90–0.94, slope~0.3–0.9) vs face-like content (dist~0.72–0.83,
+slope~1.6–3.2). There is no evidence of a continuous within-category distance→slope
+function.
+
+**Honest verdict:** (a) POSITIVE per the A+C rule (between-group correlation is real
+and robust), but the continuous distance→slope hypothesis is NOT supported by the
+within-group analysis. The correlation captures group identity (content type), not a
+smooth distance-to-slope mapping. This is the correct characterisation per Test E.
+
+**Status: RESOLVED.** Distance is a proxy for category identity (and, within paintings,
+for representational content), not a continuous causal driver of slope.
+
+---
+
+#### THREAD 2 — α: CONFIRMED POSITIVE, MAGNITUDE UNRESOLVED, MECHANISM REOPENED
+
+**Result:** α̂ = 0.773, 95% CI [0.507, 1.039], n=24, R²=0.623.
+Sensitivity (wood_grain excluded, n=23): α̂ = 0.803, CI [0.513, 1.094] — near-identical.
+
+**CI verdict (per pre-stated rule):**
+- CI excludes 0 → PROVISIONAL (not Null)
+- CI includes 1.0 → NOT Definitive (sub-proportional claim not confirmed)
+
+**What α near 1 means for Update 6's mechanism claim:**
+
+Update 6 argued that α<1 (sub-proportional) supports the spatial-correlation mechanism
+and rules out a simple OLS scale-invariance artifact (which predicts α=0). With CI
+including 1.0, two possibilities are no longer distinguishable:
+
+1. **Spatial-correlation mechanism (Update 6):** Pixel reconstruction errors are spatially
+   correlated → n_eff < N → noise floor scales sub-proportionally (α<1). This predicts
+   α in (0, 1) and was the stated evidence for the mechanism.
+
+2. **Proportional amplitude effect (alternative):** Higher-slope images have proportionally
+   larger null-space amplitudes. If both predicted_std and actual_error scale with slope,
+   the OLS calibration slope varies proportionally across windows, giving α≈1. This does
+   NOT require spatial correlation; it is a different artifact of the OLS estimator when
+   slope is large.
+
+Since the CI [0.51, 1.04] includes 1.0, possibility (2) cannot be ruled out. The simple
+OLS scale-invariance artifact (α=0) remains ruled out. But whether α<1 (mechanism 1) or
+α≈1 (alternative) is the correct description is unresolved.
+
+**Update 6's "model/data effect, not estimator artifact" claim is WEAKENED.** α>0
+is confirmed, which rules out the specific α=0 estimator artifact. But α=1 constitutes
+a different kind of amplitude-scaling effect that does not require n_eff reduction. The
+mechanism is not settled; it is open.
+
+**9.2× SNR (§10) — unchanged as a lower bound:**
+
+The 9.2× ratio (faces vs naturals slope contrast divided by boy_face N=12 noise floor)
+is directly measured and does not depend on α. At any α>0, using the face group's noise
+floor as denominator is conservative (face NF is elevated by slope), so 9.2× is a lower
+bound regardless of α's exact value. At α̂=0.77, the face NF is approximately
+slope^0.77 ≈ (2.8/0.95)^0.77 ≈ 2.3× larger than boardwalk NF, making the denominator
+more conservative than at α̂=0.36. The 9.2× lower bound stands.
+
+**Status: OPEN.** α>0 is established. Whether α<1 (spatial correlation mechanism) or
+α≈1 (amplitude effect) is the correct characterisation is unresolved at n=24.
+
+---
+
+#### THREAD 3 — Coherence: CORRELATED SIDE-PROPERTY, NOT CONFIRMED MEDIATOR
+
+**Pre-stated verdict: (a) POSITIVE for Test F.**
+
+- Test F: r(rho_nn, slope) = +0.441, CI [+0.046, +0.717], n=24, p=0.031
+- Test G: r(rho_nn, nf_std) = +0.609, CI [+0.272, +0.812], n=24, p=0.002
+- Test H (mediation): direct r(slope, nf_std) = +0.635; partial r(slope, nf_std | rho_nn)
+  = +0.515; threshold = 0.7×0.635 = 0.445; |partial| = 0.515 > threshold → no mediation
+
+**(a) POSITIVE** is the correct pre-stated verdict for Test F. But two limitations
+reduce its strength:
+
+**Fragility of the CI:** the lower bound is +0.046, barely above zero. One influential
+image could shift this to null. r=+0.441 at n=24 has power ≈0.55 at α=0.05 (below 80%),
+meaning the result is not stably detectable at this n.
+
+**Mediation failure — key nuance understated in Update 8:** Update 6 proposed the causal
+chain: high slope → spatially coherent hallucinations → lower n_eff → higher noise floor
+(slope → rho_nn → nf_std). The mediation test directly tests whether rho_nn screens off
+the slope→nf_std association. It does not: partial r = +0.515 exceeds the pre-stated
+threshold of 0.445. rho_nn is NOT a confirmed mediator.
+
+**This weakens Update 6's causal narrative.** The chain slope → rho_nn → nf_std is not
+confirmed. rho_nn correlates with slope and with nf_std, but it is a correlated
+side-property of high-slope images, not a confirmed causal intermediate. An alternative
+is possible: all three variables (slope, rho_nn, nf_std) may co-vary with a common
+upstream factor (e.g. local spatial regularity of the image content), without rho_nn
+specifically mediating slope's effect on nf_std.
+
+**Honest verdict:** r(rho_nn, slope) is positive and significant (CI barely excludes 0).
+rho_nn does NOT mediate the slope→nf_std pathway. Coherence is a correlate, not a
+confirmed causal channel.
+
+**Status: OPEN.** The mechanism chain is not established.
+
+---
+
+#### GIRL_SAD_FACE ANOMALY — UNRESOLVED
+
+Within-faces r(slope, rho_nn) = +0.075, CI [−0.864, +0.898], n=5, p=0.904.
+CI spans almost all of [−1, +1]. No information. Requires ≥15 face images.
+
+**Status: OPEN.** Uninformative at n=5.
+
+---
+
+### 3. What is now established, what is not
+
+**ESTABLISHED (pre-registered, robust):**
+1. Slope elevation is content-bound, not distance-bound. "Face/portrait" content elevates
+   slope regardless of ResNet50 distance (dissociation confirmed, KW p=0.019, n=24).
+   Within the 0.72–0.87 distance window, faces and portrait paintings have mean slope ~2.1
+   while landscape naturals have mean slope ~1.33.
+
+2. The aggregate r(dist, slope) = −0.689 is real but is a between-group contrast, not a
+   continuous distance effect. Within faces and naturals, no within-group distance→slope
+   correlation is detectable (CIs include 0 for all non-painting groups).
+
+3. α > 0 is established (CI [0.51, 1.04] excludes 0). The simple OLS scale-invariance
+   artifact (α=0) is ruled out.
+
+4. rho_nn > 0 correlates with slope (r=+0.441) and more strongly with nf_std (r=+0.609).
+   These correlations are real but fragile at n=24.
+
+**NOT ESTABLISHED (requires further work):**
+1. Whether α < 1 (sub-proportional, spatial-correlation mechanism) vs α ≈ 1 (proportional
+   amplitude effect). Unresolvable at n=24 with CI spanning [0.51, 1.04].
+
+2. Whether rho_nn mediates the slope→nf_std relationship. Mediation test failed.
+
+3. The specific causal chain from Update 6 (coherent hallucinations → n_eff reduction →
+   sub-proportional noise floor). Consistent with data but not confirmed.
+
+4. Generality: all findings are ResShift + BicubicDownsample(4) only.
