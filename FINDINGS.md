@@ -1704,3 +1704,64 @@ driven mainly by natural_caribou (slope=2.106) entering the A_dom_broad=1 group.
 
 **Status: PROVISIONAL.** A_dom is the strongest independent predictor, but the result is
 fragile at n=24, entails no mechanism claim, and has no content-vs-style warrant.
+
+---
+
+### Update 10 — Robustness addendum (2026-06-24)
+
+**Script:** `eval/robustness_analysis.py`
+**Pre-registration:** `eval/pre_registration_robustness.md` (commit 5850951, before run)
+
+#### Check 1: Leave-one-out on P1 (A_dom | H1, H2)
+
+n=23 at each drop, df=19, t-critical at df=19.
+
+| | A_dom | A_dom_broad |
+|---|---|---|
+| Full-sample P1 | +0.612  CI [+0.229, +0.831] | +0.661  CI [+0.305, +0.854] |
+| LOO P1 range | [+0.554, +0.688] | [+0.607, +0.719] |
+| Exclude-0 count | **24/24** | **24/24** |
+| Pivotal images | none | none |
+| LOO verdict | **ROBUST** | **ROBUST** |
+
+**Pre-registered verdict: A_dom_ROBUST.** (Both are 24/24; by the pre-stated rule,
+equal LOO counts default to A_dom_ROBUST rather than A_dom_BROAD_PREFERRED.)
+
+The A_dom independence is not point-driven. All 24 single-image drops keep the
+partial CI above zero. This substantially strengthens Update 10's provisional claim.
+
+#### Check 2: A_dom_broad — caribou consistency
+
+natural_caribou under A_dom_broad=1: slope=2.106 vs group (n=9 other A_dom_broad=1
+images): mean=2.236 ± SD=0.631 → z=−0.21. **Caribou is fully consistent with the
+A_dom_broad=1 group.** It is not an outlier when classified as "prominent foreground
+subject (animal or human)."
+
+A_dom_broad also has higher full-sample P1' (+0.661 vs +0.612), higher marginal r
+(+0.800 vs +0.774), and is equally robust (24/24 LOO). A_dom_broad is a marginally
+more complete operationalisation of the content feature. However, since both are
+equally robust by the pre-stated decision rule, the result is reported under both labels.
+
+#### Annotation-reliability caveat (standing limitation, pre-registered)
+
+A_dom and A_dom_broad are **single-annotator binary labels** (Claude Code, 2026-06-24).
+No inter-rater agreement was measured. The caribou case demonstrates the boundary is
+judgment-dependent: a "prominent foreground caribou" could be A_dom=0 (not human)
+or A_dom_broad=1 (prominent animal), depending on how narrowly the rule is interpreted.
+All content-driver results are conditional on this annotation scheme.
+
+**This caveat must appear in any citation of the content-driver result.**
+
+#### Revised status
+
+**SUPPORTED (LOO-robust, annotation-conditioned, no mechanism, no style claim).**
+
+Upgraded from PROVISIONAL: the independence of A_dom (and A_dom_broad) from spectral
+and coherence features is stable across all 24 single-image leave-one-out drops. The
+result is not a statistical artifact of any single observation.
+
+Remaining limitations (unchanged):
+- Single-annotator labels, no inter-rater validation
+- No mechanism claim (A_dom is a behavioral label)
+- No content-vs-style claim (painting contrast n=3 vs n=2, Addition A)
+- ResShift + BicubicDownsample(4) only
