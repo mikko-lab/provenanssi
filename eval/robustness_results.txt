@@ -1,0 +1,101 @@
+========================================================================
+CONTENT-DRIVER ROBUSTNESS CHECKS (pre-registered)
+Pre-registration: eval/pre_registration_robustness.md (commit 5850951)
+========================================================================
+
+[0] Loading GT images and computing features …
+  [ 1/24] face_red_hair β=-2.8593  rho=0.9873
+  [ 2/24] wayuu_woman β=-2.3958  rho=0.9397
+  [ 3/24] girl_sad_face β=-2.9409  rho=0.9950
+  [ 4/24] paint_vermeer_pearl β=-2.7620  rho=0.9812
+  [ 5/24] paint_vermeer_milk β=-2.6292  rho=0.9768
+  [ 6/24] boardwalk β=-2.4785  rho=0.9596
+  [ 7/24] paint_rembrandt_self β=-2.9483  rho=0.9843
+  [ 8/24] nat_landscape2 β=-2.4685  rho=0.9592
+  [ 9/24] nature_land β=-2.4842  rho=0.9650
+  [10/24] face_algerian β=-2.6933  rho=0.9627
+  [11/24] boy_face β=-2.6901  rho=0.9791
+  [12/24] nat_landscape3 β=-2.7128  rho=0.9668
+  [13/24] natural_caribou β=-2.1070  rho=0.8857
+  [14/24] paint_monet_magpie β=-2.2202  rho=0.9132
+  [15/24] paint_monet_lilies β=-1.8471  rho=0.8450
+  [16/24] natural_coral_reef β=-1.8612  rho=0.9077
+  [17/24] natural_fir_snow β=-1.7898  rho=0.8120
+  [18/24] frog_on_log β=-2.4870  rho=0.9546
+  [19/24] grass_meadow β=-1.8085  rho=0.7553
+  [20/24] dirt_soil β=-2.0665  rho=0.8497
+  [21/24] natural_snow_mountain β=-2.4331  rho=0.9343
+  [22/24] texture_sand β=-1.0373  rho=0.7153
+  [23/24] texture_cement β=-1.4576  rho=0.4107
+  [24/24] wood_grain β=-1.2565  rho=0.7503
+
+[RECAP] Full-sample P1 from Update 10 (n=24):
+  P1 A_dom | H1,H2: r=+0.6117  95%CI [+0.229, +0.831]  excl 0
+  P1' A_dom_broad | H1,H2: r=+0.6606  95%CI [+0.305, +0.854]  excl 0
+
+========================================================================
+CHECK 1 — Leave-one-out on P1 (A_dom | H1, H2)
+========================================================================
+  Procedure: n=23 at each drop, df=19, se=1/sqrt(18), t-critical df=19
+  High-leverage threshold h_ii > 2×3/24 = 0.250
+
+  LOO on P(A_dom | H1, H2):
+    P1 range: [+0.5539, +0.6875]
+    Exclude-0 count: 24/24
+    No pivotal images — all 24 drops exclude 0.
+    LOO verdict: ROBUST
+
+========================================================================
+CHECK 2 — Re-run with A_dom_broad; LOO on P1'; caribou consistency
+========================================================================
+
+  Marginal r(A_dom_broad, slope) = +0.8002
+    98.3%CI (Bonferroni) [+0.488, +0.931]  CONFIRMED
+    95%CI               [+0.569, +0.914]
+
+  P1' (A_dom_broad | H1, H2) = +0.6606  95%CI [+0.305, +0.854]  excl 0
+
+  LOO on P(A_dom_broad | H1, H2):
+    P1 range: [+0.6068, +0.7194]
+    Exclude-0 count: 24/24
+    No pivotal images — all 24 drops exclude 0.
+    LOO verdict: ROBUST
+
+  Caribou consistency check under A_dom_broad:
+    A_dom_broad=1 (excl caribou, n=9): mean=2.2357  std=0.6314
+    natural_caribou slope: 2.1056  z-score vs group: -0.21
+    Caribou within ±2 SD of A_dom_broad=1 group: YES — consistent
+
+========================================================================
+ROBUSTNESS COMPARISON: A_dom vs A_dom_broad
+========================================================================
+
+  A_dom:       exclude_0_count = 24/24   (ROBUST)
+  A_dom_broad: exclude_0_count = 24/24  (ROBUST)
+
+  Pre-registered verdict: A_dom_ROBUST
+
+========================================================================
+HONEST SYNTHESIS
+========================================================================
+
+  LOO RESULTS:
+    P1  (A_dom | H1,H2):       exclude_0 = 24/24  ROBUST
+    P1' (A_dom_broad | H1,H2): exclude_0 = 24/24  ROBUST
+
+  PIVOTAL IMAGES (if any):
+    A_dom pivotals: none
+    A_dom_broad pivotals: none
+
+  CARIBOU: consistent with A_dom_broad=1 group  (z=-0.21, group mean=2.2357±0.6314)
+
+  DRIVER: A_dom (human face/figure) is ROBUST across all 24 LOO drops.
+  Independence from spectral/coherence features is not point-driven.
+
+  ANNOTATION-RELIABILITY CAVEAT (standing limitation, pre-stated):
+    A_dom and A_dom_broad are single-annotator binary labels (Claude Code,
+    2026-06-24). No inter-rater agreement was measured. The caribou case shows
+    the boundary is judgment-dependent. All content-driver results are conditional
+    on this annotation scheme. This must be stated in any citation of the result.
+
+  SCOPE: ResShift + BicubicDownsample(4) only.
