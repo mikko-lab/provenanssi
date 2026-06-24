@@ -1,0 +1,167 @@
+========================================================================
+CONTENT-DRIVER INVESTIGATION — Phase 2 (pre-registered)
+Pre-registration commits: 4f19d64, 75b2d46
+========================================================================
+
+[1] Feature computation from GT pixel values
+----------------------------------------
+  [ 1/24] face_red_hair               β_spec=-2.8593  −β_spec=2.8593  rho_gt=0.9873
+  [ 2/24] wayuu_woman                 β_spec=-2.3958  −β_spec=2.3958  rho_gt=0.9397
+  [ 3/24] girl_sad_face               β_spec=-2.9409  −β_spec=2.9409  rho_gt=0.9950
+  [ 4/24] paint_vermeer_pearl         β_spec=-2.7620  −β_spec=2.7620  rho_gt=0.9812
+  [ 5/24] paint_vermeer_milk          β_spec=-2.6292  −β_spec=2.6292  rho_gt=0.9768
+  [ 6/24] boardwalk                   β_spec=-2.4785  −β_spec=2.4785  rho_gt=0.9596
+  [ 7/24] paint_rembrandt_self        β_spec=-2.9483  −β_spec=2.9483  rho_gt=0.9843
+  [ 8/24] nat_landscape2              β_spec=-2.4685  −β_spec=2.4685  rho_gt=0.9592
+  [ 9/24] nature_land                 β_spec=-2.4842  −β_spec=2.4842  rho_gt=0.9650
+  [10/24] face_algerian               β_spec=-2.6933  −β_spec=2.6933  rho_gt=0.9627
+  [11/24] boy_face                    β_spec=-2.6901  −β_spec=2.6901  rho_gt=0.9791
+  [12/24] nat_landscape3              β_spec=-2.7128  −β_spec=2.7128  rho_gt=0.9668
+  [13/24] natural_caribou             β_spec=-2.1070  −β_spec=2.1070  rho_gt=0.8857
+  [14/24] paint_monet_magpie          β_spec=-2.2202  −β_spec=2.2202  rho_gt=0.9132
+  [15/24] paint_monet_lilies          β_spec=-1.8471  −β_spec=1.8471  rho_gt=0.8450
+  [16/24] natural_coral_reef          β_spec=-1.8612  −β_spec=1.8612  rho_gt=0.9077
+  [17/24] natural_fir_snow            β_spec=-1.7898  −β_spec=1.7898  rho_gt=0.8120
+  [18/24] frog_on_log                 β_spec=-2.4870  −β_spec=2.4870  rho_gt=0.9546
+  [19/24] grass_meadow                β_spec=-1.8085  −β_spec=1.8085  rho_gt=0.7553
+  [20/24] dirt_soil                   β_spec=-2.0665  −β_spec=2.0665  rho_gt=0.8497
+  [21/24] natural_snow_mountain       β_spec=-2.4331  −β_spec=2.4331  rho_gt=0.9343
+  [22/24] texture_sand                β_spec=-1.0373  −β_spec=1.0373  rho_gt=0.7153
+  [23/24] texture_cement              β_spec=-1.4576  −β_spec=1.4576  rho_gt=0.4107
+  [24/24] wood_grain                  β_spec=-1.2565  −β_spec=1.2565  rho_gt=0.7503
+
+[2] Feature table (sorted by slope descending)
+------------------------------------------------------------------------------
+Image                        slope   β_spec  −β_spec   rho_gt  Adom  Abroad
+  boy_face                  3.1829  -2.6901   2.6901   0.9791     1       1
+  girl_sad_face             2.7834  -2.9409   2.9409   0.9950     1       1
+  paint_vermeer_pearl       2.7135  -2.7620   2.7620   0.9812     1       1
+  paint_rembrandt_self      2.6592  -2.9483   2.9483   0.9843     1       1
+  paint_vermeer_milk        2.3033  -2.6292   2.6292   0.9768     1       1
+  natural_caribou           2.1056  -2.1070   2.1070   0.8857     0       1
+  wayuu_woman               1.7483  -2.3958   2.3958   0.9397     1       1
+  face_red_hair             1.7027  -2.8593   2.8593   0.9873     1       1
+  face_algerian             1.6042  -2.6933   2.6933   0.9627     1       1
+  natural_fir_snow          1.5055  -1.7898   1.7898   0.8120     0       0
+  frog_on_log               1.4238  -2.4870   2.4870   0.9546     0       1
+  paint_monet_lilies        1.4173  -1.8471   1.8471   0.8450     0       0
+  paint_monet_magpie        1.2735  -2.2202   2.2202   0.9132     0       0
+  natural_coral_reef        1.2619  -1.8612   1.8612   0.9077     0       0
+  nat_landscape2            1.2053  -2.4685   2.4685   0.9592     0       0
+  natural_snow_mountain     1.1403  -2.4331   2.4331   0.9343     0       0
+  nature_land               1.1147  -2.4842   2.4842   0.9650     0       0
+  nat_landscape3            1.0313  -2.7128   2.7128   0.9668     0       0
+  boardwalk                 0.9510  -2.4785   2.4785   0.9596     0       0
+  dirt_soil                 0.8536  -2.0665   2.0665   0.8497     0       0
+  grass_meadow              0.5778  -1.8085   1.8085   0.7553     0       0
+  wood_grain                0.4351  -1.2565   1.2565   0.7503     0       0
+  texture_sand              0.3434  -1.0373   1.0373   0.7153     0       0
+  texture_cement            0.3416  -1.4576   1.4576   0.4107     0       0
+
+[3] Marginal correlations with calibration slope (n=24)
+    Bonferroni α = 0.0167 (3 primary tests)
+------------------------------------------------------------------------
+  H1 (−β_spec)        : r=+0.7168  95%CI [+0.421, +0.875]  98.3%CI [+0.324, +0.899]
+  H2 (rho_gt)         : r=+0.6327  95%CI [+0.285, +0.833]  98.3%CI [+0.179, +0.865]
+  H3 (A_dom)          : r=+0.7736  95%CI [+0.520, +0.902]  98.3%CI [+0.433, +0.921]
+
+[4] Directional check: portrait vs landscape paintings
+    n=3 vs n=2 — directional only; p<0.05 is structurally impossible (Addition A)
+    CANNOT confirm content-vs-style (confounded in this subset)
+------------------------------------------------------------------------
+  Portraits (3):  ['paint_vermeer_pearl', 'paint_vermeer_milk', 'paint_rembrandt_self']
+    slopes: ['2.7135', '2.3033', '2.6592']  mean=2.5587
+  Landscapes (2): ['paint_monet_magpie', 'paint_monet_lilies']
+    slopes: ['1.2735', '1.4173']  mean=1.3454
+  H1 (−β_spec): portrait=2.7798  landscape=2.0337  → PASS (portrait>landscape?)
+  H2 (rho_gt): portrait=0.9808  landscape=0.8791  → PASS (portrait>landscape?)
+  H3 (A_dom): PASS trivially (portrait A_dom=1, landscape A_dom=0 by annotation)
+
+[5] Pre-registered verdicts (marginal + directional combined)
+------------------------------------------------------------------------
+  H1 (−β_spec)        : CONFIRMED
+  H2 (rho_gt)         : CONFIRMED
+  H3 (A_dom)          : CONFIRMED
+
+[6] H3 internal falsification: natural_caribou
+    Pre-registered: A_dom=0 (not human), slope=2.1056 (above natural mean)
+------------------------------------------------------------------------
+  natural_caribou: slope=2.1056  −β_spec=2.1070  rho_gt=0.8857
+  Other A_dom=0 naturals (n=8): ['boardwalk', 'nat_landscape2', 'nature_land', 'nat_landscape3', 'natural_coral_reef', 'natural_fir_snow', 'frog_on_log', 'natural_snow_mountain']
+    slope mean=1.2042  range=[0.9510, 1.5055]
+  Caribou slope percentile among other A_dom=0 naturals: 100%
+  H3 challenge: caribou has A_dom=0 but elevated slope.
+  H1/H2 accommodation: if caribou's −β_spec or rho_gt is comparably high,
+  spectral/coherence properties can explain its elevation without A_dom.
+
+[7] Secondary analysis: A_dom_broad (human OR prominent animal)
+    Not in Bonferroni correction.
+------------------------------------------------------------------------
+  r(A_dom,       slope) = +0.7736  (n_1=8, mean_slope_1=2.3372, mean_slope_0=1.0614)
+  r(A_dom_broad, slope) = +0.8002  95%CI [+0.569, +0.914]  (n_1=10, mean_slope_1=2.2227, mean_slope_0=0.9609)
+  r_broad (+0.8002) > r_A_dom (+0.7736): broadening to animals improves fit.
+  Interpretation: 'prominent foreground subject' may matter more than 'human face'.
+
+[8] Collinearity check (Addition B, pre-registered)
+------------------------------------------------------------------------
+  Pairwise Pearson r among three predictors:
+    r(−β_spec, rho_gt) = +0.8163
+    r(−β_spec, A_dom) = +0.6427
+    r(rho_gt, A_dom) = +0.4647
+  VIF per predictor (>5: high, >10: severe):
+    VIF(−β_spec) = 4.08
+    VIF(rho_gt) = 3.05
+    VIF(A_dom) = 1.74
+  Summary: 1/3 pairwise r > 0.70  max_VIF=4.08  → LOW/MODERATE COLLINEARITY
+
+[9] Partial correlations (Addition B, pre-registered)
+    df = n - 2 - 2 = 20  (2 controls, n=24)
+------------------------------------------------------------------------
+  P1 partial r(A_dom | −β_spec, rho_gt)  = +0.6117  95%CI [+0.229, +0.831]  CI excl 0 → INDEPENDENT
+  P2 partial r(−β_spec | rho_gt, A_dom)  = +0.1431  95%CI [-0.323, +0.553]  CI incl 0 → not independent
+  P3 partial r(rho_gt | −β_spec, A_dom)  = +0.2459  95%CI [-0.224, +0.623]  CI incl 0 → not independent
+
+  Partial verdict: ONE_INDEPENDENT (1/3 partials exclude 0)
+
+========================================================================
+[10] HONEST SYNTHESIS
+========================================================================
+
+  MARGINAL CORRELATIONS (n=24, Bonferroni α=0.0167):
+    H1 (−β_spec)        : r=+0.7168  CONFIRMED
+    H2 (rho_gt)         : r=+0.6327  CONFIRMED
+    H3 (A_dom)          : r=+0.7736  CONFIRMED
+
+  PAINTING CONTRAST (DIRECTIONAL ONLY — cannot confirm content-vs-style, Addition A):
+    H1 (−β_spec)        : PASS
+    H2 (rho_gt)         : PASS
+    H3 (A_dom)          : PASS
+
+  COLLINEARITY:
+    1/3 pairwise r > 0.70  max VIF = 4.1
+
+  PARTIAL CORRELATIONS (df=20, wide CIs):
+    P1 A_dom    | H1,H2: +0.6117  [+0.229, +0.831]
+    P2 −β_spec  | H2,A_dom: +0.1431  [-0.323, +0.553]
+    P3 rho_gt   | H1,A_dom: +0.2459  [-0.224, +0.623]
+    Partial verdict: ONE_INDEPENDENT
+
+  DRIVER VERDICT:
+    INDEPENDENT DRIVER: A_dom (semantic face/figure presence)
+    survives controlling −β_spec and rho_gt.
+    Caveats: n=24; partial df=20 → CIs are wide; one result at this n
+    is weak evidence. No content-vs-style claim (Addition A).
+
+  CARIBOU INTERNAL TEST:
+    natural_caribou: A_dom=0, slope=2.1056
+    −β_spec=2.1070, rho_gt=0.8857
+    If its H1/H2 features are also elevated relative to other naturals,
+    spectral/coherence properties can account for its slope without H3.
+
+  A_dom_broad SECONDARY: r=+0.8002  95%CI [+0.569, +0.914]
+    Broadening to animals (10 images) improves r vs H3 alone (8 images).
+    Suggests 'prominent foreground subject' may be the relevant property, not human-specific.
+
+  SCOPE: ResShift + BicubicDownsample(4) specific.
+  NO content-vs-style claim: painting contrast (n=3 vs n=2) cannot
+  dissociate content from Vermeer/Rembrandt vs Monet stylistic conventions.
