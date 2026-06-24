@@ -1582,3 +1582,125 @@ CI spans almost all of [−1, +1]. No information. Requires ≥15 face images.
    sub-proportional noise floor). Consistent with data but not confirmed.
 
 4. Generality: all findings are ResShift + BicubicDownsample(4) only.
+
+---
+
+## Update 10 — Content-driver investigation (2026-06-24)
+
+**Script:** `eval/content_driver_analysis.py`
+**Pre-registration:** `eval/pre_registration_content_driver.md` (commits 4f19d64, 75b2d46)
+**Results:** `eval/content_driver_results.txt`
+
+**Question:** What content property drives slope elevation in faces and portrait paintings vs landscapes?
+
+**Sample:** n=24 (same Phase 2 dataset). Slopes from Phase 2 (commit dd987b1), unchanged.
+
+### Three pre-registered hypotheses
+
+| Feature | Operationalisation | r | 98.3%CI (Bonferroni) | Direction check | Verdict |
+|---|---|---|---|---|---|
+| H1 (−β_spec) | −(log-log slope of radially averaged GT power spectrum, f∈[2/256,64/256]) | +0.717 | [+0.324, +0.899] | PASS | CONFIRMED |
+| H2 (rho_gt) | Mean ACF of GT image at Δ=1 px (same method as rho_nn, applied to GT) | +0.633 | [+0.179, +0.865] | PASS | CONFIRMED |
+| H3 (A_dom) | Binary: prominent human face/figure present? (pre-annotated, n_1=8) | +0.774 | [+0.433, +0.921] | PASS (trivial) | CONFIRMED |
+
+All three hypotheses are CONFIRMED: each feature correlates with slope at Bonferroni-corrected
+significance AND the portrait-vs-landscape painting directional check passes for each.
+
+### Portrait vs landscape paintings directional check (Addition A)
+
+Portrait paintings (n=3): Vermeer Pearl, Vermeer Milk, Rembrandt — mean slope=2.559, mean −β_spec=2.780, mean rho_gt=0.981
+Landscape paintings (n=2): Monet Magpie, Monet Lilies — mean slope=1.345, mean −β_spec=2.034, mean rho_gt=0.879
+
+All three features go in the correct direction (portrait > landscape). However: **this contrast
+CANNOT confirm content vs painting style as the driver**. Content (face/figure) and style
+(Vermeer/Rembrandt chiaroscuro vs Monet impressionism) are fully confounded at n=3 vs n=2.
+Minimum achievable p=0.10 at these group sizes — directional check is informative, not confirmatory.
+
+### Collinearity check (Addition B, pre-registered)
+
+Pairwise r among predictors:
+  r(−β_spec, rho_gt) = +0.816  ← above 0.70 threshold
+  r(−β_spec, A_dom) = +0.643
+  r(rho_gt, A_dom) = +0.465
+
+VIF: VIF(−β_spec)=4.1, VIF(rho_gt)=3.1, VIF(A_dom)=1.7. Max VIF=4.1.
+1/3 pairwise r > 0.70 → LOW/MODERATE COLLINEARITY by pre-registered rule
+(ENTANGLED required ≥2 pairs > 0.70 AND all partials including 0).
+
+### Partial correlations — ONE_INDEPENDENT (Addition B, pre-registered)
+
+Partial r (df=20, CIs are wide at this n):
+
+| Partial | r | 95%CI | Verdict |
+|---|---|---|---|
+| P1: A_dom ∣ −β_spec, rho_gt | +0.612 | [+0.229, +0.831] | CI excl 0 → INDEPENDENT |
+| P2: −β_spec ∣ rho_gt, A_dom | +0.143 | [−0.323, +0.553] | CI incl 0 |
+| P3: rho_gt ∣ −β_spec, A_dom | +0.246 | [−0.224, +0.623] | CI incl 0 |
+
+**Pre-registered verdict: ONE_INDEPENDENT.** A_dom (semantic face/figure presence)
+survives controlling both spectral and coherence features. H1 (−β_spec) and H2 (rho_gt)
+do NOT survive after controlling for A_dom — their marginal correlations appear to reflect
+co-variation with the face/portrait split rather than an independent spectral mechanism.
+
+**Caveats (pre-stated):**
+- P1 CI lower bound = +0.229 — fragile; partial df=20 gives wide CIs; one influential image
+  could shift this result.
+- n=24 with 3 controls leaves the partials underpowered. This is not a strong claim of
+  A_dom as the sole driver.
+- NO content-vs-style claim: the painting contrast is directional only (Addition A).
+
+### H3 internal falsification: natural_caribou
+
+natural_caribou: A_dom=0 (not human), slope=2.1056 = **100th percentile** among other A_dom=0 naturals
+(n=8, mean=1.204, range 0.951–1.506). The caribou has the highest slope of any A_dom=0 non-painting image.
+
+Caribou spectral features: −β_spec=2.107, rho_gt=0.886.
+Other A_dom=0 naturals have −β_spec ranging 1.790–2.487 and rho_gt ranging 0.756–0.965.
+The caribou's −β_spec is NOT particularly elevated among A_dom=0 naturals — several naturals
+with lower slope have higher −β_spec (e.g., nat_landscape3: −β_spec=2.713, slope=1.031).
+
+**H3 challenge (pre-stated):** Caribou is a prominent foreground animal (not human → A_dom=0),
+yet has elevated slope. H1/H2 features do not clearly account for the elevation.
+
+### A_dom_broad secondary (pre-stated)
+
+A_dom_broad=1: includes prominent non-human animals (adds natural_caribou, frog_on_log; n_broad=10).
+
+r(A_dom_broad, slope) = +0.800, 95%CI [+0.569, +0.914] — n_1=10, mean_slope_1=2.223
+r(A_dom, slope) = +0.774 — n_1=8, mean_slope_1=2.337
+
+r_broad (+0.800) > r_A_dom (+0.774). Broadening to prominent animals improves the correlation.
+Note: frog_on_log (A_dom_broad=1, slope=1.424) is only modestly elevated. The improvement is
+driven mainly by natural_caribou (slope=2.106) entering the A_dom_broad=1 group.
+
+**Interpretation:** The data are slightly more consistent with "prominent foreground subject
+(including animals)" than "human face/figure specifically." However, the difference (0.800 vs
+0.774) is small and well within noise at n=24.
+
+### Honest synthesis
+
+**What is established (pre-registered):**
+- All three content features correlate with slope at Bonferroni-corrected significance (n=24).
+- Slope tracks the face/portrait vs landscape/texture split equally well whether measured as
+  spectral smoothness (H1), local image coherence (H2), or semantic face/figure presence (H3).
+- After controlling the other two features, A_dom (semantic face/figure presence) is the sole
+  feature whose partial correlation clearly excludes 0 (P1=+0.612, CI [+0.229, +0.831]).
+  −β_spec and rho_gt do not survive as independent predictors.
+
+**What is NOT established:**
+- H1 and H2 are not confirmed as independent causal drivers. Their marginal correlations likely
+  reflect co-variation with the face/portrait identity (r(−β_spec, A_dom)=0.643).
+- Whether A_dom reflects training data over-representation, semantic prior, or another mechanism
+  is not addressed. A_dom is a behavioral label, not a mechanistic variable.
+- Content vs style: the portrait-vs-landscape painting contrast is directional only. Cannot
+  separate Vermeer/Rembrandt face content from their stylistic conventions.
+- Prominent foreground subject (A_dom_broad) may be slightly better than human-specific (A_dom),
+  but the difference is small and not statistically separable at n=24.
+- Caribou (A_dom=0, slope highest among A_dom=0 naturals) challenges A_dom's completeness.
+  Its H1/H2 features are not elevated relative to other naturals. Whether it represents an
+  exception, a measurement outlier, or evidence for A_dom_broad requires targeted study.
+
+**Generalisation:** ResShift+BicubicDownsample(4) only.
+
+**Status: PROVISIONAL.** A_dom is the strongest independent predictor, but the result is
+fragile at n=24, entails no mechanism claim, and has no content-vs-style warrant.

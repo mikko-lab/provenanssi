@@ -418,6 +418,20 @@ Full derivation: FINDINGS.md Updates 6 and 9. Scripts: `eval/slope_noise_mechani
   content type is the proximate driver. "Face-like representational content" — including
   portrait paintings — elevates slope regardless of distance.
 
+- **Which content property drives the elevation — PROVISIONAL (Update 10).** Pre-registered
+  investigation of three features (H1 −β_spec, H2 rho_gt, H3 A_dom human-figure), n=24.
+  All three CONFIRMED marginally (Bonferroni-corrected). Partial correlation analysis
+  (collinearity LOW/MODERATE, VIF max=4.1) found ONE_INDEPENDENT: A_dom (semantic
+  face/figure presence) survives controlling spectral and coherence features
+  (partial r=+0.612, CI [+0.229, +0.831], df=20). H1 and H2 do not survive after
+  controlling A_dom. Key caveats: (a) P1 CI lower bound is fragile (+0.229); (b) n=24
+  partials are underpowered; (c) caribou (A_dom=0) has the highest slope among A_dom=0
+  naturals and is not clearly explained by H1/H2; (d) A_dom_broad (prominent animal OR
+  human) slightly improves r (+0.800 vs +0.774), suggesting "prominent foreground subject"
+  may be the relevant property; (e) NO content-vs-style claim (painting contrast n=3 vs
+  n=2 confounded). Status: A_dom is the strongest independent predictor, mechanism unknown,
+  result fragile. See FINDINGS.md Update 10.
+
 - **Faces-group generality — PARTIALLY RESOLVED.** Phase 2 includes 5 diverse face images
   (3 Wilfredor CC0 + 2 new: face_red_hair, face_algerian). All 5 have slopes 1.60–3.18,
   consistently above naturals. Slope elevation is not specific to one photographer.
