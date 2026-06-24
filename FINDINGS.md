@@ -1767,3 +1767,114 @@ single-annotator annotation, not inter-rater-validated.**
 Upgraded from PROVISIONAL: all 24 single-image LOO drops keep both P1 (A_dom) and P1'
 (A_dom_broad) CIs above zero. Independence from spectral/coherence features is not a
 statistical artifact of any single observation.
+
+---
+
+## Update 11 — Mechanism gate: expanded low-level control test (2026-06-24)
+
+**Script:** `eval/mechanism_gate_analysis.py`
+**Pre-registration:** `eval/pre_registration_mechanism_gate.md` (commit 142e7cb, before run)
+**Results:** `eval/mechanism_gate_results.txt`
+
+**Question (skeptic's gate):** Was H1+H2 too narrow a control set? Does A_dom_broad's
+independence survive when the low-level control set is expanded with three additional
+image statistics that could plausibly co-vary with foreground-subject content?
+
+**Three new low-level controls (pre-registered, chosen before any slope correlation):**
+
+| Feature | Operationalisation | Confounder rationale |
+|---|---|---|
+| C1 (V_patch) | Mean of per-8×8-patch pixel variances | Face images have large smooth regions (skin); V_patch may capture "smooth background" independent of face semantics |
+| C2 (G_mean) | Mean Sobel gradient magnitude | Edge density; textures have high G_mean; faces intermediate — could absorb A_dom_broad without semantics |
+| C3 (V_het) | Std of per-8×8-patch pixel variances | Within-image texture heterogeneity; faces have mixed smooth+detailed patches (skin + hair + eyes) |
+
+---
+
+### Collinearity check (pre-registered)
+
+Pairwise r among all 5 controls (H1, H2, C1, C2, C3):
+
+| Pair | r |
+|---|---|
+| H1(−β) vs H2(rho) | +0.816 ← HIGH |
+| H1(−β) vs C2(G_mean) | −0.714 ← HIGH |
+| C1(V_patch) vs C2(G_mean) | **+0.936** ← SEVERE |
+| All other pairs | |r| < 0.55 |
+
+VIFs:
+
+| Control | VIF | Status |
+|---|---|---|
+| H1(−β) | 9.51 | HIGH (>5) |
+| H2(rho) | 5.43 | HIGH (>5) |
+| C1(V_patch) | 37.84 | SEVERE (>10) |
+| C2(G_mean) | 38.83 | SEVERE (>10) |
+| C3(V_het) | 5.48 | HIGH (>5) |
+
+**C1 and C2 are nearly collinear (r=+0.936).** Their VIFs are 37–39, indicating near-
+singular overlap in the predictor space. This means the expanded control set adds two
+near-redundant dimensions as one of its three new controls — effectively two genuinely
+independent new additions (the {C1,C2} bundle + C3), not three.
+
+The pre-registration's VIF guard specifies: "if ALL VIFs > 10 → ENTANGLED regardless."
+Here H2=5.43, C3=5.48, H1=9.51 are not >10 — the all-VIFs-high condition is NOT met.
+Primary decision rules apply.
+
+C1 and C2 severe collinearity inflates the CI width, making SEMANTICS-ROBUST harder
+to achieve. That the full-5 CI still excludes 0 despite this inflation is a conservative
+direction: a non-collinear control set would produce a narrower CI.
+
+---
+
+### Primary test: full-5 partial (n=24)
+
+**Partial r(A_dom_broad, slope | H1, H2, C1, C2, C3) = +0.731**
+**95%CI = [+0.382, +0.897] — CI EXCLUDES 0**
+df = 17, se = 1/sqrt(16) = 0.25
+
+---
+
+### Leave-one-out (n=23 per drop, 5 controls, df=16)
+
+LOO partial r range: [+0.683, +0.821]
+Exclude-0 count: **24/24 — NO PIVOTAL IMAGES**
+
+---
+
+### Proxy detection sub-models (reported for completeness; full-5 CI excludes 0 so proxy check is moot)
+
+| Model | r | 95%CI | excl_0 |
+|---|---|---|---|
+| M4a: drop C1 | +0.728 | [+0.393, +0.893] | True |
+| M4b: drop C2 | +0.703 | [+0.349, +0.882] | True |
+| M4c: drop C3 | +0.725 | [+0.387, +0.891] | True |
+| M4d: H1+H2 only | +0.661 | [+0.305, +0.854] | True |
+
+All sub-models exclude 0. No single control is revealed as a proxy absorbing A_dom_broad.
+Notably, dropping C1 or C2 individually barely changes the result — as expected given their
+near-redundancy; they carry nearly identical information.
+
+---
+
+### Verdict: SEMANTICS-ROBUST
+
+**Pre-registered condition:** full-5 partial CI excludes 0 AND LOO 24/24.
+
+**Both conditions met.** A_dom_broad's independence from low-level image statistics survives
+the expanded skeptical control set. None of the three new features — mean local patch variance,
+mean gradient magnitude, nor within-image texture heterogeneity — absorbs A_dom_broad's signal
+when added to H1 and H2.
+
+**Honest caveat on C1+C2 redundancy:** the three new controls are not fully independent;
+C1 and C2 carry essentially the same information (r=0.94). The test effectively expanded
+the low-level control set by ~2 independent dimensions (not 3). A non-redundant fourth
+choice replacing C1 or C2 would make a stronger test. This is a limitation of this
+session's design; a future test with better-conditioned controls would be more decisive.
+
+**Status: SEMANTICS-ROBUST — A_dom_broad (dominant foreground subject: prominent animal
+or human) independently predicts slope elevation above an expanded 5-feature low-level
+control set (spectral slope H1, GT autocorrelation H2, mean patch variance C1, mean
+gradient magnitude C2, patch variance heterogeneity C3), robust to single-observation
+removal (LOO 24/24). SCOPE: ResShift+BicubicDownsample(4) only; behavioural label, no
+mechanism claim; content-vs-style not testable at this n; single-annotator annotation;
+C1/C2 near-collinear (r=0.94) — expanded set adds ~2 genuinely independent controls.**

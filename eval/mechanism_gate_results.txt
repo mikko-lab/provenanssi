@@ -1,0 +1,110 @@
+========================================================================
+MECHANISM GATE: Expanded low-level control test (pre-registered)
+Pre-registration: eval/pre_registration_mechanism_gate.md (commit 142e7cb)
+========================================================================
+
+[0] Loading GT images and computing all features …
+  [ 1/24] face_red_hair … β=-2.8593  rho=0.9873  V_pat=0.00549  G_mean=0.2329  V_het=0.01002
+  [ 2/24] wayuu_woman … β=-2.3958  rho=0.9397  V_pat=0.01104  G_mean=0.4014  V_het=0.01236
+  [ 3/24] girl_sad_face … β=-2.9409  rho=0.9950  V_pat=0.00230  G_mean=0.1143  V_het=0.00598
+  [ 4/24] paint_vermeer_pearl … β=-2.7620  rho=0.9812  V_pat=0.00586  G_mean=0.1902  V_het=0.01387
+  [ 5/24] paint_vermeer_milk … β=-2.6292  rho=0.9768  V_pat=0.00654  G_mean=0.2239  V_het=0.01351
+  [ 6/24] boardwalk … β=-2.4785  rho=0.9596  V_pat=0.00326  G_mean=0.2238  V_het=0.00497
+  [ 7/24] paint_rembrandt_self … β=-2.9483  rho=0.9843  V_pat=0.00092  G_mean=0.0723  V_het=0.00385
+  [ 8/24] nat_landscape2 … β=-2.4685  rho=0.9592  V_pat=0.00688  G_mean=0.2938  V_het=0.00875
+  [ 9/24] nature_land … β=-2.4842  rho=0.9650  V_pat=0.00645  G_mean=0.3037  V_het=0.00847
+  [10/24] face_algerian … β=-2.6933  rho=0.9627  V_pat=0.00451  G_mean=0.2314  V_het=0.00774
+  [11/24] boy_face … β=-2.6901  rho=0.9791  V_pat=0.00289  G_mean=0.1500  V_het=0.00709
+  [12/24] nat_landscape3 … β=-2.7128  rho=0.9668  V_pat=0.00258  G_mean=0.1641  V_het=0.00515
+  [13/24] natural_caribou … β=-2.1070  rho=0.8857  V_pat=0.00403  G_mean=0.2341  V_het=0.00624
+  [14/24] paint_monet_magpie … β=-2.2202  rho=0.9132  V_pat=0.00565  G_mean=0.2836  V_het=0.00822
+  [15/24] paint_monet_lilies … β=-1.8471  rho=0.8450  V_pat=0.00540  G_mean=0.2975  V_het=0.00634
+  [16/24] natural_coral_reef … β=-1.8612  rho=0.9077  V_pat=0.01116  G_mean=0.3987  V_het=0.01275
+  [17/24] natural_fir_snow … β=-1.7898  rho=0.8120  V_pat=0.00717  G_mean=0.3306  V_het=0.00725
+  [18/24] frog_on_log … β=-2.4870  rho=0.9546  V_pat=0.00800  G_mean=0.3562  V_het=0.00821
+  [19/24] grass_meadow … β=-1.8085  rho=0.7553  V_pat=0.01349  G_mean=0.5781  V_het=0.00756
+  [20/24] dirt_soil … β=-2.0665  rho=0.8497  V_pat=0.00498  G_mean=0.3181  V_het=0.00580
+  [21/24] natural_snow_mountain … β=-2.4331  rho=0.9343  V_pat=0.00475  G_mean=0.2502  V_het=0.00646
+  [22/24] texture_sand … β=-1.0373  rho=0.7153  V_pat=0.01530  G_mean=0.6404  V_het=0.00629
+  [23/24] texture_cement … β=-1.4576  rho=0.4107  V_pat=0.00101  G_mean=0.1560  V_het=0.00030
+  [24/24] wood_grain … β=-1.2565  rho=0.7503  V_pat=0.00752  G_mean=0.4532  V_het=0.00352
+
+========================================================================
+COLLINEARITY CHECK — Pairwise Pearson r (5 controls)
+========================================================================
+
+  Pair                       r
+  H1(−β) vs H2(rho)          +0.8163  ← HIGH (>0.70)
+  H1(−β) vs C1(Vpat)         -0.5232
+  H1(−β) vs C2(Gmean)        -0.7143  ← HIGH (>0.70)
+  H1(−β) vs C3(Vhet)         +0.3295
+  H2(rho) vs C1(Vpat)         -0.1537
+  H2(rho) vs C2(Gmean)        -0.3461
+  H2(rho) vs C3(Vhet)         +0.5449
+  C1(Vpat) vs C2(Gmean)        +0.9364  ← HIGH (>0.70)
+  C1(Vpat) vs C3(Vhet)         +0.4424
+  C2(Gmean) vs C3(Vhet)         +0.1499
+
+  VIF for each control predictor:
+    H1(−β)         VIF = 9.51  ← HIGH (>5)
+    H2(rho)        VIF = 5.43  ← HIGH (>5)
+    C1(Vpat)       VIF = 37.84  ← SEVERE (>10)
+    C2(Gmean)      VIF = 38.83  ← SEVERE (>10)
+    C3(Vhet)       VIF = 5.48  ← HIGH (>5)
+  Max VIF: 38.83
+
+========================================================================
+PRIMARY TEST — Partial r(A_dom_broad | H1, H2, C1, C2, C3), n=24
+========================================================================
+
+  Partial r = +0.7307
+  95%CI     = [+0.382, +0.897]
+  df = 17,  se = 1/sqrt(16) = 0.2500
+  CI excludes 0: True
+
+========================================================================
+LOO — 24 drops, n=23 at each, k=5 controls
+========================================================================
+
+  At each drop: n=23, df=16, se=1/sqrt(15)=0.2582
+
+  LOO partial r range: [+0.6834, +0.8214]
+  Exclude-0 count: 24/24
+  No pivotal images — all 24 drops exclude 0.
+
+  LOO verdict: ROBUST (24/24)
+
+========================================================================
+PROXY DETECTION SUB-MODELS
+(Pre-stated: M4a drop C1, M4b drop C2, M4c drop C3, M4d original 2-control)
+========================================================================
+
+  Model  Controls                           r  95%CI                    excl_0
+  M4a    drop C1 (V_patch)            +0.7283  [+0.393, +0.893]         True
+  M4b    drop C2 (G_mean)             +0.7033  [+0.349, +0.882]         True
+  M4c    drop C3 (V_het)              +0.7249  [+0.387, +0.891]         True
+  M4d    original H1+H2 only          +0.6606  [+0.305, +0.854]         True
+
+  Proxy identification: full-5 CI includes 0, restore by dropping one control?
+    Full-5 CI excludes 0 — proxy check moot.
+
+  VIF severity gate: max VIF = 38.83 → SEVERE (>10) — CI width inflated by collinearity
+
+========================================================================
+VERDICT (pre-registered decision rules)
+========================================================================
+
+  VERDICT: SEMANTICS-ROBUST
+  Full-5 partial CI excludes 0 AND LOO 24/24.
+  A_dom_broad's independence from low-level statistics survives the
+  expanded skeptical control set. Content-driver reading is strengthened.
+  SCOPE: ResShift+BicubicDownsample(4) only. Behavioural label; no mechanism.
+
+  Summary:
+    Full-5 partial r(A_dom_broad | H1,H2,C1,C2,C3): +0.7307  CI [+0.382, +0.897]  excl_0=True
+    LOO exclude-0: 24/24
+    Max VIF: 38.83
+    Verdict: SEMANTICS-ROBUST
+
+  SCOPE: ResShift+BicubicDownsample(4). Single-annotator A_dom_broad label.
+  This session does NOT identify a mechanism — low-level robustness gate only.

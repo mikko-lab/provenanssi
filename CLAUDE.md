@@ -418,17 +418,19 @@ Full derivation: FINDINGS.md Updates 6 and 9. Scripts: `eval/slope_noise_mechani
   — including portrait paintings — elevates slope regardless of ResNet50 distance. The
   aggregate r(dist, slope)=−0.689 is a between-group contrast, not a continuous effect.
 
-- **Which content property drives the elevation — SUPPORTED: dominant foreground subject
-  (A_dom_broad: prominent animal or human) independently predicts slope above low-level
-  spectral and coherence features, robust to single-observation removal (LOO 24/24).
-  SCOPE: ResShift+BicubicDownsample(4) only; behavioural label, no mechanism claim;
-  content-vs-style not testable at this n (painting contrast n=3 vs n=2 confounded);
-  single-annotator annotation, not inter-rater-validated. (Update 10 + robustness
-  addendum)** Pre-registered, n=24: all three features (H1 −β_spec, H2 rho_gt, H3
-  A_dom) CONFIRMED marginally. Partial ONE_INDEPENDENT: A_dom_broad survives controlling
-  H1+H2 (P1'=+0.661, CI [+0.305,+0.854]; A_dom P1=+0.612, CI [+0.229,+0.831]);
-  24/24 LOO drops keep CI above zero for both. Caribou (A_dom=0) consistent with
-  A_dom_broad=1 group (z=−0.21). See FINDINGS.md Update 10 + robustness addendum.
+- **Which content property drives the elevation — SEMANTICS-ROBUST: dominant foreground
+  subject (A_dom_broad: prominent animal or human) independently predicts slope above an
+  expanded 5-feature low-level control set (spectral slope H1, GT autocorrelation H2,
+  mean patch variance C1, mean gradient magnitude C2, patch variance heterogeneity C3),
+  robust to single-observation removal (LOO 24/24). Full-5 partial r=+0.731,
+  CI [+0.382, +0.897]. SCOPE: ResShift+BicubicDownsample(4) only; behavioural label, no
+  mechanism claim; content-vs-style not testable at this n (painting contrast n=3 vs n=2
+  confounded); single-annotator annotation, not inter-rater-validated; C1/C2 near-
+  collinear (r=0.94) — expanded set adds ~2 genuinely independent controls beyond H1+H2.
+  (Update 10 + robustness addendum + Update 11 mechanism gate)** Pre-registered, n=24:
+  H1/H2/H3 all CONFIRMED marginally; A_dom_broad survives both 2-control (P1'=+0.661,
+  CI [+0.305,+0.854]) and 5-control (r=+0.731, CI [+0.382,+0.897]) partial; LOO 24/24
+  robust at both control set sizes. See FINDINGS.md Updates 10–11.
 
 - **Faces-group generality — PARTIALLY RESOLVED.** Phase 2 includes 5 diverse face images
   (3 Wilfredor CC0 + 2 new: face_red_hair, face_algerian). All 5 have slopes 1.60–3.18,
