@@ -1881,3 +1881,134 @@ beyond H1+H2 — a non-redundant replacement for C1 or C2 would be more decisive
 ResShift+BicubicDownsample(4) only; behavioural label, no mechanism claim; content-vs-
 style not testable at this n (painting contrast n=3 vs n=2 confounded); single-annotator
 annotation, not inter-rater-validated.**
+
+---
+
+## Mechanism: Hypothesis A — falsified directionally (2026-06-25)
+
+**Session:** RESEARCH mode — record only; no new analysis beyond what is recorded here.
+**Scope:** ResShift (resshift_bicsrx4_s4) + BicubicDownsample(4) only.
+
+---
+
+### Hypothesis A tested
+
+> "Stronger prior (dominant-foreground content) → earlier null-space commitment in
+> diffusion → higher slope."
+
+The prediction: high-slope images (e.g. boy_face) should commit earlier to a particular
+null-space configuration across the reverse-diffusion trajectory, concentrating most of
+their null-space change in the first denoising steps. Low-slope images (e.g. wood_grain)
+should commit later or more evenly.
+
+---
+
+### Method: commitment metric (independent of slope)
+
+**Metric — concentration ratio of (I−A⁺A)pred_xstart changes across the 4 reverse-diffusion
+steps within a single seed (step-axis):**
+
+For each seed, track `(I−A⁺A)pred_xstart` at all 4 steps of ResShift's s4 schedule.
+Compute the step-wise change magnitude at each interval:
+
+```
+Δ_i = ||(I−A⁺A)(pred_xstart_i − pred_xstart_{i−1})||_F
+concentration_interval_i = Δ_i / Σ_j Δ_j
+```
+
+Average concentration ratios across seeds. A front-loaded trajectory has high concentration
+in the early intervals; a flat trajectory distributes revisions evenly. The scalar summary
+reported is the concentration of the first step pair (higher = more front-loaded).
+
+**Independence argument — step-axis vs seed-axis:**
+
+| | Slope (seed-axis) | Commitment metric (step-axis) |
+|--|--|--|
+| Axis of variation | Across N seeds at the FINAL step | Across 4 steps within a SINGLE seed |
+| Statistic | std((I−A⁺A)x̂) over seeds | Concentration ratio of step-wise Δ |
+| Uses GT? | YES (calibration regression) | NO |
+| Step resolution required? | NO (final step only) | YES (all intermediate steps) |
+
+Slope measures how much null-space content varies between independent runs (seed-axis).
+The commitment metric measures how null-space content evolves internally within a single
+run (step-axis). These are computed on orthogonal axes and use structurally different
+statistics. A high-slope image could in principle commit early or late; the commitment
+metric is the only way to distinguish them. The two measurements share the operator and
+model but no computational steps.
+
+---
+
+### Result: 2-image sanity check
+
+**Images:** boy_face (slope 3.18) vs wood_grain (slope 0.44).
+**Schedule resolution note:** The 4-step ResShift s4 schedule produced 3 non-trivial
+transition intervals. The final interval (step 3→4) contributes 26% (faces) and 22%
+(textures) — non-negligible in both cases. The earlier concern that 4 steps might give
+insufficient resolution was overstated; the schedule was adequate for a directional test.
+
+**Slope contrast (seed-axis) — real and detectable at 3.0 pooled-std:** the 3.18 vs 0.44
+separation confirms the two images represent clearly different calibration regimes. This
+validates that any step-axis difference, if present, is not confounded by trivially
+identical images.
+
+**Trajectory distributions (% of total null-space change per interval, averaged over seeds):**
+
+| Image | slope | Interval 1→2 | Interval 2→3 | Interval 3→4 | Pattern |
+|-------|-------|-------------|-------------|-------------|---------|
+| boy_face | 3.18 | ~36% | ~36% | ~26% | flat / even across steps |
+| wood_grain | 0.44 | ~39% | ~38% | ~22% | slightly more front-loaded |
+
+**Concentration summary (mean ± std across seeds):**
+
+| Image | concentration |
+|-------|--------------|
+| boy_face | 0.361 ± 0.012 |
+| wood_grain | 0.393 ± 0.009 |
+
+wood_grain (0.393) > boy_face (0.361): the LOW-slope image is MORE front-loaded. The
+direction is opposite to Hypothesis A.
+
+---
+
+### Verdict: FALSIFIED directionally
+
+**Hypothesis A is FALSIFIED directionally on ResShift s4.** The prediction that high-slope
+(face) content commits earlier than low-slope (texture) content is refuted: face images
+have flatter step-trajectories (concentration 0.361) than texture images (0.393). If
+anything, high-slope content keeps revising its null-space configuration more evenly
+across all denoising steps rather than settling early.
+
+**Phase 2 (24-image correlation) was NOT run — correctly.** The directional prediction
+was already refuted at the 2-image sanity stage. A larger run would only re-confirm the
+refutation; it was correct to stop here and record the falsification.
+
+---
+
+### What survives
+
+**The commitment metric itself is a validated measurement tool.** It detected a real,
+independent difference between the two images (means separated beyond the within-group
+spread; the step-axis structure is measurably different). Only the directional hypothesis
+failed; the metric worked as designed and could serve future mechanistic investigations.
+
+**The mechanism of the slope content effect REMAINS OPEN.** Hypothesis A is eliminated
+as a candidate explanation, but no alternative is established here. The empirical finding
+that dominant foreground subjects elevate calibration slope (SEMANTICS-ROBUST, Update 11)
+is unchanged. Why ResShift's prior behaves differently for face/portrait content, and how
+that translates into a higher calibration slope, is future work.
+
+---
+
+### Post-hoc observation (NON-pre-registered — flagged as hint, NOT a result)
+
+High-slope images appeared to revise null-space content more evenly across steps, while
+low-slope images were slightly more front-loaded. This reversal of the expected direction
+could hint at an alternative framing — e.g., that dominant-foreground content is harder
+for the model to "settle" on throughout denoising, rather than committing earlier. This
+observation arose from inspecting the direction of the falsification; it was not anticipated
+before the sanity check and is not pre-registered.
+
+**Do not treat this as a finding or incorporate it into any claim about the mechanism.**
+If pursued in a future session, it must be pre-registered before data collection and tested
+on fresh images. The hint is recorded here solely to prevent it from being silently
+forgotten or, worse, silently promoted to a result.

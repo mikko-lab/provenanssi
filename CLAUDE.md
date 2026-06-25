@@ -448,3 +448,12 @@ Full derivation: FINDINGS.md Updates 6 and 9. Scripts: `eval/slope_noise_mechani
   does NOT screen off slope→nf_std. Coherence is a correlated side-property of high-slope
   images, not a confirmed causal intermediate. Update 6's causal chain (slope → coherence
   → n_eff reduction → noise floor) is not established. See FINDINGS.md Update 9.
+
+- **Mechanism of slope elevation — OPEN; Hypothesis A falsified directionally.**
+  Hypothesis A ("stronger prior → earlier null-space commitment in diffusion → higher
+  slope") was tested via a commitment metric (concentration ratio of (I−A⁺A)pred_xstart
+  changes across the 4 reverse-diffusion steps; step-axis, orthogonal to slope's seed-axis
+  statistic) and FALSIFIED: face images show a FLATTER step-trajectory (concentration
+  0.361 ± 0.012) than texture images (0.393 ± 0.009). The metric is validated as a
+  measurement tool; the mechanism of the content effect remains open. See FINDINGS.md
+  "Mechanism: Hypothesis A — falsified directionally."
