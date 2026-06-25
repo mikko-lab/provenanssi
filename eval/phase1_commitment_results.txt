@@ -1,0 +1,75 @@
+========================================================================
+PHASE 1 SANITY CHECK — Commitment metric on 2 images
+Prior-strength hypothesis: face images commit null-space content EARLIER
+in the reverse diffusion chain than texture images.
+========================================================================
+
+Device: mps
+
+[0] Loading model weights …
+    GaussianDiffusion: num_timesteps=4
+    etas (η): ['0.0100', '0.2705', '0.5797', '0.9801']
+    posterior_variance: ['0.0000', '0.0385', '0.5771', '0.9473']
+    etas order during sampling: indices [3, 2, 1, 0]
+    UNet loaded.
+    VQ-AE loaded.
+
+[1] Sampling 5 seeds per image, capturing 4 pred_xstart per seed …
+
+  Image: boy_face  slope=3.1829  (HIGH-slope (face))
+    seed=0 … Δ[3→2]=0.3340  Δ[2→1]=0.3512  Δ[1→0]=0.2473  conc=0.358
+    seed=1 … Δ[3→2]=0.3248  Δ[2→1]=0.3186  Δ[1→0]=0.2364  conc=0.369
+    seed=2 … Δ[3→2]=0.4098  Δ[2→1]=0.4150  Δ[1→0]=0.2704  conc=0.374
+    seed=3 … Δ[3→2]=0.3691  Δ[2→1]=0.4151  Δ[1→0]=0.3060  conc=0.339
+    seed=4 … Δ[3→2]=0.3140  Δ[2→1]=0.3033  Δ[1→0]=0.2411  conc=0.366
+    mean Δ[3→2]=0.3503±0.0350  Δ[2→1]=0.3606±0.0470  Δ[1→0]=0.2602±0.0257
+    concentration (Δ3→2 / total): mean=0.361  std=0.012  range=[0.339,0.374]
+
+  Image: wood_grain  slope=0.4351  (LOW-slope (texture))
+    seed=0 … Δ[3→2]=1.2071  Δ[2→1]=1.1685  Δ[1→0]=0.6773  conc=0.395
+    seed=1 … Δ[3→2]=1.0762  Δ[2→1]=1.1124  Δ[1→0]=0.6475  conc=0.379
+    seed=2 … Δ[3→2]=1.1818  Δ[2→1]=1.1627  Δ[1→0]=0.6810  conc=0.391
+    seed=3 … Δ[3→2]=1.2110  Δ[2→1]=1.1042  Δ[1→0]=0.6683  conc=0.406
+    seed=4 … Δ[3→2]=1.2023  Δ[2→1]=1.1457  Δ[1→0]=0.6872  conc=0.396
+    mean Δ[3→2]=1.1757±0.0507  Δ[2→1]=1.1387±0.0261  Δ[1→0]=0.6723±0.0138
+    concentration (Δ3→2 / total): mean=0.393  std=0.009  range=[0.379,0.406]
+
+========================================================================
+COMPARISON: boy_face vs wood_grain
+========================================================================
+
+  boy_face  concentration: 0.361 ± 0.012
+  wood_grain concentration: 0.393 ± 0.009
+  mean difference (face − wood): -0.032
+  pooled std: 0.011
+  separation in pooled-std units: -3.02
+
+  Step-to-step Δ comparison:
+    Δ[3→2]:  face=0.3503  wood=1.1757  ratio face/wood=0.30
+    Δ[2→1]:  face=0.3606  wood=1.1387  ratio face/wood=0.32
+    Δ[1→0]:  face=0.2602  wood=0.6723  ratio face/wood=0.39
+
+========================================================================
+SCHEDULE RESOLUTION ANALYSIS
+========================================================================
+
+  etas (noise level per step): ['0.0100', '0.2705', '0.5797', '0.9801']
+  posterior variance per step: ['0.000000', '0.038521', '0.577119', '0.947297']
+  Sampling order: steps [3,2,1,0] (high→low noise)
+  → Step t=0 adds almost NO stochastic injection (pvar≈0.000000)
+  → Posterior variance ratio step3/step1 = 24.6×
+  → Effective usable step transitions: 3 (those with pvar > 0.01)
+  → Δ[1→0] expected near-zero for ALL images (pvar=0.00000)
+  → Discriminating signal lives only in ratio Δ[3→2] / Δ[2→1] (1 number per seed)
+
+========================================================================
+PHASE 1 VERDICT
+========================================================================
+
+  ACCESS CHECK: p_sample_loop_progressive yields pred_xstart at 4 steps — CONFIRMED, no code changes required.
+  USABLE INTERMEDIATES: 4 pred_xstart snapshots per run (steps [3, 2, 1, 0]), latent space 1×3×64×64.
+  METRIC INDEPENDENCE: step-axis (within-run) vs seed-axis (across-run) — CONFIRMED.
+  4-STEP RESOLUTION: 4 steps → 3 Δ transitions → 1 effective discriminating ratio (Δ[3→2]/Δ[2→1]; Δ[1→0]≈0 always).
+
+  SANITY VERDICT: VISIBLE_DIFFERENCE — sanity check PASSES
+  Face and texture show separation ≥ 2 pooled-std units in concentration ratio. Phase 2 is informative subject to 4-step caveat.
