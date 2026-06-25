@@ -10,7 +10,7 @@
 ────────────────────────────────────────────────────────────────────────
   STEP 1: Load ResNet50 (IMAGENET1K_V2)
 ────────────────────────────────────────────────────────────────────────
-  ResNet50 loaded from /Users/mikkotarkiainen/Projects/provenanssi/weights/resnet50-11ad3fa6.pth on device=cpu
+  ResNet50 loaded from ./weights/resnet50-11ad3fa6.pth on device=cpu
 
 ────────────────────────────────────────────────────────────────────────
   STEP 2: Download CC0/PD images

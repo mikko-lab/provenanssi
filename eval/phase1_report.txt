@@ -224,7 +224,7 @@ Computing ImageNet reference centroid (16 images) …
 
   [Written to pre_registration.md]
 
-  Pre-registration written to: /Users/mikkotarkiainen/Projects/provenanssi/eval/pre_registration.md
+  Pre-registration written to: ./eval/pre_registration.md
 
 ========================================================================
   PHASE 1 SUMMARY — FOR HUMAN REVIEW

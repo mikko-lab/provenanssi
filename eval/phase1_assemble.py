@@ -142,7 +142,7 @@ def _wikimedia_url(filename: str, width: int = 800) -> str | None:
     url = f"{api}?{params}"
     req = urllib.request.Request(
         url,
-        headers={"User-Agent": "provenanssi-research/1.0 (mikkotark@protonmail.com)"}
+        headers={"User-Agent": "provenanssi-research/1.0 (research project)"}
     )
     try:
         with urllib.request.urlopen(req, timeout=15) as resp:
@@ -163,7 +163,7 @@ def _download(url: str, dest: Path, label: str) -> bool:
     """Download a file with User-Agent header. Returns True on success."""
     req = urllib.request.Request(
         url,
-        headers={"User-Agent": "provenanssi-research/1.0 (mikkotark@protonmail.com)"}
+        headers={"User-Agent": "provenanssi-research/1.0 (research project)"}
     )
     try:
         with urllib.request.urlopen(req, timeout=30) as resp:

@@ -92,7 +92,7 @@ Evaluated on 16 held-out ImageNet patches, 256×256 RGB, with BicubicDownsample(
 
 A per-pixel provenance overlay is produced for each reconstruction. For the 4× bicubic case, 37–77% of pixels are classified as invented (varies by image content; fine-textured images score higher).
 
-**→ [Interactive demo](demo/index.html)** — Panel A: wipe between polished output and provenance overlay. Panel B: reliability curve + certified metrics. Panel C: seed toggle demonstrating that the range component is fixed while invented content varies; limitation case (r = 0.945, slope = 0.156) shown with explanation.
+**→ [Interactive demo](demo/index.html)** — Panel 1: setup (GT, LR input, operator A named); Panel 2: consumer-vs-provenance wipe; Panel 3: seed-flip honesty (range fixed, invented shifts — R2 live); Panel 4: calibration reliability curve with full numbers; Panel 5: failure case (wood grain, slope = 0.156, domain shift explained); Panel 6: operator-unknown uncertainty-only mode (R1/R9).
 
 ---
 
