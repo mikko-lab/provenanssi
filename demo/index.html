@@ -133,9 +133,10 @@ p { margin-top: 10px; }
 }
 /* ── setup operator badge ──────────────────────────────────────────────── */
 .op-badge {
-  display: inline-flex;
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 8px;
+  gap: 6px 8px;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -143,6 +144,7 @@ p { margin-top: 10px; }
   font-size: 0.85rem;
   margin-top: 12px;
   font-family: monospace;
+  max-width: 100%;
 }
 .op-badge .op-key { color: var(--accent); font-weight: 600; }
 /* ── image selector ────────────────────────────────────────────────────── */
@@ -409,11 +411,43 @@ p { margin-top: 10px; }
 /* ── responsive ────────────────────────────────────────────────────────── */
 @media (max-width: 600px) {
   .site-header { padding: 16px; }
-  main { padding: 20px 16px 48px; }
+  main { padding: 16px 12px 48px; }
   .chart-layout { flex-direction: column; }
   .unknown-layout { flex-direction: column; }
   .unknown-img-col img { width: 100%; height: auto; }
   .unknown-img-col figcaption { width: 100%; }
+
+  /* op-badge: wrap to two lines instead of overflowing */
+  .op-badge {
+    flex-wrap: wrap;
+    font-size: 0.78rem;
+    gap: 4px 6px;
+  }
+
+  /* image grids: always 2 equal columns, full bleed */
+  .img-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  /* seed grid: 2 columns (range + one sample, scroll hint for more) */
+  .seed-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+  }
+
+  /* comparison: use full viewport width */
+  .cmp-outer,
+  .comparison-labels,
+  .slider-row { width: 100%; }
+
+  /* calibration table: horizontally scrollable */
+  .cal-img-table { font-size: 0.72rem; }
+  .cal-img-table th,
+  .cal-img-table td { padding: 4px 5px; }
+
+  /* chart: fill width */
+  #reliability-svg { width: 100%; }
 }
 </style>
 </head>
@@ -692,7 +726,7 @@ p { margin-top: 10px; }
   <div class="chart-layout">
 
     <figure aria-label="Reliability curve chart: 3 CC0 demo images">
-      <svg id="reliability-svg" width="360" height="340"
+      <svg id="reliability-svg" width="360" height="340" style="max-width:100%;height:auto;"
         role="img"
         aria-label="Reliability curve for the 3 CC0 demo images. X-axis: predicted standard deviation (ensemble spread). Y-axis: actual absolute error versus ground truth. Points follow the diagonal, demonstrating calibrated ordering. Slope equals 0.553: each bin on the x-axis rises more slowly on the y-axis, meaning the model spreads more uncertainty than the error warrants (overconfident on textures). r = 0.997.">
         <title>Reliability curve — 3 CC0 demo images (grass, soil, wood grain)</title>
