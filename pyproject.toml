@@ -1,0 +1,15 @@
+[project]
+name = "provenanssi"
+version = "0.1.0"
+description = "Provenance-aware image reconstruction — per-pixel labelling of measured vs. invented content"
+license = "MIT"
+authors = [
+    {name = "Mikko Tarkiainen"},
+]
+requires-python = ">=3.11"
+
+[project.urls]
+Homepage = "https://github.com/mikko-lab/provenanssi"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
