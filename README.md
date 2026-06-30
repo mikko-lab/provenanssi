@@ -1,5 +1,7 @@
 # Provenance-Aware Image Reconstruction
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 *Labels which pixels in an AI-restored image were constrained by the measurement — and which the model invented to fill the gap — with calibrated uncertainty.*
 
 ---
